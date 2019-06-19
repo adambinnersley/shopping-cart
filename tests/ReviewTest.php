@@ -10,7 +10,7 @@ class ReviewTest extends TestCase{
     protected $db;
     protected $review;
     
-    protected function setUp() {
+    protected function setUp(): void {
         $this->db = new Database($GLOBALS['hostname'], $GLOBALS['username'], $GLOBALS['password'], $GLOBALS['database']);
         if(!$this->db->isConnected()){
             $this->markTestSkipped(
@@ -24,7 +24,7 @@ class ReviewTest extends TestCase{
         $this->review = new Review($this->db, new Config($this->db, 'store_config'));
     }
     
-    protected function tearDown() {
+    protected function tearDown(): void {
         $this->db = null;
         $this->review = null;
     }

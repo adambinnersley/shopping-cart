@@ -11,7 +11,7 @@ class SerialTest extends TestCase{
     protected $db;
     protected $serial;
     
-    protected function setUp() {
+    protected function setUp(): void {
         $this->db = new Database($GLOBALS['hostname'], $GLOBALS['username'], $GLOBALS['password'], $GLOBALS['database']);
         if(!$this->db->isConnected()){
             $this->markTestSkipped(
@@ -25,7 +25,7 @@ class SerialTest extends TestCase{
         $this->serial = new Serial($this->db, new Config($this->db, 'store_config'));
     }
     
-    protected function tearDown() {
+    protected function tearDown(): void {
         $this->db = null;
         $this->serial = null;
     }

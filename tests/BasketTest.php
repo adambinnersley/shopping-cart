@@ -16,7 +16,7 @@ class BasketTest extends TestCase{
     /**
      * @covers \ShoppingCart\Basket::__construct
      */
-    protected function setUp() {
+    protected function setUp(): void {
         $this->db = new Database($GLOBALS['hostname'], $GLOBALS['username'], $GLOBALS['password'], $GLOBALS['database']);
         if(!$this->db->isConnected()){
             $this->markTestSkipped(
@@ -31,7 +31,7 @@ class BasketTest extends TestCase{
         $this->basket = new Basket($this->db, $config, new Customers($this->db), new Product($this->db, $config));
     }
     
-    protected function tearDown() {
+    protected function tearDown(): void {
         $this->db = null;
         $this->basket = null;
     }

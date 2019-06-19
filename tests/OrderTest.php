@@ -11,7 +11,7 @@ class OrderTest extends TestCase{
     protected $db;
     protected $order;
     
-    protected function setUp() {
+    protected function setUp(): void {
         $this->db = new Database($GLOBALS['hostname'], $GLOBALS['username'], $GLOBALS['password'], $GLOBALS['database']);
         if(!$this->db->isConnected()){
             $this->markTestSkipped(
@@ -26,7 +26,7 @@ class OrderTest extends TestCase{
         $this->order = new Order($this->db, $config, false, new Product($this->db, $config));
     }
     
-    protected function tearDown() {
+    protected function tearDown(): void {
         $this->db = null;
         $this->order = null;
     }

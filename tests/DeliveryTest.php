@@ -10,7 +10,7 @@ class DeliveryTest extends TestCase{
     protected $db;
     protected $delivery;
     
-    protected function setUp() {
+    protected function setUp(): void {
         $this->db = new Database($GLOBALS['hostname'], $GLOBALS['username'], $GLOBALS['password'], $GLOBALS['database']);
         if(!$this->db->isConnected()){
             $this->markTestSkipped(
@@ -24,7 +24,7 @@ class DeliveryTest extends TestCase{
         $this->delivery = new Delivery($this->db, new Config($this->db, 'store_config'));
     }
     
-    protected function tearDown() {
+    protected function tearDown(): void {
         $this->db = null;
         $this->delivery = null;
     }

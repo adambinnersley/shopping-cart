@@ -11,7 +11,7 @@ class InvoiceTest extends TestCase{
     protected $db;
     protected $invoice;
     
-    protected function setUp() {
+    protected function setUp(): void {
         $this->db = new Database($GLOBALS['hostname'], $GLOBALS['username'], $GLOBALS['password'], $GLOBALS['database']);
         if(!$this->db->isConnected()){
             $this->markTestSkipped(
@@ -26,7 +26,7 @@ class InvoiceTest extends TestCase{
         $this->invoice = new Invoice($this->db, $config, new Order($this->db, $config));
     }
     
-    protected function tearDown() {
+    protected function tearDown(): void {
         $this->db = null;
         $this->invoice = null;
     }

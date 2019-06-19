@@ -9,7 +9,7 @@ class CustomersTest extends TestCase{
     protected $db;
     protected $customers;
     
-    protected function setUp() {
+    protected function setUp(): void {
         $this->db = new Database($GLOBALS['hostname'], $GLOBALS['username'], $GLOBALS['password'], $GLOBALS['database']);
         if(!$this->db->isConnected()){
             $this->markTestSkipped(
@@ -23,7 +23,7 @@ class CustomersTest extends TestCase{
         $this->customers = new Customers($this->db);
     }
     
-    protected function tearDown() {
+    protected function tearDown(): void {
         $this->db = null;
         $this->customers = null;
     }

@@ -10,7 +10,7 @@ class CategoryTest extends TestCase{
     protected $db;
     protected $category;
     
-    protected function setUp() {
+    protected function setUp(): void {
         $this->db = new Database($GLOBALS['hostname'], $GLOBALS['username'], $GLOBALS['password'], $GLOBALS['database']);
         if(!$this->db->isConnected()){
             $this->markTestSkipped(
@@ -24,7 +24,7 @@ class CategoryTest extends TestCase{
         $this->category = new Category($this->db, new Config($this->db, 'store_config'));
     }
     
-    protected function tearDown() {
+    protected function tearDown(): void {
         $this->db = null;
         $this->category = null;
     }
