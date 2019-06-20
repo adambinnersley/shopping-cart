@@ -376,23 +376,24 @@ class Order extends Basket{
             3 => ['email' => 'dispatch', 'variables' => [$orderInfo['user']['title'], $orderInfo['user']['lastname'], $orderInfo['order_no'], date('d/m/Y', strtotime(isset($orderInfo['payment_date']) ? $orderInfo['payment_date'] : $orderInfo['date'])), $this->emailFormatProducts($orderInfo), $orderInfo['user']['add_1'], $orderInfo['delivery_info']['add_1'], $orderInfo['user']['add_2'], $orderInfo['delivery_info']['add_2'], $orderInfo['user']['town'], $orderInfo['delivery_info']['town'], $orderInfo['user']['county'], $orderInfo['delivery_info']['county'], $orderInfo['user']['postcode'], $orderInfo['delivery_info']['postcode']]],
             4 => ['email' => 'order_cancel', 'variables' => [$orderInfo['user']['title'], $orderInfo['user']['lastname'], $orderInfo['order_no'], $this->config->site_url, $this->config->order_history_url]],
             5 => ['email' => 'order_refund', 'variables' => [$orderInfo['user']['title'], $orderInfo['user']['lastname'], $orderInfo['order_no'], $this->config->site_url, $this->config->order_history_url]],
-            '2_office' => ['email' => 'order_office', 'variables' => [$orderInfo['order_no'], date('d/m/Y H:i', strtotime(isset($orderInfo['payment_date']) ? $orderInfo['payment_date'] : $orderInfo['date'])), trim($orderInfo['user']['title'].' '.$orderInfo['user']['firstname'].' '.$orderInfo['user']['lastname']), Currency::getCurrencySymbol($this->config->currency), $orderInfo['cart_total'], $this->config->admin_url, $this->config->admin_order_url, $this->emailFormatProducts($orderInfo)]]
+            '2_office' => ['email' => 'order_office', 'variables' => [$orderInfo['order_no'], date('d/m/Y H:i', strtotime(isset($orderInfo['payment_date']) ? $orderInfo['payment_date'] : $orderInfo['date'])), trim($orderInfo['user']['title'].' '.$orderInfo['user']['firstname'].' '.$orderInfo['user']['lastname']), Currency::getCurrencySymbol($this->config->currency), $orderInfo['cart_total'], $this->config->admin_url, $this->config->admin_order_url, $this->emailFormatProducts($orderInfo, false)]]
         );
     }
     
     /**
      * Produces a HTML table to insert into the order email
      * @param array $orderInfo This should be the order information
+     * @param boolean $download If you want to include any download links and serials set to true else set to false
      * @param boolean $tangible If you only want to include tangible products set to true
      * @return string Returns the HTML table 
      */
-    public function emailFormatProducts($orderInfo, $tangible = true){
+    public function emailFormatProducts($orderInfo, $download = true, $tangible = true){
         $table = '<table width="100%" border="0" cellpadding="2" cellspacing="0">
 <tr><th>Quantity</th><th>Name</th><th>Unit Price</th><th>Total Price</th></tr>'."\n\r";
         foreach($orderInfo['products'] as $product){
             $table.= '<tr><td class="align-center" valign="middle">'.$product['quantity'].'</td><td class="align-center" valign="middle">'.$product['name'];
-            if(isset($product['link'])){$table.= '<br /><br /><strong>Download Link:</strong> <a href="'.$product['link'].'" target="_blank">'.$product['link'].'</a>';}
-            if(isset($product['serials'])){
+            if(isset($product['link']) && $download === true){$table.= '<br /><br /><strong>Download Link:</strong> <a href="'.$product['link'].'" target="_blank">'.$product['link'].'</a>';}
+            if(isset($product['serials']) && $download === true){
                 $table.= '<br /><br /><strong>Serial No(s):</strong>';
                 foreach($product['serials'] as $serial){
                     $table.= $serial['serial'].'<br />';
