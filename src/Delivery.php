@@ -51,6 +51,6 @@ class Delivery{
         elseif($deliveryType === 'Method' && is_array($orderInfo) && $orderInfo['delivery_method'] !== NULL) {return $delivery->getDeliveryCost($orderInfo['delivery_method']);}
         elseif($deliveryType === 'Value' && is_array($orderInfo)) {return $delivery->getDeliveryCost($orderInfo['cart_total']);}
         elseif($deliveryType === 'Weight') {return $delivery->getDeliveryCost($total_cart_weight);}
-        else{return Cost::priceUnits(0, $this->decimals);}
+        return Cost::priceUnits(0, $this->decimals);
     }
 }

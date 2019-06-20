@@ -140,7 +140,7 @@ class Voucher{
             $codeInfo = $this->getVoucherByCode($code);
             if(is_array($codeInfo) && $codeInfo['selected_products'] === NULL) {
                 if($codeInfo['percent'] !== NULL) {return Cost::priceUnits(($basket_total - ($basket_total * ($codeInfo['percent'] / 100))), $this->decimals);}
-                else{return Cost::priceUnits(($basket_total - $codeInfo['amount']), $this->decimals);}
+                return Cost::priceUnits(($basket_total - $codeInfo['amount']), $this->decimals);
             }
             if(is_array($codeInfo['selected_products']) && is_array($basket_products)) {
                 return $this->calculateProductDiscount($codeInfo, $basket_products, $basket_total);

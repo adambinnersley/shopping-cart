@@ -129,7 +129,7 @@ class Product extends Category{
      * @param array $where Addition where fields
      * @return boolean If the product is successfully removed will return true else returns false
      */
-    public function deleteProduct($product_id, $where = []) {
+    public function deleteProduct($product_id, array $where = []) {
         if(is_numeric($product_id)) {
             return $this->db->delete($this->config->table_products, array_merge(['product_id' => $product_id], $where));
         }
