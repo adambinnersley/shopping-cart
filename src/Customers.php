@@ -438,7 +438,7 @@ class Customers extends \UserAuth\User{
                 $subject = sprintf($this->config->email_reset_subject, $this->config->site_name);
                 $mailsent = Mailer::sendEmail($email, $subject, sprintf($this->config->email_reset_altbody, $this->config->site_url, $this->password_reset_page, $this->key),  Mailer::htmlWrapper($this->config, sprintf($this->config->email_reset_body, $this->config->site_url, $this->password_reset_page, $this->key), $subject), $this->config->email_from_address, $this->config->email_from_name);
             }
-            if($mailsent != true) {
+            if($mailsent !== true) {
                 $this->deleteRequest($this->db->lastInsertId());
                 $return['error'] = true;
                 $return['message'] = $this->lang["system_error"] . " #06";
