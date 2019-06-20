@@ -101,16 +101,8 @@ class Customers extends \UserAuth\User{
      * @return array|false If results exist will return an array else if no results exist will return false
      */
     public function searchCustomers($search, $start = 0, $limit = 50, $additionalInfo = []) {
-        $sql = '';
-        $values = [];
-        if(!empty($additionalInfo)){
-            foreach($additionalInfo as $field => $value) {
-                $fieldVal = SafeString::makeSafe($field);
-                $sql.= " AND `{$fieldVal}` = :{$fieldVal}";
-                $values[':'.$fieldVal] = $value;
-            }
-        }
-        return $this->db->query("SELECT * FROM `{$this->table_users}` WHERE `firstname` LIKE :SEARCH OR `lastname` LIKE :SEARCH OR `add_1` LIKE :SEARCH OR `add_2` LIKE :SEARCH OR `town` LIKE :SEARCH OR `postcode` LIKE :SEARCH OR `phone` LIKE :SEARCH OR `mobile` LIKE :SEARCH OR `email` LIKE :SEARCH{$sql} ORDER BY `regtime` DESC LIMIT ".intval($start).", ".intval($limit).";", array_merge([':SEARCH' => '%'.$search.'%'], $values));
+        $sql = $this->formatAdditionalSQL($additionalInfo);
+        return $this->db->query("SELECT * FROM `{$this->table_users}` WHERE `firstname` LIKE :SEARCH OR `lastname` LIKE :SEARCH OR `add_1` LIKE :SEARCH OR `add_2` LIKE :SEARCH OR `town` LIKE :SEARCH OR `postcode` LIKE :SEARCH OR `phone` LIKE :SEARCH OR `mobile` LIKE :SEARCH OR `email` LIKE :SEARCH{$sql['string']} ORDER BY `regtime` DESC LIMIT ".intval($start).", ".intval($limit).";", array_merge([':SEARCH' => '%'.$search.'%'], $sql['values']));
     }
     
     /**
@@ -120,17 +112,28 @@ class Customers extends \UserAuth\User{
      * @return int The number of results will be returned
      */
     public function countSearchResults($search, $additionalInfo = []) {
-        $sql = '';
-        $values = [];
+        $sql = $this->formatAdditionalSQL($additionalInfo);
+        $results = $this->db->query("SELECT COUNT(*) as `count` FROM `{$this->table_users}` WHERE `firstname` LIKE :SEARCH OR `lastname` LIKE :SEARCH OR `add_1` LIKE :SEARCH OR `add_2` LIKE :SEARCH OR `town` LIKE :SEARCH OR `postcode` LIKE :SEARCH OR `phone` LIKE :SEARCH OR `mobile` LIKE :SEARCH OR `email` LIKE :SEARCH{$sql['string']} ORDER BY `regtime` DESC;", array_merge([':SEARCH' => '%'.$search.'%'], $sql['values']));
+        return $results[0]['count'];
+    }
+    
+    /**
+     * Format additional values for use in the queries
+     * @param array $additionalInfo This should be the additional information submitted
+     * @return array Returns the SQL array info include the 'string' and array 'values'
+     */
+    protected function formatAdditionalSQL($additionalInfo) {
+        $sql = [];
+        $sql['values'] = [];
+        $sql['string'] = '';
         if(!empty($additionalInfo)){
             foreach($additionalInfo as $field => $value) {
                 $fieldVal = SafeString::makeSafe($field);
-                $sql.= " AND `{$fieldVal}` = :{$fieldVal}";
-                $values[':'.$fieldVal] = $value;
+                $sql['string'] .= " AND `{$fieldVal}` = :{$fieldVal}";
+                $sql['values'][':'.$fieldVal] = $value;
             }
         }
-        $results = $this->db->query("SELECT COUNT(*) as `count` FROM `{$this->table_users}` WHERE `firstname` LIKE :SEARCH OR `lastname` LIKE :SEARCH OR `add_1` LIKE :SEARCH OR `add_2` LIKE :SEARCH OR `town` LIKE :SEARCH OR `postcode` LIKE :SEARCH OR `phone` LIKE :SEARCH OR `mobile` LIKE :SEARCH OR `email` LIKE :SEARCH{$sql} ORDER BY `regtime` DESC;", array_merge([':SEARCH' => '%'.$search.'%'], $values));
-        return $results[0]['count'];
+        return $sql;
     }
     
     /**
