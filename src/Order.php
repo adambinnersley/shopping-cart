@@ -358,7 +358,6 @@ class Order extends Basket{
      * @param array $orderInfo This should be the order information
      * @param string $emailType This should be the string of the email type
      * @param array $variables This should be the variables to include in the email
-     * @param boolean $toUser If the email is to be sent to the end user set to true else for the office email set to false
      * @return boolean Will return true if email is sent else will return false
      */
     public function sendOfficeEmail($orderInfo, $emailType, $variables = []) {
@@ -387,10 +386,10 @@ class Order extends Basket{
      * @param boolean $tangible If you only want to include tangible products set to true
      * @return string Returns the HTML table 
      */
-    public function emailFormatProducts($orderInfo, $download = true, $tangible = true){
+    public function emailFormatProducts($orderInfo, $download = true, $tangible = false){
         $table = '<table width="100%" border="0" cellpadding="2" cellspacing="0">
 <tr><th>Quantity</th><th>Name</th><th>Unit Price</th><th>Total Price</th></tr>'."\n\r";
-        foreach($orderInfo['products'] as $product){
+        foreach($this->removeUnwantedItems($orderInfo['products'], $tangible) as $product){
             $table.= '<tr><td class="align-center" valign="middle">'.$product['quantity'].'</td><td class="align-center" valign="middle">'.$product['name'];
             if(isset($product['link']) && $download === true){$table.= '<br /><br /><strong>Download Link:</strong> <a href="'.$product['link'].'" target="_blank">'.$product['link'].'</a>';}
             if(isset($product['serials']) && $download === true){
@@ -403,6 +402,21 @@ class Order extends Basket{
         }
         $table.= '</table>';
         return $table;
+    }
+    
+    /**
+     * Removes any items that you might not want to include in all email such as download items
+     * @param array $products This should be the products in the cart
+     * @param boolean $tangible If you want to remove any download items set to true else set to false (false = default)
+     * @return array Returns the product array with any irrelevant items removed
+     */
+    protected function removeUnwantedItems($products, $tangible = false) {
+        if($tangible === true){
+            foreach($products as $i => $product){
+                if($product['digital'] == 1){unset($products[$i]);}
+            }
+        }
+        return $products;
     }
 
     /**

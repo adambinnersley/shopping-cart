@@ -390,7 +390,7 @@ class Customers extends \UserAuth\User{
             return $return;
         }
         
-        if($sendmail === true) {
+        if($sendmail === true && is_array($userInfo)) {
             $this->sendPasswordChangeEmail($userInfo);
         }
         if($login === true){
@@ -429,6 +429,7 @@ class Customers extends \UserAuth\User{
     protected function addRequest($uid, $email, $type, $sendmail) {
         $return = parent::addRequest($uid, $email, $type, false);
         if($return['error'] === false && $sendmail === true) {
+            $mailsent = false;
             if($type == "activation") {
                 $subject = sprintf($this->config->email_activation_subject, $this->config->site_name);
                 $mailsent = Mailer::sendEmail($email, $subject, sprintf($this->config->email_activation_altbody, $this->config->site_url, $this->activation_page, $this->key), Mailer::htmlWrapper($this->config, sprintf($this->config->email_activation_body, $this->config->site_url, $this->activation_page, $this->key), $subject), $this->config->email_from_address, $this->config->email_from_name);
@@ -437,7 +438,7 @@ class Customers extends \UserAuth\User{
                 $subject = sprintf($this->config->email_reset_subject, $this->config->site_name);
                 $mailsent = Mailer::sendEmail($email, $subject, sprintf($this->config->email_reset_altbody, $this->config->site_url, $this->password_reset_page, $this->key),  Mailer::htmlWrapper($this->config, sprintf($this->config->email_reset_body, $this->config->site_url, $this->password_reset_page, $this->key), $subject), $this->config->email_from_address, $this->config->email_from_name);
             }
-            if(!$mailsent) {
+            if($mailsent != true) {
                 $this->deleteRequest($this->db->lastInsertId());
                 $return['error'] = true;
                 $return['message'] = $this->lang["system_error"] . " #06";

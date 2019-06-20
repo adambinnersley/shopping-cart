@@ -200,7 +200,7 @@ class Product extends Category{
     
     /**
      * Deletes a product from a category
-     * @param int $category This should be that category you are removing the product from
+     * @param int|array $category This should be that category you are removing the product from
      * @param int $productID This should be the product ID
      * @return boolean If the product has been successfully removed will return true else return false
      */
@@ -404,9 +404,9 @@ class Product extends Category{
     }
     
     /**
-     * 
-     * @param array|false $products
-     * @return array|boolean
+     * Builds the array of products
+     * @param array|false $products This should be an array of items if they exists else should be false
+     * @return array|boolean Returns the array of items
      */
     protected function buildProductArray($products) {
         if(is_array($products)){
