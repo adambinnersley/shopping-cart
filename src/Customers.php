@@ -197,7 +197,7 @@ class Customers extends \UserAuth\User{
      * @return boolean If the information is updated will return true else returns false
      */
     public function editDeliveryAddress($customerID, $deliveryID, $deliveryInfo) {
-        if(!empty(trim($deliveryInfo['add_1'])) && !empty(trim($deliveryInfo['town'])) && is_numeric($deliveryInfo['county']) && !empty(trim($deliveryInfo['postcode']))) {
+        if(Validator::arrayMustContainFields(['add_1', 'town', 'postcode'], $deliveryInfo) && is_numeric($deliveryInfo['county'])) {
             $deliveryInfo['postcode'] = strtoupper(Validator::removeNoneAlphaNumeric($deliveryInfo['postcode']));
             return $this->db->update($this->config->table_delivery_address, $deliveryInfo, ['id' => intval($deliveryID), 'customer_id' => intval($customerID)], 1);
         }
