@@ -3,9 +3,9 @@
 namespace ShoppingCart;
 
 use DBAL\Database;
+use DBAL\Modifiers\Modifier;
 use Configuration\Config;
 use ShoppingCart\Modifiers\Cost;
-use ShoppingCart\Modifiers\Validator;
 
 class Voucher{
     protected $db;
@@ -89,7 +89,7 @@ class Voucher{
      */
     public function addVoucher($code, $discount, $expiry, $active = 1, $additionalInfo = []) {
         if(!$this->getVoucherByCode($code) && (!empty(trim($discount['amount'])) || !empty(trim($discount['percentage'])))) {
-            return $this->db->insert($this->config->table_voucher, array_merge(['code' => $code, 'expiry' => $expiry, 'active' => intval($active), 'amount' => Validator::setNullOnEmpty($discount['amount']), 'percent' => Validator::setNullOnEmpty($discount['percentage'])], $additionalInfo));
+            return $this->db->insert($this->config->table_voucher, array_merge(['code' => $code, 'expiry' => $expiry, 'active' => intval($active), 'amount' => Modifier::setNullOnEmpty($discount['amount']), 'percent' => Modifier::setNullOnEmpty($discount['percentage'])], $additionalInfo));
         }
         return false;
     }
@@ -101,8 +101,8 @@ class Voucher{
      * @return boolean
      */
     public function editVoucher($voucher_id, $additionalInfo = []) {
-        $additionalInfo['amount'] = Validator::setNullOnEmpty($additionalInfo['amount']);
-        $additionalInfo['percentage'] = Validator::setNullOnEmpty($additionalInfo['percentage']);
+        $additionalInfo['amount'] = Modifier::setNullOnEmpty($additionalInfo['amount']);
+        $additionalInfo['percentage'] = Modifier::setNullOnEmpty($additionalInfo['percentage']);
         return $this->db->update($this->config->table_voucher, $additionalInfo, ['voucher_id' => intval($voucher_id)], 1);
     }
     

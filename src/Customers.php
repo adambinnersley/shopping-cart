@@ -4,9 +4,9 @@ namespace ShoppingCart;
 
 use DBAL\Database;
 use DBAL\Modifiers\SafeString;
+use DBAL\Modifiers\Modifier;
 use UKCounties\Counties;
 use Configuration\Config;
-use ShoppingCart\Modifiers\Validator;
 use Blocking\IPBlock;
 
 class Customers extends \UserAuth\User{
@@ -183,7 +183,7 @@ class Customers extends \UserAuth\User{
     public function setDeliveryAddress($customerID, $deliveryInfo) {
         if($this->checkIfAddressExists($customerID, $deliveryInfo['add_1'], $deliveryInfo['postcode']) === false && $this->compareDeliveryToBillingAddress($customerID, $deliveryInfo) === false) {
             $userInfo = $this->getUserInfo(intval($customerID));
-            $this->db->insert($this->config->table_delivery_address, ['customer_id' => intval($customerID), `title` => (!empty(trim($deliveryInfo['title'])) ? $deliveryInfo['title'] : $userInfo['title']), `firstname` => (!empty(trim($deliveryInfo['firstname'])) ? $deliveryInfo['firstname'] : $userInfo['firstname']), `lastname` => (!empty(trim($deliveryInfo['lastname'])) ? $deliveryInfo['lastname'] : $userInfo['lastname']), 'add_1' => $deliveryInfo['add_1'], 'add_2' => $deliveryInfo['add_2'], 'town' => $deliveryInfo['town'], 'county' => intval($deliveryInfo['county']), 'postcode' => strtoupper(Validator::removeNoneAlphaNumeric($deliveryInfo['postcode']))]);
+            $this->db->insert($this->config->table_delivery_address, ['customer_id' => intval($customerID), `title` => (!empty(trim($deliveryInfo['title'])) ? $deliveryInfo['title'] : $userInfo['title']), `firstname` => (!empty(trim($deliveryInfo['firstname'])) ? $deliveryInfo['firstname'] : $userInfo['firstname']), `lastname` => (!empty(trim($deliveryInfo['lastname'])) ? $deliveryInfo['lastname'] : $userInfo['lastname']), 'add_1' => $deliveryInfo['add_1'], 'add_2' => $deliveryInfo['add_2'], 'town' => $deliveryInfo['town'], 'county' => intval($deliveryInfo['county']), 'postcode' => strtoupper(Modifier::removeNoneAlphaNumeric($deliveryInfo['postcode']))]);
             return $this->db->update($this->config->table_basket, ['delivery_id' => $this->db->lastInsertID()], ['customer_id' => $customerID, 'sessionid' => session_id(), 'status' => 1], 1);
         }
         return false;
@@ -197,8 +197,8 @@ class Customers extends \UserAuth\User{
      * @return boolean If the information is updated will return true else returns false
      */
     public function editDeliveryAddress($customerID, $deliveryID, $deliveryInfo) {
-        if(Validator::arrayMustContainFields(['add_1', 'town', 'postcode'], $deliveryInfo) && is_numeric($deliveryInfo['county'])) {
-            $deliveryInfo['postcode'] = strtoupper(Validator::removeNoneAlphaNumeric($deliveryInfo['postcode']));
+        if(Modifier::arrayMustContainFields(['add_1', 'town', 'postcode'], $deliveryInfo) && is_numeric($deliveryInfo['county'])) {
+            $deliveryInfo['postcode'] = strtoupper(Modifier::removeNoneAlphaNumeric($deliveryInfo['postcode']));
             return $this->db->update($this->config->table_delivery_address, $deliveryInfo, ['id' => intval($deliveryID), 'customer_id' => intval($customerID)], 1);
         }
         return false;
@@ -280,11 +280,11 @@ class Customers extends \UserAuth\User{
     public function addCustomer($email, $password, $confirm, $params = [], $required = ['firstname', 'lastname', 'add_1', 'town', 'postcode'], $sendmail = true, $login = true) {
         $return = [];
         $return['error'] = true;
-        if(!Validator::arrayMustContainFields($required, $params) && (!Validator::arrayMustContainFields(['phone'], $params) || !Validator::arrayMustContainFields(['mobile'], $params))){
+        if(!Modifier::arrayMustContainFields($required, $params) && (!Modifier::arrayMustContainFields(['phone'], $params) || !Modifier::arrayMustContainFields(['mobile'], $params))){
             $return['message'] = 'Please make sure all of the required fields have been entered and try again!';
             return $return;
         }
-        $params['postcode'] = strtoupper(Validator::removeNoneAlphaNumeric($params['postcode']));
+        $params['postcode'] = strtoupper(Modifier::removeNoneAlphaNumeric($params['postcode']));
         $params['ipaddress'] = $this->ip_address->getUserIP();
         $addUser = $this->register($email, $password, $confirm, $params, NULL, false);
         if($addUser['error'] === false && $sendmail === true) {
@@ -329,7 +329,7 @@ class Customers extends \UserAuth\User{
             }
         }
         if($customerInfo['postcode']) {
-            $customerInfo['postcode'] = strtoupper(Validator::removeNoneAlphaNumeric($customerInfo['postcode']));
+            $customerInfo['postcode'] = strtoupper(Modifier::removeNoneAlphaNumeric($customerInfo['postcode']));
         }
         $return['error'] = $this->db->update($this->table_users, $customerInfo, array_filter(array_merge(['id' => $userID], $additionalInfo)), 1) ? false : true;
         $return['message'] = $return['error'] ? 'Please make sure the information has changed and try again!' : 'Account has been successfully updated';

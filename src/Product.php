@@ -3,10 +3,10 @@
 namespace ShoppingCart;
 
 use DBAL\Database;
+use DBAL\Modifiers\Modifier;
 use Configuration\Config;
 use ImgUpload\ImageUpload;
 use ShoppingCart\Modifiers\Cost;
-use ShoppingCart\Modifiers\Validator;
 
 class Product extends Category{
     protected $review;
@@ -70,13 +70,13 @@ class Product extends Category{
     public function addProduct($name, $code, $description, $price, $category, $tax_id, $active = 1, $image = false, $additionalInfo = []) {
         if(!$this->getProductByCode($code, false)) {
             $additionalInfo['weight'] = number_format($additionalInfo['weight'], 3);
-            $additionalInfo['sale_price'] = Validator::setNullOnEmpty($additionalInfo['sale_price']);
-            $additionalInfo['features'] = Validator::setNullOnEmpty($additionalInfo['features']);
-            $additionalInfo['requirements'] = Validator::setNullOnEmpty($additionalInfo['requirements']);
-            $additionalInfo['digital'] = Validator::setZeroOnEmpty($additionalInfo['digital']);
-            $additionalInfo['homepage'] = Validator::setZeroOnEmpty($additionalInfo['homepage']);
-            $additionalInfo['active'] = Validator::setZeroOnEmpty($additionalInfo['active']);
-            $insert = $this->db->insert($this->config->table_products, array_merge(['active' => intval($active), 'code' => $code, 'name' => $name, 'description' => Validator::setNullOnEmpty($description), 'price' => Cost::priceUnits($price, $this->decimals), 'tax_id' => intval($tax_id)], $additionalInfo, $this->addImage($image)));
+            $additionalInfo['sale_price'] = Modifier::setNullOnEmpty($additionalInfo['sale_price']);
+            $additionalInfo['features'] = Modifier::setNullOnEmpty($additionalInfo['features']);
+            $additionalInfo['requirements'] = Modifier::setNullOnEmpty($additionalInfo['requirements']);
+            $additionalInfo['digital'] = Modifier::setZeroOnEmpty($additionalInfo['digital']);
+            $additionalInfo['homepage'] = Modifier::setZeroOnEmpty($additionalInfo['homepage']);
+            $additionalInfo['active'] = Modifier::setZeroOnEmpty($additionalInfo['active']);
+            $insert = $this->db->insert($this->config->table_products, array_merge(['active' => intval($active), 'code' => $code, 'name' => $name, 'description' => Modifier::setNullOnEmpty($description), 'price' => Cost::priceUnits($price, $this->decimals), 'tax_id' => intval($tax_id)], $additionalInfo, $this->addImage($image)));
             $this->addProductToCategory($category, $this->db->lastInsertId());
             return ($insert ? true : false);
         }
@@ -93,13 +93,13 @@ class Product extends Category{
     public function editProduct($product_id, $image = false, $additionalInfo = []) {
         if(is_numeric($product_id)) {
             $additionalInfo['weight'] = number_format($additionalInfo['weight'], 3);
-            $additionalInfo['description'] = Validator::setNullOnEmpty($additionalInfo['description']);
-            $additionalInfo['sale_price'] = Validator::setNullOnEmpty($additionalInfo['sale_price']);
-            $additionalInfo['features'] = Validator::setNullOnEmpty($additionalInfo['features']);
-            $additionalInfo['requirements'] = Validator::setNullOnEmpty($additionalInfo['requirements']);
-            $additionalInfo['digital'] = Validator::setZeroOnEmpty($additionalInfo['digital']);
-            $additionalInfo['homepage'] = Validator::setZeroOnEmpty($additionalInfo['homepage']);
-            $additionalInfo['active'] = Validator::setZeroOnEmpty($additionalInfo['active']);
+            $additionalInfo['description'] = Modifier::setNullOnEmpty($additionalInfo['description']);
+            $additionalInfo['sale_price'] = Modifier::setNullOnEmpty($additionalInfo['sale_price']);
+            $additionalInfo['features'] = Modifier::setNullOnEmpty($additionalInfo['features']);
+            $additionalInfo['requirements'] = Modifier::setNullOnEmpty($additionalInfo['requirements']);
+            $additionalInfo['digital'] = Modifier::setZeroOnEmpty($additionalInfo['digital']);
+            $additionalInfo['homepage'] = Modifier::setZeroOnEmpty($additionalInfo['homepage']);
+            $additionalInfo['active'] = Modifier::setZeroOnEmpty($additionalInfo['active']);
             $this->updateProductCategory($additionalInfo['category'], $product_id);
             unset($additionalInfo['category']);
             return $this->db->update($this->config->table_products, array_merge($additionalInfo, $this->addImage($image)), ['product_id' => $product_id], 1);
