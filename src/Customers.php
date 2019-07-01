@@ -77,7 +77,7 @@ class Customers extends \UserAuth\User{
         $customers = $this->db->selectAll($this->table_users, $additionalInfo, '*', ['regtime' => 'DESC'], [intval($start) => intval($limit)]);
         if(is_array($customers)){
             foreach($customers as $i => $customer){
-                if(isset($customer['county']) && is_numeric($customer['county'])){
+                if(isset($customer['county']) && is_numeric($customer['county']) && $customer['county'] >= 1){
                     $customers[$i]['county'] = $this->counties->getCountyName($customer['county']);
                 }
             }
