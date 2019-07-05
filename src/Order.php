@@ -323,8 +323,8 @@ class Order extends Basket{
             $orderInfo = $this->getOrderByID($order_id);
             if($sendEmail === true && is_array($orderInfo)){
                 $this->hasDownload === true && ($new_status == 2 || $new_status == 3) ? $this->download->sendDownloadLink($orderInfo['order_no']) : '';
-                is_array($this->orderEmailTypes($orderInfo)[$new_status]) ? $this->sendOrderEmail($orderInfo, $this->orderEmailTypes($orderInfo)[$new_status]['email'], $this->orderEmailTypes($orderInfo)[$new_status]['variables']) : '';
-                is_array($this->orderEmailTypes($orderInfo)[$new_status.'_office']) ? $this->sendOfficeEmail($orderInfo, $this->orderEmailTypes($orderInfo)[$new_status.'_office']['email'], $this->orderEmailTypes($orderInfo)[$new_status.'_office']['variables']) : '';
+                isset($this->orderEmailTypes($orderInfo)[$new_status]) ? $this->sendOrderEmail($orderInfo, $this->orderEmailTypes($orderInfo)[$new_status]['email'], $this->orderEmailTypes($orderInfo)[$new_status]['variables']) : '';
+                isset($this->orderEmailTypes($orderInfo)[$new_status.'_office']) ? $this->sendOfficeEmail($orderInfo, $this->orderEmailTypes($orderInfo)[$new_status.'_office']['email'], $this->orderEmailTypes($orderInfo)[$new_status.'_office']['variables']) : '';
             }
             return true;
         }
