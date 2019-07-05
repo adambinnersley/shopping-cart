@@ -529,13 +529,13 @@ ALTER TABLE `users_delivery_address`
 
 ALTER TABLE `store_downloads`
   ADD CONSTRAINT `store_downloads_ibfk_1` FOREIGN KEY (`product`) REFERENCES `store_products` (`product_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `store_downloads_ibfk_2` FOREIGN KEY (`customer_id`) REFERENCES `users` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `store_downloads_ibfk_3` FOREIGN KEY (`order_id`) REFERENCES `store_orders` (`order_id`) ON DELETE NO ACTION ON UPDATE CASCADE;
+  ADD CONSTRAINT `store_downloads_ibfk_2` FOREIGN KEY (`customer_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `store_downloads_ibfk_3` FOREIGN KEY (`order_id`) REFERENCES `store_orders` (`order_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE `store_orders`
   ADD CONSTRAINT `store_orders_ibfk_1` FOREIGN KEY (`customer_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `store_orders_ibfk_2` FOREIGN KEY (`delivery_id`) REFERENCES `users_delivery_address` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  ADD CONSTRAINT `store_orders_ibfk_3` FOREIGN KEY (`voucher`) REFERENCES `store_vouchers` (`code`) ON DELETE NO ACTION ON UPDATE CASCADE;
+  ADD CONSTRAINT `store_orders_ibfk_3` FOREIGN KEY (`voucher`) REFERENCES `store_vouchers` (`code`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 ALTER TABLE `store_order_products`
   ADD CONSTRAINT `store_order_products_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `store_orders` (`order_id`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -546,7 +546,7 @@ ALTER TABLE `store_products`
 
 ALTER TABLE `store_product_category`
   ADD CONSTRAINT `store_product_category_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `store_products` (`product_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `store_product_category_ibfk_2` FOREIGN KEY (`category_id`) REFERENCES `store_categories` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
+  ADD CONSTRAINT `store_product_category_ibfk_2` FOREIGN KEY (`category_id`) REFERENCES `store_categories` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE `store_product_images`
   ADD CONSTRAINT `store_product_images_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `store_products` (`product_id`) ON DELETE CASCADE ON UPDATE CASCADE,
