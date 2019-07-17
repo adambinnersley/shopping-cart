@@ -18,16 +18,19 @@ class Product extends Category{
     /**
      * Constructor
      * @param Database $db This should be an instance of the database class
+     * @param Config $config This should be an instance of the config class
+     * @param string $imageFolder This should be the location of the image folder
+     * @param string|false $rootFolder This should be the document root folder
      */
-    public function __construct(Database $db, Config $config) {
+    public function __construct(Database $db, Config $config, $imageFolder = '/images/products/', $rootFolder = false) {
         parent::__construct($db, $config);
         $this->review = new Review($db, $config, $this);
         $this->gallery = new Gallery($db, $config);
         $this->decimals = Currency::getCurrencyDecimals($this->config->currency);
         $this->imageUpload = new ImageUpload();
-        $this->imageUpload->setRootFolder(getcwd().DIRECTORY_SEPARATOR.'images'.DIRECTORY_SEPARATOR)
-            ->setImageFolder('products'.DIRECTORY_SEPARATOR)
-            ->setThumbFolder('products'.DIRECTORY_SEPARATOR.'thumbs'.DIRECTORY_SEPARATOR);
+        $this->imageUpload->setRootFolder(is_string($rootFolder) && file_exists($rootFolder) ? $rootFolder : getcwd())
+            ->setImageFolder($imageFolder)
+            ->setThumbFolder($imageFolder.'thumbs'.DIRECTORY_SEPARATOR);
     }
     
     /**
