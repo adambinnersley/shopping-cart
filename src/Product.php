@@ -30,7 +30,7 @@ class Product extends Category{
         $this->imageUpload = new ImageUpload();
         $this->imageUpload->setRootFolder(is_string($rootFolder) && file_exists($rootFolder) ? $rootFolder : getcwd())
             ->setImageFolder($imageFolder)
-            ->setThumbFolder($imageFolder.'thumbs'.DIRECTORY_SEPARATOR);
+            ->setThumbFolder('thumbs/');
         $this->imageUpload->createThumb = true;
     }
     
