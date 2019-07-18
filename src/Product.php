@@ -119,7 +119,7 @@ class Product extends Category{
     protected function addImage($image) {
         $additionalInfo = [];
         if(is_array($image) && $this->imageUpload->uploadImage($image)) {
-            $additionalInfo['image'] = $this->imageUpload->getImageFolder().$image['name'];
+            $additionalInfo['image'] = '/'.trim($this->imageUpload->getImageFolder(), '\/').'/'.$image['name'];
             list($width, $height) = getimagesize($this->imageUpload->getRootFolder().$this->imageUpload->getImageFolder().$image['name']);
             $additionalInfo['width'] = $width;
             $additionalInfo['height'] = $height;
