@@ -58,11 +58,11 @@ class Mailer {
         self::$mail->isHTML(true);
         if(!empty($attachment)){
             foreach($attachment as $file){
-                if(is_string($file[0])){
-                    self::$mail->addStringAttachment($file[0], $file[1]);
+                if(@file_exists($file[0])){
+                    self::$mail->addAttachment($file[0], $file[1]);
                 }
                 else{
-                    self::$mail->addAttachment($file[0], $file[1]);
+                    self::$mail->addStringAttachment($file[0], $file[1]);
                 }
             }
         }
