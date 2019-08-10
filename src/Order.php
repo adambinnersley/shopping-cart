@@ -200,7 +200,7 @@ class Order extends Basket{
         $this->getOrderProducts($this->getProducts($orderInfo['order_id']), $orderInfo['order_id'], $orderInfo);
         $orderInfo['products'] = isset($this->totals['product']) ? $this->totals['product'] : [];
         $orderInfo['numproducts'] = isset($this->totals['numproducts']) ? $this->totals['numproducts'] : 0;
-        unset($this->totals);
+        unset($this->totals, $this->products);
         return $orderInfo;
     }
     
