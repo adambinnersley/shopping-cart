@@ -213,7 +213,7 @@ hr {border: 0;border-bottom: 1px solid #f6f6f6;margin: 20px 0}
   </body>
 </html>'),
 
-('login_url', 'login')
+('login_url', 'login'),
 ('table_basket', 'store_orders'),
 ('table_basket_products', 'store_order_products'),
 ('table_categories', 'store_categories'),
