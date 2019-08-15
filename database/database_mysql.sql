@@ -63,7 +63,7 @@ INSERT INTO `store_config` (`setting`, `value`) VALUES
 ('email_order_cancel_subject', 'Your %3$s order #%1$s has been cancelled'),
 
 ('email_order_confirm_altbody', 'Thank you for your order \n\r\n\r Dear %1$s %2$s, \n\r\n\r Thank you very much for your order. We\'ll get your items packed up and sent out as soon as possible, and we\'ll send you a quick email to let you know when they\'re on their way. \n\r\n\r Your order number: %3$s \n\r\n\r Order Items \n\r\n\r %6$s \n\r\n\r Delivery Address: \n\r\n\r %7$s \n\r %8$s \n\r %9$s %10$s %11$s\n\r\n\r You can view the status of your order at any time, on our website by following the link: \n\r\n\r %4$s%5$s'),
-('email_order_confirm_body', '<h3>Thank you for your order</h3><p>Dear %1$s %2$s,</p><p>Thank you very much for your order. We'll get your items packed up and sent out as soon as possible, and we'll send you a quick email to let you know when they're on their way.</p><p>Your order number: %3$s</p><h4>Order Items:</h4>%6$s<p>&nbsp;</p><hr /><h4>Delivery Address:</h4><p>%7$s<br />%8$s<br />%9$s<br />%10$s<br />%11$s</p><hr /><p>You can view the status of your order at any time, on our website by following the link: <a href="%4$s%5$s">%4$s%5$s</a></p>
+('email_order_confirm_body', '<h3>Thank you for your order</h3><p>Dear %1$s %2$s,</p><p>Thank you very much for your order. We\'ll get your items packed up and sent out as soon as possible, and we\'ll send you a quick email to let you know when they\'re on their way.</p><p>Your order number: %3$s</p><h4>Order Items:</h4>%6$s<p>&nbsp;</p><hr /><h4>Delivery Address:</h4><p>%7$s<br />%8$s<br />%9$s<br />%10$s<br />%11$s</p><hr /><p>You can view the status of your order at any time, on our website by following the link: <a href="%4$s%5$s">%4$s%5$s</a></p>
 '),
 ('email_order_confirm_subject', 'Your %3$s order'),
 
@@ -85,7 +85,7 @@ INSERT INTO `store_config` (`setting`, `value`) VALUES
 ('email_password_change_altbody', "Hi %5$s, \n\r\n\r This email has been sent to confirm that your password has been updated successfully. \n\r\n\r If you feel that your account has been updated by someone other than yourself please contact support at %2$s if you have questions. \n\r\n\r Regards \n\r\n\r %1$s"),
 
 ('email_reg_subject', '%s Account Registration'),
-('email_reg_body', '<h3>Welcome</h3><p>Dear %4$s %6$s,<br /><br />Thank you for creating an account with %1$s. We're excited to have you join us.<br /><br />From now on you can login using your email address and chosen password at <a href="%2$s/%3$s">%2$s/%3$s</a>.<br /><br />Have any questions? Just shoot us an email! We're always here to help.<br /><br />Kind Regards<br /><br />The %1$s Team</p>'),
+('email_reg_body', '<h3>Welcome</h3><p>Dear %4$s %6$s,<br /><br />Thank you for creating an account with %1$s. We\'re excited to have you join us.<br /><br />From now on you can login using your email address and chosen password at <a href="%2$s/%3$s">%2$s/%3$s</a>.<br /><br />Have any questions? Just shoot us an email! We\'re always here to help.<br /><br />Kind Regards<br /><br />The %1$s Team</p>'),
 ('email_reg_altbody', "Welcome \n\r\n\r Dear %4$s %6%$s, \n\r\n\r Thank you for creating an account with %1$s. We're excited to have you join us. \n\r\n\r From now on you can login using your email address and chosen password at %2$s/%3$s \n\r\n\r Have any questions? Just shoot us an email! We're always here to help. \n\r\n\r Kind Regards \n\r\n\r The %1$s Team"),
 
 ('email_review_subject', 'Review has been submitted on %s'),
