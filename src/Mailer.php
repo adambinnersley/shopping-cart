@@ -18,7 +18,7 @@ class Mailer {
      * @param string $from This should be the email address that the email is coming from
      * @param string $fromname This should be the name to be displayed, who the email is from
      * @param string $replyto This should be any reply to email address
-     * @param array $attachment And attachments should be attached as ana array
+     * @param array $attachment And attachments should be attached as an array
      * @return boolean If the email has been sent successfully will return true else returns false
      */
     public static function sendEmail($to, $subject, $plain, $html, $from, $fromname, $replyto = '', $attachment = []) {
