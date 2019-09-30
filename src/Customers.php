@@ -258,12 +258,15 @@ class Customers extends \UserAuth\User{
      */
     public function getUserInfo($userID = false) {
         $userInfo = parent::getUserInfo($userID);
-        if(is_array($this->userInfo) && is_numeric($this->userInfo['county']) && !is_numeric($userID)) {
-            $this->userInfo['county'] = $this->counties->getCountyName($this->userInfo['county']);
-            return $this->userInfo;
-        }
-        elseif(is_array($userInfo)){
+        if(is_numeric($userID) && is_numeric($userInfo['county'])){
             $userInfo['county'] = $this->counties->getCountyName($userInfo['county']);
+            $userInfo['county_id'] = $userInfo['county'];
+            return $userInfo;
+        }
+        if(is_array($this->userInfo) && is_numeric($this->userInfo['county'])){
+            $this->userInfo['county'] = $this->counties->getCountyName($this->userInfo['county']);
+            $this->userInfo['county_id'] = $this->userInfo['county'];
+            return $this->userInfo;
         }
         return $userInfo;
     }
