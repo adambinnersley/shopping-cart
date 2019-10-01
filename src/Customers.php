@@ -171,6 +171,7 @@ class Customers extends \UserAuth\User{
                 $deliveryInfo['firstname'] = $userInfo['firstname'];
                 $deliveryInfo['lastname'] = $userInfo['lastname'];
             }
+            $deliveryInfo['county_id'] = $deliveryInfo['county'];
             $deliveryInfo['county'] = $this->counties->getCountyName($deliveryInfo['county']);
         }
         return $deliveryInfo;
