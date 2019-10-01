@@ -10,6 +10,7 @@ use ShoppingCart\Modifiers\SQLBuilder;
 use ShoppingCart\Mailer;
 use Soundasleep\Html2Text;
 use DateTime;
+use DateTimeZone;
 
 class Order extends Basket{
     
@@ -317,7 +318,7 @@ class Order extends Basket{
             $date = [];
             if($setPaidDate === true){
                 $datetime = new DateTime();
-                $datetime->setTimezone($this->config->timezone);
+                $datetime->setTimezone(new DateTimeZone($this->config->timezone));
                 $date = ['payment_date' => $datetime->format('Y-m-d H:i:s')];
             }
             $this->db->update($this->config->table_basket, array_merge(['status' => intval($new_status)], $date), ['order_id' => $order_id], 1);

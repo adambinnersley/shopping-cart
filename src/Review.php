@@ -9,6 +9,7 @@ use Blocking\BannedWords;
 use ShoppingCart\Mailer;
 use ShoppingCart\Modifiers\SQLBuilder;
 use DateTime;
+use DateTimeZone;
 
 class Review{
     protected $db;
@@ -204,7 +205,7 @@ class Review{
     protected function checkForReviewsByIP($ip){
         if($ip){
             $datetime = new DateTime();
-            $datetime->setTimezone($this->config->timezone);
+            $datetime->setTimezone(new DateTimeZone($this->config->timezone));
             $datetime->modify('-24 hours');
             return $this->db->count($this->config->table_review, ['ipaddress' => $ip, 'timestamp' => ['>=', $datetime->format('Y-m-d H:i:s')]]);
         }
