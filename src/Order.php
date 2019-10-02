@@ -326,7 +326,7 @@ class Order extends Basket{
             if($sendEmail === true && is_array($orderInfo)){
                 $this->hasDownload === true && ($new_status == 2 || $new_status == 3) ? $this->download->sendDownloadLink($orderInfo['order_no']) : '';
                 isset($this->orderEmailTypes($orderInfo)[$new_status]) ? $this->sendOrderEmail($orderInfo, $this->orderEmailTypes($orderInfo)[$new_status]['email'], $this->orderEmailTypes($orderInfo)[$new_status]['variables']) : '';
-                isset($this->orderEmailTypes($orderInfo)[$new_status.'_office']) ? $this->sendOfficeEmail($orderInfo, $this->orderEmailTypes($orderInfo)[$new_status.'_office']['email'], $this->orderEmailTypes($orderInfo)[$new_status.'_office']['variables']) : '';
+                isset($this->orderEmailTypes($orderInfo)[$new_status.'_office']) ? $this->sendOrderEmail($orderInfo, $this->orderEmailTypes($orderInfo)[$new_status.'_office']['email'], $this->orderEmailTypes($orderInfo)[$new_status.'_office']['variables'], false) : '';
             }
             return true;
         }
@@ -353,17 +353,6 @@ class Order extends Basket{
             '',
             ($emailType === 'order_confirm' ? [0 => [$this->createOrderPDF($orderInfo['order_id'], $orderInfo['customer_id'], false, false, true), 'Order'.$orderInfo['order_no'].'.pdf']] : [])
         );
-    }
-    
-    /**
-     * Send an order email
-     * @param array $orderInfo This should be the order information
-     * @param string $emailType This should be the string of the email type
-     * @param array $variables This should be the variables to include in the email
-     * @return boolean Will return true if email is sent else will return false
-     */
-    public function sendOfficeEmail($orderInfo, $emailType, $variables = []) {
-        return $this->sendOrderEmail($orderInfo, $emailType, $variables, false);
     }
     
     /**
