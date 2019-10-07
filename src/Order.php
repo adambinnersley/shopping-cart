@@ -58,7 +58,8 @@ class Order extends Basket{
         if(intval($status) !== 0) {
             $additional['status'] = $status;
         }
-        return $this->db->query("SELECT * FROM `{$this->config->table_basket}` as `bskt`, `{$this->config->table_users}` AS `usr` WHERE `bskt`.`customer_id` = `usr`.`id`".SQLBuilder::createAdditionalString($additional)." ORDER BY `date` DESC".($limit >= 1 ? " LIMIT ".intval($start).", ".intval($limit) : '').";", array_values($additional));
+        $extraSQL = SQLBuilder::createAdditionalString($additional);
+        $this->db->query("SELECT * FROM `{$this->config->table_basket}` as `bskt`, `{$this->config->table_users}` AS `usr` WHERE `bskt`.`customer_id` = `usr`.`id`".(strlen($extraSQL) >= 1 ? ' AND '.$extraSQL : '')." ORDER BY `date` DESC".($limit >= 1 ? " LIMIT ".intval($start).", ".intval($limit) : '').";", SQLBuilder::$values);
     }
     
     /**
