@@ -403,7 +403,7 @@ class Product extends Category{
      */
     public function getHomepageProducts($orderBy = 'sales', $orderDir = 'DESC', $limit = 20, $start = 0, array $additionalInfo = []) {
         return $this->buildProductArray(
-                $this->db->selectAll($this->config->table_products, array_merge(['homepage' => 1, 'active' => 1], $additionalInfo), '*', [$orderBy => $orderDir], ($limit > 0 ? [$start => $limit] : 0))
+            $this->db->selectAll($this->config->table_products, array_merge(['homepage' => 1, 'active' => 1], $additionalInfo), '*', [$orderBy => $orderDir], ($limit > 0 ? [$start => $limit] : 0))
         );
     }
     
