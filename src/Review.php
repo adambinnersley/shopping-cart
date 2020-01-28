@@ -74,7 +74,7 @@ class Review{
      * @return boolean Returns true if review is inserted into database else returns false
      */
     public function addProductReview($productID, $name, $email, $title, $review, $rating = 5, $type = 1) {
-        if($this->blocking->containsBlockedWord($review) || $this->blocking->containsBlockedWord($title) || $this->checkForReviewsByIP(filter_input(INPUT_ENV, 'REMOTE_ADDR', FILTER_VALIDATE_IP)) >= 1) {$spam = 1;}else{$spam = 0;}
+        if($this->blocking->containsBlockedWord($review) || $this->blocking->containsBlockedWord($title) || $this->checkForReviewsByIP($this->ip->getUserIP()) >= 1) {$spam = 1;}else{$spam = 0;}
         if(!$this->checkIfCustomerReviewExists($productID, $email) && filter_var($email, FILTER_VALIDATE_EMAIL)) {
             if($this->db->insert($this->config->table_review, ['product' => $productID, 'type' => $type, 'rating' => $rating, 'name' => $name, 'email' => $email, 'title' => $title, 'review' => strip_tags($review, '<img>'), 'ipaddress' => $this->ip->getUserIP(), 'spam' => $spam])) {
                 return $this->sendReviewEmail($productID);

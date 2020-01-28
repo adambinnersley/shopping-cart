@@ -5,6 +5,7 @@ namespace ShoppingCart;
 use DBAL\Database;
 use Configuration\Config;
 use ShoppingCart\Modifiers\Cost;
+use Blocking\IPBlock;
 
 class Basket{
     protected $db;
@@ -12,7 +13,8 @@ class Basket{
     public $tax;
     public $voucher;
     public $user;
-    
+    protected $ip_address;
+
     protected $user_id;
 
     public $config;
@@ -39,6 +41,7 @@ class Basket{
         $this->user = (is_object($user) ? $user : new Customers($this->db));
         $this->user_id = $this->user->getUserID();
         $this->decimals = Currency::getCurrencyDecimals($this->config->currency);
+        $this->ip_address = new IPBlock($this->db);
         if(!session_id()){session_start();}
     }
     
@@ -57,7 +60,7 @@ class Basket{
      */
     protected function createOrder($additional = []) {
         $this->updateTotals();
-        return $this->db->insert($this->config->table_basket, array_merge(['customer_id' => ($this->user_id === 0 ? NULL : $this->user_id), 'order_no' => $this->createOrderID(), 'digital' => $this->has_download, 'subtotal' => $this->totals['subtotal'], 'discount' => $this->totals['discount'], 'total_tax' => $this->totals['tax'], 'delivery' => $this->totals['delivery'], 'cart_total' => $this->totals['total'], 'sessionid' => session_id(), 'ipaddress' => filter_input(INPUT_ENV, 'REMOTE_ADDR', FILTER_VALIDATE_IP)], $additional));
+        return $this->db->insert($this->config->table_basket, array_merge(['customer_id' => ($this->user_id === 0 ? NULL : $this->user_id), 'order_no' => $this->createOrderID(), 'digital' => $this->has_download, 'subtotal' => $this->totals['subtotal'], 'discount' => $this->totals['discount'], 'total_tax' => $this->totals['tax'], 'delivery' => $this->totals['delivery'], 'cart_total' => $this->totals['total'], 'sessionid' => session_id(), 'ipaddress' => $this->ip_address->getUserIP()], $additional));
     }
     
     /**
