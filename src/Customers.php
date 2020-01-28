@@ -226,7 +226,7 @@ class Customers extends \UserAuth\User{
      */
     protected function compareDeliveryToBillingAddress($customerID, $deliveryInfo) {
         $billingInfo = $this->getUserInfo($customerID);
-        if($deliveryInfo['add_1'] == $billingInfo['add_1'] && $deliveryInfo['postcode'] == $billingInfo['postcode']) {
+        if($deliveryInfo['title'] == $billingInfo['title'] && $deliveryInfo['firstname'] == $billingInfo['firstname'] && $deliveryInfo['lastname'] == $billingInfo['lastname'] && $deliveryInfo['add_1'] == $billingInfo['add_1'] && $deliveryInfo['postcode'] == $billingInfo['postcode']) {
             return true;
         }
         return false;
