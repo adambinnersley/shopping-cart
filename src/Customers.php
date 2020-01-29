@@ -181,13 +181,15 @@ class Customers extends \UserAuth\User{
      * Add a new delivery address for the customer
      * @param int $customerID This should be the customers ID
      * @param array $deliveryInfo This should be the updated delivery information as an array
+     * @param boolean $delivery Should be set to true (default) for the delivery address else set to false for the billing address 
      * @return int|boolean If the delivery information is inserted into the database will return the lastInsertID number to add to the order else if nothing has been added will return false
      */
-    public function setDeliveryAddress($customerID, $deliveryInfo) {
+    public function setDeliveryAddress($customerID, $deliveryInfo, $delivery = true) {
+        $type = ($delivery === true ? 'delivery' : 'billing');
         if($this->checkIfAddressExists($customerID, $deliveryInfo['add_1'], $deliveryInfo['postcode']) === false && $this->compareDeliveryToBillingAddress($customerID, $deliveryInfo) === false) {
             $userInfo = $this->getUserInfo(intval($customerID));
             $this->db->insert($this->config->table_delivery_address, ['customer_id' => intval($customerID), 'title' => (!empty(trim($deliveryInfo['title'])) ? $deliveryInfo['title'] : $userInfo['title']), 'firstname' => (!empty(trim($deliveryInfo['firstname'])) ? $deliveryInfo['firstname'] : $userInfo['firstname']), 'lastname' => (!empty(trim($deliveryInfo['lastname'])) ? $deliveryInfo['lastname'] : $userInfo['lastname']), 'add_1' => $deliveryInfo['add_1'], 'add_2' => $deliveryInfo['add_2'], 'town' => $deliveryInfo['town'], 'county' => intval($deliveryInfo['county']), 'postcode' => strtoupper(Modifier::removeNoneAlphaNumeric($deliveryInfo['postcode']))]);
-            return $this->db->update($this->config->table_basket, ['delivery_id' => $this->db->lastInsertID()], ['customer_id' => $customerID, 'sessionid' => session_id(), 'status' => 1], 1);
+            return $this->db->update($this->config->table_basket, [$type.'_id' => $this->db->lastInsertID()], ['customer_id' => $customerID, 'sessionid' => session_id(), 'status' => 1], 1);
         }
         return false;
     }

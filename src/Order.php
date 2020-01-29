@@ -199,6 +199,7 @@ class Order extends Basket{
         $orderInfo['statustext'] = $this->orderStatus($orderInfo['status']);
         $orderInfo['user'] = $this->user->getUserInfo($orderInfo['customer_id']);
         $orderInfo['delivery_info'] = $this->getDeliveryInfo($orderInfo);
+        $orderInfo['billing_info'] = $this->getDeliveryInfo($orderInfo, false);
         $this->getOrderProducts($this->getProducts($orderInfo['order_id']), $orderInfo['order_id'], $orderInfo);
         $orderInfo['products'] = isset($this->totals['product']) ? $this->totals['product'] : [];
         $orderInfo['numproducts'] = isset($this->totals['numproducts']) ? $this->totals['numproducts'] : 0;
@@ -274,11 +275,13 @@ class Order extends Basket{
     /**
      * Returns the delivery information for and order 
      * @param array $orderInfo This should be the order information
+     * @param boolean $delivery Should be set to true (default) for the delivery address else set to false for the billing address 
      * @return array The designated delivery information will be returned for the order
      */
-    protected function getDeliveryInfo($orderInfo) {
-        if(!is_null($orderInfo['delivery_id']) && $orderInfo['delivery_id'] >= 1) {
-            return $this->user->getDeliveryAddress($orderInfo['delivery_id'], $orderInfo['customer_id']);
+    protected function getDeliveryInfo($orderInfo, $delivery = true) {
+        $type = ($delivery === true ? 'delivery' : 'billing');
+        if(!is_null($orderInfo[$type.'_id']) && $orderInfo[$type.'_id'] >= 1) {
+            return $this->user->getDeliveryAddress($orderInfo[$type.'_id'], $orderInfo['customer_id']);
         }
         return $this->user->getUserInfo(intval($orderInfo['customer_id']));
     }

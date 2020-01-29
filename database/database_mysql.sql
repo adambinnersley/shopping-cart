@@ -364,6 +364,7 @@ CREATE TABLE IF NOT EXISTS `store_orders` (
   `customer_id` int(11) UNSIGNED DEFAULT NULL,
   `status` tinyint(1) UNSIGNED DEFAULT '1',
   `payment_flagged` tinyint(3) UNSIGNED NOT NULL DEFAULT '0',
+  `billing_id` int(11) UNSIGNED DEFAULT NULL,
   `delivery_id` int(11) UNSIGNED DEFAULT NULL,
   `delivery_method` int(11) DEFAULT NULL,
   `digital` tinyint(1) UNSIGNED DEFAULT '0',
