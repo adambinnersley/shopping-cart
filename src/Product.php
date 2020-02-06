@@ -338,7 +338,11 @@ class Product extends Category{
      * @return array|false If items exist an array will be returned else will return false 
      */
     public function getPopularProducts($limit = 5, $findBy = 'sales', $where = []) {
-        return $this->db->selectAll($this->config->table_products, $where, '*', [$findBy => 'DESC'], intval($limit));
+        $products = $this->db->selectAll($this->config->table_products, $where, '*', [$findBy => 'DESC'], intval($limit));
+        foreach ($products as $i => $product){
+            $products[$i] = $this->getProductByID($product['product_id']);
+        }
+        return $products;
     }
     
     /**
