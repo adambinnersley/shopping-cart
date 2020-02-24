@@ -190,6 +190,21 @@ class Order extends Basket{
     }
     
     /**
+     * Update an order field in the database
+     * @param array $update This should be the field that you are updating
+     * @param int|false $orderID This should either be set to the order ID or false
+     * @param array $additional Any additional fields to get the correct order
+     * @return boolean If it has successfully been updated will return true else returns false
+     */
+    public function updateOrderInfo(array $update = [], $orderID = false, array $additional = []) {
+        if(!is_numeric($orderID)){$orderID = $this->getOrderInformation($additional)['order_id'];}
+        if(is_array($update) && !empty($update)){
+            return $this->db->update($this->config->table_basket, $update, ['order_id' => $orderID], 1);
+        }
+        return false;
+    }
+    
+    /**
      * Retrieves additional information for a given order
      * @param array $orderInfo This should be the current order information
      * @return array A full array of the order information will be returned 
