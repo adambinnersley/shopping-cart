@@ -41,7 +41,8 @@ class Review{
      * @return array|false If any reviews exist they should be returned as an array else false will be returned
      */
     public function getReviews($limit = false, $start = 0, $where = []) {
-        return $this->db->query("SELECT `reviews`.*, `product`.`name` as `product_name` FROM `{$this->config->table_review}` as `reviews`, `{$this->config->table_products}` as `product` WHERE `reviews`.`product` = `product`.`product_id`".SQLBuilder::createAdditionalString($where)." ORDER BY `date` DESC".($limit !== false ? " LIMIT ".intval($start).", ".intval($limit) : "").";", (!empty($where) ? array_values($where) : []));
+        $extraSQL = SQLBuilder::createAdditionalString($where);
+        return $this->db->query("SELECT `reviews`.*, `product`.`name` as `product_name` FROM `{$this->config->table_review}` as `reviews`, `{$this->config->table_products}` as `product` WHERE `reviews`.`product` = `product`.`product_id`".(strlen($extraSQL) >= 1 ? ' AND '.$extraSQL : '')." ORDER BY `date` DESC".($limit !== false ? " LIMIT ".intval($start).", ".intval($limit) : "").";", (!empty($where) ? array_values($where) : []));
     }
     
     /**
