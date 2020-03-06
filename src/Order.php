@@ -82,7 +82,7 @@ class Order extends Basket{
      */
     public function listOrders($status = 2, $start = 0, $limit = 50, array $additional = [], $count = false) {
         $extraSQL = SQLBuilder::createAdditionalString($additional);
-        return $this->db->query("SELECT ".($count === false ? "*" : "count(`{$this->config->table_basket}`.`order_id`) as `count`")." FROM `{$this->config->table_basket}`, `{$this->config->table_users}` WHERE `{$this->config->table_basket}`.`customer_id` = `{$this->config->table_users}`.`id` AND `{$this->config->table_basket}`.`customer_id` != '0'".(is_numeric($status) ? " AND `{$this->config->table_basket}`.`status` = ".intval($status) : "").(strlen($extraSQL) >= 1 ? ' AND '.$extraSQL : '')." ORDER BY `date` DESC".($limit >= 1 ? " LIMIT ".intval($start).", ".intval($limit) : '').";", (!empty($additional) ? array_values($additional) : []));
+        return $this->db->query("SELECT ".($count === false ? "*" : "count(`{$this->config->table_basket}`.`order_id`) as `count`")." FROM `{$this->config->table_basket}`, `{$this->config->table_users}` WHERE `{$this->config->table_basket}`.`customer_id` = `{$this->config->table_users}`.`id` AND `{$this->config->table_basket}`.`customer_id` != '0'".(is_numeric($status) ? " AND `{$this->config->table_basket}`.`status` = ".intval($status) : "").(strlen($extraSQL) >= 1 ? ' AND '.$extraSQL : '')." ORDER BY `date` DESC".($limit >= 1 ? " LIMIT ".intval($start).", ".intval($limit) : '').";", (!empty(SQLBuilder::$values) ? array_values(SQLBuilder::$values) : []));
     }
     
     /**
