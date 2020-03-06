@@ -30,15 +30,24 @@ class Order extends Basket{
     public function __construct(Database $db, Config $config, $user = false, $product = false) {
         parent::__construct($db, $config, $user, $product);
         $this->download = new Download($this->db, $this->config, $this, $product);
-        $this->clearOldOrders();
     }
     
     /**
-     * Clears old orders from the database which haven't been completed after allotted time 
+     * Clears orders from the database which haven't been completed after allotted time 
      */
-    protected function clearOldOrders() {
+    public function clearIncompleteOrders($timeframe = '-1 month') {
         $date = new DateTime();
-        $date->modify('-1 month');
+        $date->modify($timeframe);
+        $this->db->delete($this->config->table_basket, ['cust_id' => 0, 'status' => 1, 'date' => ['<=', $date->format('Y-m-d H:i:s')]]);
+        $this->db->update($this->config->table_basket, ['status' => 4, 'sessionid' => NULL], ['status' => 1, 'date' => ['<=', $date->format('Y-m-d H:i:s')]]);
+    }
+    
+    /**
+     * Clears old paid orders that have not yet been marked as complete and may have been missed 
+     */
+    public function completeOldPaidOrders($timeframe = '-1 month') {
+        $date = new DateTime();
+        $date->modify($timeframe);
         $this->db->update($this->config->table_basket, ['status' => 3], ['status' => 2, 'date' => ['<=', $date->format('Y-m-d H:i:s')]]);
     }
     
