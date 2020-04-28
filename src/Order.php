@@ -268,9 +268,10 @@ class Order extends Basket{
             $this->totals['numproducts'] = 0;
             foreach($products as $i => $product){
                 $this->totals['product'][$i] = $this->product->getProductByID($product['product_id']);
+                $this->totals['product'][$i]['name'] = $product['product_info']['name'];
                 $this->totals['product'][$i]['quantity'] = intval($product['quantity']);
-                $this->totals['product'][$i]['price'] = Cost::priceUnits($this->product->getProductPrice($product['product_id']), $this->decimals);
-                $this->totals['product'][$i]['tax'] = Cost::priceUnits($this->tax->calculateItemTax($this->totals['product'][$i]['tax_id'], $this->totals['product'][$i]['price']), $this->decimals);
+                $this->totals['product'][$i]['price'] = Cost::priceUnits($product['product_info']['price'], $this->decimals);
+                $this->totals['product'][$i]['tax'] = Cost::priceUnits($this->tax->calculateItemTax($product['product_info']['tax_id'], $this->totals['product'][$i]['price']), $this->decimals);
                 $this->totals['numproducts'] = intval($this->totals['numproducts']) + $this->totals['product'][$i]['quantity'];
                 if($this->product->isProductDownload($product['product_id']) && ($orderInfo['status'] == 2 || $orderInfo['status'] == 3)){
                     $this->hasDownload = true;

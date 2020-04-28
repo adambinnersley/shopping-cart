@@ -127,6 +127,11 @@ class Basket{
         }
         elseif(is_numeric($orderID)){
             $this->products = $this->db->selectAll($this->config->table_basket_products, ['order_id' => $orderID]);
+            if(is_array($this->products)){
+                foreach($this->products as $i => $product) {
+                    $this->products[$i]['product_info'] = unserialize($product['product_info']);
+                }
+            }
             return $this->products;
         }
         return false;
@@ -170,7 +175,8 @@ class Basket{
                 }
             }
             if($match !== true){
-                $this->db->insert($this->config->table_basket_products, ['order_id' => $orderInfo['order_id'], 'product_id' => $product_id, 'quantity' => $quantity]);
+                $productInfo = $this->product->getProductByID($product['product_id']);
+                $this->db->insert($this->config->table_basket_products, ['order_id' => $orderInfo['order_id'], 'product_id' => $product_id, 'quantity' => $quantity, 'product_info' => serialize(['name' => $productInfo['name'], 'price' => $this->product->getProductPrice($product['product_id']), 'tax_id' => $productInfo['tax_id']])]);
             }
             $this->products = [];
             $this->getProducts($orderInfo['order_id'], $additional);

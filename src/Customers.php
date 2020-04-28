@@ -292,7 +292,7 @@ class Customers extends \UserAuth\User{
             $return['message'] = 'Please make sure all of the required fields have been entered and try again!';
             return $return;
         }
-        $params['postcode'] = strtoupper(Modifier::removeNoneAlphaNumeric($params['postcode']));
+        $params['postcode'] = Modifier::setNullOnEmpty(strtoupper(Modifier::removeNoneAlphaNumeric($params['postcode'])));
         $params['ipaddress'] = $this->ip_address->getUserIP();
         $addUser = $this->register($email, $password, $confirm, $params, NULL, false);
         if($addUser['error'] === false && $sendmail === true) {
@@ -337,7 +337,7 @@ class Customers extends \UserAuth\User{
             }
         }
         if($customerInfo['postcode']) {
-            $customerInfo['postcode'] = strtoupper(Modifier::removeNoneAlphaNumeric($customerInfo['postcode']));
+            $customerInfo['postcode'] = Modifier::setNullOnEmpty(strtoupper(Modifier::removeNoneAlphaNumeric($customerInfo['postcode'])));
         }
         $return['error'] = $this->db->update($this->table_users, $customerInfo, array_filter(array_merge(['id' => $userID], $additionalInfo)), 1) ? false : true;
         $return['message'] = $return['error'] ? 'Please make sure the information has changed and try again!' : 'Account has been successfully updated';

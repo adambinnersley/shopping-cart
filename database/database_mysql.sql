@@ -394,6 +394,7 @@ CREATE TABLE IF NOT EXISTS `store_order_products` (
   `order_id` int(11) UNSIGNED NOT NULL,
   `product_id` int(11) UNSIGNED NOT NULL,
   `quantity` smallint(5) UNSIGNED NOT NULL DEFAULT '1',
+  `product_info` text DEFAULT NULL,
   UNIQUE KEY `unique_order_product` (`order_id`,`product_id`),
   KEY `product_id` (`product_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
