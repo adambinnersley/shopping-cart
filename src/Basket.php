@@ -175,7 +175,7 @@ class Basket{
                 }
             }
             if($match !== true){
-                $productInfo = $this->product->getProductByID($product['product_id']);
+                $productInfo = $this->product->getProductByID($product_id);
                 $this->db->insert($this->config->table_basket_products, ['order_id' => $orderInfo['order_id'], 'product_id' => $product_id, 'quantity' => $quantity, 'product_info' => serialize(['name' => $productInfo['name'], 'price' => $this->product->getProductPrice($product['product_id']), 'tax_id' => $productInfo['tax_id']])]);
             }
             $this->products = [];
