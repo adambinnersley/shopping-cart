@@ -157,7 +157,9 @@ class Basket{
      */
     public function addItemToBasket($product_id, $quantity = 1, $update = true, $additional = []) {
         $this->getProducts('', $additional);
-        if(is_numeric($product_id) && is_numeric($quantity) && is_array($this->product->getProductByID($product_id))){
+        $productInfo = $this->product->getProductByID($product_id);
+        print_r($productInfo);
+        if(is_numeric($product_id) && is_numeric($quantity) && is_array($productInfo)){
             $orderInfo = $this->getBasket('', $additional);
             if(!is_array($orderInfo)){
                 $this->createOrder($additional);
@@ -175,8 +177,7 @@ class Basket{
                 }
             }
             if($match !== true){
-                $productInfo = $this->product->getProductByID($product_id);
-                $this->db->insert($this->config->table_basket_products, ['order_id' => $orderInfo['order_id'], 'product_id' => $product_id, 'quantity' => $quantity, 'product_info' => serialize(['name' => $productInfo['name'], 'price' => $this->product->getProductPrice($product['product_id']), 'tax_id' => $productInfo['tax_id']])]);
+                $this->db->insert($this->config->table_basket_products, ['order_id' => $orderInfo['order_id'], 'product_id' => $product_id, 'quantity' => $quantity, 'product_info' => serialize(['name' => $productInfo['name'], 'price' => $this->product->getProductPrice($product_id), 'tax_id' => $productInfo['tax_id']])]);
             }
             $this->products = [];
             $this->getProducts($orderInfo['order_id'], $additional);
