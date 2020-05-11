@@ -394,10 +394,9 @@ class Customers extends \UserAuth\User{
         $userInfo = $this->getUserInfo($this->getRequest($key, "reset")['uid']);
         $return = $this->resetPass($key, $newpass, $repeatnewpass, $captcha);
         if($return['error'] === true){
-            $this->db->update($this->table_users, ['require_pass' => 0], ['id' => $userInfo['id']]);
             return $return;
         }
-        
+        $this->db->update($this->table_users, ['require_pass' => 0], ['id' => $userInfo['id']]);
         if($sendmail === true && is_array($userInfo)) {
             $this->sendPasswordChangeEmail($userInfo);
         }
