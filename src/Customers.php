@@ -47,6 +47,32 @@ class Customers extends \UserAuth\User{
         $this->table_attempts = $this->config->table_users_attempts;
         $this->setLanguageArray(array_merge($this->getLanguageArray(), $this->config->getAll()));
     }
+    
+    /**
+     * Logs a user in
+     * @param string $email
+     * @param string $password
+     * @param boolean $remember
+     * @param string $captcha = NULL
+     * @return array $return
+     */
+    public function login($email, $password, $remember = true, $captcha = NULL) {
+        $login = parent::login($email, $password, $remember, $captcha);
+        if($login['error'] === false){
+            $this->updateOrders($login['user_id']);
+        }
+        return $login;
+    }
+    
+    /**
+    * Logs out the session, identified by hash
+    * @param string $hash
+    * @return boolean
+    */
+    public function logout($hash) {
+        $this->updateOrders(NULL);
+        return parent::logout($hash);
+    }
         
     /**
     * Gets public user data for a given email and returns an array, password is not returned
@@ -136,6 +162,18 @@ class Customers extends \UserAuth\User{
             }
         }
         return $sql;
+    }
+
+    /**
+     * Updates the customer ID for the order when the user logs in or out
+     * @param int $userID The user ID to update any pending orders to
+     * @return boolean If any order have been updated will return true else returns false
+     */
+    private function updateOrders($userID){
+        if(intval($userID) > 0){
+            $this->updateNoCustomerOrders($userID, $this->db->count($this->config->table_basket, ['customer_id' => intval($userID)]));
+        }
+        return $this->db->update($this->config->table_basket, ['customer_id' => $userID], ['sessionid' => session_id(), 'status' => 1]);
     }
     
     /**
