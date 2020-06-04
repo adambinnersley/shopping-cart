@@ -19,6 +19,8 @@ class Review{
     protected $blocking;
     protected $ip;
     
+    protected $count = [];
+    
     /**
      * Constructor add an instance of the database class
      * @param Database $db This should be an instance of the database class
@@ -154,7 +156,11 @@ class Review{
      * @return int Returns the number of reviews for the given product ID
      */
     public function countProductReviews($productID) {
-        return $this->db->count($this->config->table_review, ['approved' => 1, 'product' => $productID]);
+        if(isset($this->count[$productID])){
+            return $this->count[$productID];
+        }
+        $this->count[$productID] = $this->db->count($this->config->table_review, ['approved' => 1, 'product' => $productID]);
+        return $this->count[$productID];
     }
     
     /**
