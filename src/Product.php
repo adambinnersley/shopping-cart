@@ -243,7 +243,6 @@ class Product extends Category{
             if($active === true) {$where['active'] = 1;}
             $productInfo = $this->db->select($this->config->table_products, $where);
             if(is_array($productInfo)) {
-                $productInfo['categories'] = $this->listProductCategories($productInfo['product_id']);
                 $productInfo['reviewInfo'] = $this->review->productReviewInfo($productInfo['product_id']);
                 $productInfo['related'] = $this->getRelatedProducts($productInfo['related']);
                 $productInfo['category_url'] = $this->getPrimaryCategoryURL($productInfo['product_id']);
