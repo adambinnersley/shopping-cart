@@ -10,6 +10,8 @@ class Category{
     protected $db;
     public $config;
     
+    protected $categoryInfo = [];
+
     /**
      * Constructor
      * @param Database $db This should be an instance of the database class
@@ -51,8 +53,12 @@ class Category{
      * @return array|false If category information exists the information array will be returned else will return false if nothing exists
      */
     public function getCategoryByID($category_id) {
+        if(!empty($this->categoryInfo[$category_id])){
+            return $this->categoryInfo[$category_id];
+        }
         if(is_numeric($category_id)) {
-            return $this->getCategoryInfo(['id' => $category_id]);
+            $this->categoryInfo[$category_id] = $this->getCategoryInfo(['id' => $category_id]);
+            return $this->categoryInfo[$category_id];
         }
         return false;
     }
