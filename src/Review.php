@@ -147,7 +147,23 @@ class Review{
      * @return boolean If the review is successfully updated will return true else returns false
      */
     public function changeReviewStatus($reviewID, $status = 1) {
-        return $this->db->update($this->config->table_review, ['approved' => $status], ['review_id' => $reviewID], 1);
+        if($this->db->update($this->config->table_review, ['approved' => $status], ['review_id' => $reviewID], 1)){
+            $this->updateProductReviewInfo($this->getReviewInfo($reviewID)['product']);
+            return true;
+        }
+        return false; 
+    }
+    
+    /**
+     * Update the number of reviews and rating for each product
+     * @param int $productID This should be the product ID you are updating number of reviews for
+     * @return boolean If successfully update will return true else returns false
+     */
+    public function updateProductReviewInfo($productID) {
+        if(is_numeric($productID)){
+            return $this->db->update($this->config->table_products, ['num_reviews' => $this->countProductReviews($productID), 'review_rating' => $this->getProductReviews($productID)]);
+        }
+        return false;
     }
     
     /**
@@ -157,10 +173,10 @@ class Review{
      */
     public function countProductReviews($productID) {
         if(isset($this->count[$productID])){
-            return $this->count[$productID];
+            return intval($this->count[$productID]);
         }
         $this->count[$productID] = $this->db->count($this->config->table_review, ['approved' => 1, 'product' => $productID]);
-        return $this->count[$productID];
+        return intval($this->count[$productID]);
     }
     
     /**

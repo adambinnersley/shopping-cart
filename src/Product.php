@@ -247,7 +247,7 @@ class Product extends Category{
                 $productInfo['related'] = $this->getRelatedProducts($productInfo['related']);
                 $productInfo['category_url'] = $this->getPrimaryCategoryURL($productInfo['product_id']);
                 $productInfo['gallery_images'] = ($productInfo['noimages'] >= 1 ? $this->gallery->getProductImages($productInfo['product_id']) : false);
-                if($this->review->countProductReviews($productInfo['product_id'])) {$productInfo['reviews'] = $this->review->getProductReviews($productInfo['product_id']);}
+                if($productInfo['num_reviews'] > 0) {$productInfo['reviews'] = $this->review->getProductReviews($productInfo['product_id']);}
                 return $productInfo;
             }
         }

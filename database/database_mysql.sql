@@ -418,6 +418,8 @@ CREATE TABLE IF NOT EXISTS `store_products` (
   `digitalloc` varchar(255) DEFAULT NULL,
   `weight` decimal(10,3) NOT NULL DEFAULT '0.000',
   `tax_id` tinyint(3) UNSIGNED NOT NULL DEFAULT '0',
+  `num_reviews` int(11) UNSIGNED NOT NULL DEFAULT '0',
+  `review_rating` decimal(3,2) UNSIGNED DEFAULT NULL,
   `featured` tinyint(1) UNSIGNED NOT NULL DEFAULT '0',
   `homepage` tinyint(1) UNSIGNED NOT NULL DEFAULT '0',
   `date_added` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
