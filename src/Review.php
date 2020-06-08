@@ -8,6 +8,7 @@ use Blocking\IPBlock;
 use Blocking\BannedWords;
 use ShoppingCart\Mailer;
 use ShoppingCart\Modifiers\SQLBuilder;
+use DBAL\Modifiers\Modifier;
 use DateTime;
 use DateTimeZone;
 
@@ -161,7 +162,7 @@ class Review{
      */
     public function updateProductReviewInfo($productID) {
         if(is_numeric($productID)){
-            return $this->db->update($this->config->table_products, ['num_reviews' => $this->countProductReviews($productID), 'review_rating' => $this->getProductReviews($productID)]);
+            return $this->db->update($this->config->table_products, ['num_reviews' => $this->countProductReviews($productID), 'review_rating' => Modifier::setNullOnEmpty($this->getProductRating($productID))]);
         }
         return false;
     }
@@ -186,10 +187,13 @@ class Review{
      */
     protected function getProductRating($productID) {
         $total = 0;
-        foreach($this->db->selectAll($this->config->table_review, ['approved' => 1, 'product' => $productID]) as $review) {
-            $total = $total + $review['rating'];
+        if($this->countProductReviews($productID) > 0){
+            foreach($this->db->selectAll($this->config->table_review, ['approved' => 1, 'product' => $productID]) as $review) {
+                $total = $total + $review['rating'];
+            }
+            return number_format(($total / $this->countProductReviews($productID)), 1, '.', '');
         }
-        return number_format(($total / $this->countProductReviews($productID)), 1, '.', '');
+        return 0;
     }
     
     /**
