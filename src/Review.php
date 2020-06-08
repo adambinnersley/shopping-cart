@@ -162,7 +162,7 @@ class Review{
      */
     public function updateProductReviewInfo($productID) {
         if(is_numeric($productID)){
-            return $this->db->update($this->config->table_products, ['num_reviews' => $this->countProductReviews($productID), 'review_rating' => Modifier::setNullOnEmpty($this->getProductRating($productID))]);
+            return $this->db->update($this->config->table_products, ['num_reviews' => $this->countProductReviews($productID), 'review_rating' => Modifier::setNullOnEmpty($this->getProductRating($productID))], ['product_id' => $productID], 1);
         }
         return false;
     }
