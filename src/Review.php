@@ -197,21 +197,6 @@ class Review{
     }
     
     /**
-     * If ratings have been submitted to the given product ID this will return a summary of the ratings
-     * @param int $productID This should be the product ID you wish to generate the Rating string for
-     * @return string Returns the product review info in a formatted string 
-     */
-    public function productReviewInfo($productID) {
-        if($this->countProductReviews($productID)) {
-            $reviewInfo = [];
-            $reviewInfo['numReviews'] = $this->countProductReviews($productID);
-            $reviewInfo['rating'] = str_replace('.0', '', $this->getProductRating($productID));
-            return $reviewInfo;
-        }
-        return false;
-    }
-    
-    /**
      * Checks to see a if a customer review already exists for the given product
      * @param int $productID This should be the product ID of the product the review is for
      * @param string $email This should be the customers email address
