@@ -295,7 +295,7 @@ class Order extends Basket{
         if(isset($orderInfo[$type.'_id']) && !is_null($orderInfo[$type.'_id']) && $orderInfo[$type.'_id'] >= 1) {
             return $this->user->getDeliveryAddress($orderInfo[$type.'_id'], $orderInfo['customer_id']);
         }
-        return $this->user->getUserInfo(intval($orderInfo['customer_id']));
+        return $orderInfo['user'];
     }
     
     /**

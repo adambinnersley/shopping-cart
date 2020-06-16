@@ -88,7 +88,7 @@ class Basket{
      */
     protected function updateBasket($additional = []) {
         $this->updateTotals();
-        if(count($this->products) >= 1){
+        if(!empty($this->products)){
             return $this->db->update($this->config->table_basket, ['digital' => $this->has_download, 'subtotal' => $this->totals['subtotal'], 'discount' => $this->totals['discount'], 'total_tax' => $this->totals['tax'], 'delivery' => $this->totals['delivery'], 'cart_total' => $this->totals['total']], array_merge(['customer_id' => ($this->user_id === 0 ? 'IS NULL' : $this->user_id), 'sessionid' => session_id(), 'status' => 1], $additional));
         }
         return $this->emptyBasket();
