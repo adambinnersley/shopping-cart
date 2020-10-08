@@ -12,7 +12,8 @@ use DBAL\Modifiers\Modifier;
 use DateTime;
 use DateTimeZone;
 
-class Review{
+class Review
+{
     protected $db;
     protected $config;
     protected $product;
@@ -28,7 +29,8 @@ class Review{
      * @param Config $config This sis an instance of the config class
      * @param Object This is an instance of the product class
      */
-    public function __construct(Database $db, Config $config, $product) {
+    public function __construct(Database $db, Config $config, $product)
+    {
         $this->db = $db;
         $this->config = $config;
         $this->product = $product;
@@ -43,7 +45,8 @@ class Review{
      * @param array $where any parameters you want to search on
      * @return array|false If any reviews exist they should be returned as an array else false will be returned
      */
-    public function getReviews($limit = false, $start = 0, $where = []) {
+    public function getReviews($limit = false, $start = 0, $where = [])
+    {
         $extraSQL = SQLBuilder::createAdditionalString($where);
         return $this->db->query("SELECT `reviews`.*, `product`.`name` as `product_name` FROM `{$this->config->table_review}` as `reviews`, `{$this->config->table_products}` as `product` WHERE `reviews`.`product` = `product`.`product_id`".(strlen($extraSQL) >= 1 ? ' AND '.$extraSQL : '')." ORDER BY `date` DESC".($limit !== false ? " LIMIT ".intval($start).", ".intval($limit) : "").";", array_merge((!empty($where) ? array_values($where) : []), SQLBuilder::$values));
     }
@@ -53,7 +56,8 @@ class Review{
      * @param array $where any parameters you want to search on
      * @return int The number of total reviews will be returned
      */
-    public function countReviews($where = []) {
+    public function countReviews($where = [])
+    {
         return $this->db->count($this->config->table_review, $where);
     }
 
@@ -62,7 +66,8 @@ class Review{
      * @param int $productID This should be the product ID you wish to get the Product reviews for
      * @return string Returns a array containing all of the reviews for the given product
      */
-    public function getProductReviews($productID, $start = 0, $limit = 50) {
+    public function getProductReviews($productID, $start = 0, $limit = 50)
+    {
         return $this->db->selectAll($this->config->table_review, ['approved' => 1, 'product' => $productID], '*', ['date' => 'DESC'], [$start => $limit]);
     }
     
@@ -77,10 +82,15 @@ class Review{
      * @param int $type The type of review 1 = review, 2 = comment
      * @return boolean Returns true if review is inserted into database else returns false
      */
-    public function addProductReview($productID, $name, $email, $title, $review, $rating = 5, $type = 1) {
-        if($this->blocking->containsBlockedWord($review) || $this->blocking->containsBlockedWord($title) || $this->checkForReviewsByIP($this->ip->getUserIP()) >= 1) {$spam = 1;}else{$spam = 0;}
-        if(!$this->checkIfCustomerReviewExists($productID, $email) && filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            if($this->db->insert($this->config->table_review, ['product' => $productID, 'type' => $type, 'rating' => $rating, 'name' => $name, 'email' => $email, 'title' => $title, 'review' => strip_tags($review, '<img>'), 'ipaddress' => $this->ip->getUserIP(), 'spam' => $spam])) {
+    public function addProductReview($productID, $name, $email, $title, $review, $rating = 5, $type = 1)
+    {
+        if ($this->blocking->containsBlockedWord($review) || $this->blocking->containsBlockedWord($title) || $this->checkForReviewsByIP($this->ip->getUserIP()) >= 1) {
+            $spam = 1;
+        } else {
+            $spam = 0;
+        }
+        if (!$this->checkIfCustomerReviewExists($productID, $email) && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            if ($this->db->insert($this->config->table_review, ['product' => $productID, 'type' => $type, 'rating' => $rating, 'name' => $name, 'email' => $email, 'title' => $title, 'review' => strip_tags($review, '<img>'), 'ipaddress' => $this->ip->getUserIP(), 'spam' => $spam])) {
                 return $this->sendReviewEmail($productID);
             }
         }
@@ -91,8 +101,9 @@ class Review{
      * Send an email to alert admin the review has been submitted
      * @return boolean Returns true if email successfully sent else returns false
      */
-    protected function sendReviewEmail($productID) {
-        if($this->config->send_review_email === 'true') {
+    protected function sendReviewEmail($productID)
+    {
+        if ($this->config->send_review_email === 'true') {
             $productInfo = $this->product->getProductByID($productID);
             return Mailer::sendEmail(
                 $this->config->email_office_address,
@@ -112,8 +123,9 @@ class Review{
      * @param array $additionalInfo Any additional information to limit the query
      * @return array|boolean Returns the review information if it exists else returns false
      */
-    public function getReviewInfo($reviewID, $additionalInfo = []) {
-        if(is_numeric($reviewID)){
+    public function getReviewInfo($reviewID, $additionalInfo = [])
+    {
+        if (is_numeric($reviewID)) {
             return $this->db->select($this->config->table_review, array_merge(['review_id' => $reviewID], $additionalInfo));
         }
         return false;
@@ -125,8 +137,9 @@ class Review{
      * @param array $additionalInfo Any additional information to limit the query
      * @return boolean Returns true on success of false on failure
      */
-    public function updateProductReview($reviewID, $additionalInfo = []) {
-        foreach($additionalInfo as $field => $value) {
+    public function updateProductReview($reviewID, $additionalInfo = [])
+    {
+        foreach ($additionalInfo as $field => $value) {
             $additionalInfo[$field] = strip_tags($value, '<img>');
         }
         return $this->db->update($this->config->table_review, $additionalInfo, ['review_id' => $reviewID], 1);
@@ -137,7 +150,8 @@ class Review{
      * @param inst $reviewID This should be the unique ID given to the review that you wish to delete
      * @return boolean If the review is successfully delete will return true else returns false
      */
-    public function deleteProductReview($reviewID) {
+    public function deleteProductReview($reviewID)
+    {
         return $this->db->delete($this->config->table_review, ['review_id' => $reviewID], 1);
     }
     
@@ -147,12 +161,13 @@ class Review{
      * @param int $status The new status that you wish to give to the review to publish set to 1 else set to 0
      * @return boolean If the review is successfully updated will return true else returns false
      */
-    public function changeReviewStatus($reviewID, $status = 1) {
-        if($this->db->update($this->config->table_review, ['approved' => $status], ['review_id' => $reviewID], 1)){
+    public function changeReviewStatus($reviewID, $status = 1)
+    {
+        if ($this->db->update($this->config->table_review, ['approved' => $status], ['review_id' => $reviewID], 1)) {
             $this->updateProductReviewInfo($this->getReviewInfo($reviewID)['product']);
             return true;
         }
-        return false; 
+        return false;
     }
     
     /**
@@ -160,8 +175,9 @@ class Review{
      * @param int $productID This should be the product ID you are updating number of reviews for
      * @return boolean If successfully update will return true else returns false
      */
-    public function updateProductReviewInfo($productID) {
-        if(is_numeric($productID)){
+    public function updateProductReviewInfo($productID)
+    {
+        if (is_numeric($productID)) {
             return $this->db->update($this->config->table_products, ['num_reviews' => $this->countProductReviews($productID), 'review_rating' => Modifier::setNullOnEmpty($this->getProductRating($productID))], ['product_id' => $productID], 1);
         }
         return false;
@@ -172,8 +188,9 @@ class Review{
      * @param int $productID The product ID you wish to get the number of product reviews for
      * @return int Returns the number of reviews for the given product ID
      */
-    public function countProductReviews($productID) {
-        if(isset($this->count[$productID])){
+    public function countProductReviews($productID)
+    {
+        if (isset($this->count[$productID])) {
             return intval($this->count[$productID]);
         }
         $this->count[$productID] = $this->db->count($this->config->table_review, ['approved' => 1, 'product' => $productID]);
@@ -185,10 +202,11 @@ class Review{
      * @param int $productID This should be the product ID you wish to get the rating of
      * @return string Returns the product rating out of 5
      */
-    protected function getProductRating($productID) {
+    protected function getProductRating($productID)
+    {
         $total = 0;
-        if($this->countProductReviews($productID) > 0){
-            foreach($this->db->selectAll($this->config->table_review, ['approved' => 1, 'product' => $productID]) as $review) {
+        if ($this->countProductReviews($productID) > 0) {
+            foreach ($this->db->selectAll($this->config->table_review, ['approved' => 1, 'product' => $productID]) as $review) {
                 $total = $total + $review['rating'];
             }
             return number_format(($total / $this->countProductReviews($productID)), 1, '.', '');
@@ -202,8 +220,9 @@ class Review{
      * @param string $email This should be the customers email address
      * @return int If review already exists for this user will return 1 else returns 0
      */
-    protected function checkIfCustomerReviewExists($productID, $email) {
-        if(filter_var($email, FILTER_VALIDATE_EMAIL) && is_numeric($productID)) {
+    protected function checkIfCustomerReviewExists($productID, $email)
+    {
+        if (filter_var($email, FILTER_VALIDATE_EMAIL) && is_numeric($productID)) {
             return $this->db->count($this->config->table_review, ['product' => $productID, 'email' => $email]);
         }
         return 0;
@@ -214,8 +233,9 @@ class Review{
      * @param string $ip This should be the IP address of the person who submitted the review
      * @return int Returns >= 1 if any reviews have been submitted by the same IP in the last 24 hours else will return 0
      */
-    protected function checkForReviewsByIP($ip){
-        if($ip){
+    protected function checkForReviewsByIP($ip)
+    {
+        if ($ip) {
             $datetime = new DateTime();
             $datetime->setTimezone(new DateTimeZone($this->config->timezone));
             $datetime->modify('-24 hours');

@@ -6,7 +6,8 @@ use DBAL\Database;
 use Configuration\Config;
 use DateTime;
 
-class Download{
+class Download
+{
     protected $db;
     protected $order;
     protected $product;
@@ -22,7 +23,8 @@ class Download{
      * @param Config $config This should be the Shopping cart config class
      * @param Order $basket This should be an instance of the basket class
      */
-    public function __construct(Database $db, Config $config, $basket, $product) {
+    public function __construct(Database $db, Config $config, $basket, $product)
+    {
         $this->db = $db;
         $this->config = $config;
         $this->product = $product;
@@ -36,7 +38,8 @@ class Download{
      * @param int $product_id This should be the product ID that you are creating a unique link for
      * @return string This is the unique string that will be generated
      */
-    protected function createUniqueLink($order_id, $product_id) {
+    protected function createUniqueLink($order_id, $product_id)
+    {
         $date = new DateTime();
         return hash('sha256', $order_id.$product_id.$date->format('Y-m-d H:i:s'));
     }
@@ -49,13 +52,14 @@ class Download{
      * @param string $email This should be the customers email address
      * @return boolean If the information has successfully been inserted will return true else will return false
      */
-    public function addDownloadLink($customer_id, $order_id, $products, $email) {
-        if(is_array($products)) {
+    public function addDownloadLink($customer_id, $order_id, $products, $email)
+    {
+        if (is_array($products)) {
             $date = new DateTime();
             $date->modify("+{$this->config->download_link_expiry}");
             $productClass = (is_object($this->product) ? $this->product : new Product($this->db, $this->config));
             foreach ($products as $product_id => $quantity) {
-                if($productClass->isProductDownload($product_id)) {
+                if ($productClass->isProductDownload($product_id)) {
                     $this->db->insert($this->config->table_downloads, ['customer_id' => $customer_id, 'order_id' => $order_id, 'product' => $product_id, 'expire' => $date->format('Y-m-d H:i:s'), 'link' => $this->createUniqueLink($order_id, $product_id)]);
                     $this->addDownloadSerials($product_id, $quantity, $order_id, $email);
                 }
@@ -71,7 +75,8 @@ class Download{
      * @param string $order_id This should be the order number
      * @return array|false If a link exists will return an array else will return false
      */
-    public function getDownloadInformation($product_id, $order_id) {
+    public function getDownloadInformation($product_id, $order_id)
+    {
         return $this->db->select($this->config->table_downloads, ['order_id' => $order_id, 'product' => $product_id]);
     }
     
@@ -80,7 +85,8 @@ class Download{
      * @param string $linkID This should be the unique link ID
      * @return boolean If the number of attempts has successfully been updated will return true else returns false
      */
-    public function resetDownloadAttempts($linkID) {
+    public function resetDownloadAttempts($linkID)
+    {
         return $this->db->update($this->config->table_downloads, ['attempts' => 0], ['dlid' => $linkID], 1);
     }
     
@@ -90,11 +96,12 @@ class Download{
      * @param int $order_id This should be the order that the link is associated with
      * @return string The HTML formatted link will be returned
      */
-    protected function formatDownloadLinks($products, $order_id) {
-        if(is_array($products)) {
+    protected function formatDownloadLinks($products, $order_id)
+    {
+        if (is_array($products)) {
             $downloadInfo = '';
-            foreach($products as $product) {
-                if($this->order->product->isProductDownload($product['product_id']) === true) {
+            foreach ($products as $product) {
+                if ($this->order->product->isProductDownload($product['product_id']) === true) {
                     $downloadInfo.= $this->formatProductLink($product, $order_id);
                 }
             }
@@ -109,7 +116,8 @@ class Download{
      * @param int $order_id This should be the order that the link is associated with
      * @return string The HTML formatted link will be displayed
      */
-    protected function formatProductLink($productInfo, $order_id) {
+    protected function formatProductLink($productInfo, $order_id)
+    {
         $serials = array_column($this->getDownloadSerials($productInfo['product_id'], $order_id), 'serial');
         return sprintf($this->config->download_product_format, $productInfo['name'], $this->getDownloadLink($productInfo['product_id'], $order_id), (is_array($serials) ? sprintf($this->config->download_product_serial_format, implode('<br />', $serials)) : ''));
     }
@@ -121,9 +129,10 @@ class Download{
      * @param int $order_id The order number to associate the serials with
      * @param string $email This should be the customers email address
      */
-    public function addDownloadSerials($product_id, $quantity, $order_id, $email){
-        if($this->config->download_require_serials){
-            for($i = 1; $i <= $quantity; $i++){
+    public function addDownloadSerials($product_id, $quantity, $order_id, $email)
+    {
+        if ($this->config->download_require_serials) {
+            for ($i = 1; $i <= $quantity; $i++) {
                 $this->serials->addSerial($order_id, $email, $product_id);
             }
         }
@@ -135,8 +144,9 @@ class Download{
      * @param int $order_id This should be the order id
      * @return array|boolean If serials are available will return an array of the serials else returns false
      */
-    public function getDownloadSerials($product_id, $order_id) {
-        if($this->config->download_require_serials){
+    public function getDownloadSerials($product_id, $order_id)
+    {
+        if ($this->config->download_require_serials) {
             return $this->serials->getSerials($order_id, $product_id);
         }
         return false;
@@ -146,9 +156,10 @@ class Download{
      * Returns the full URL for the download
      * @param int $product_id This should be the product ID that you are getting the URL for
      * @param string $order_id This should be the order that the link is associated with
-     * @return string Will return the URL to enable the downloads to be tracked and downloaded 
+     * @return string Will return the URL to enable the downloads to be tracked and downloaded
      */
-    public function getDownloadLink($product_id, $order_id) {
+    public function getDownloadLink($product_id, $order_id)
+    {
         $uniqueLink = $this->getDownloadInformation($product_id, $order_id);
         return sprintf($this->config->download_link, $this->config->site_url, $product_id, $uniqueLink['link']);
     }
@@ -158,7 +169,8 @@ class Download{
      * @param string $order_id This should be the order id that you wish to send the details for
      * @return boolean If the email has been sent will return true else returns false
      */
-    public function sendDownloadLink($order_id) {
+    public function sendDownloadLink($order_id)
+    {
         $orderInfo = $this->order->getOrderByOrderNo($order_id);
         $date = new DateTime();
         $date->modify("+{$this->config->download_link_expiry}");
@@ -166,8 +178,8 @@ class Download{
         return Mailer::sendEmail(
             $orderInfo['user']['email'],
             $subject,
-            sprintf($this->config->email_download_altbody, $orderInfo['user']['title'], $orderInfo['user']['lastname'], $orderInfo['order_no'], date('jS F Y g:ia', strtotime($orderInfo['payment_date'] != NULL ? $orderInfo['payment_date'] : 'now')), $date->format('jS F Y'), $this->config->download_attempts, $this->formatDownloadLinks($orderInfo['products'], $orderInfo['order_id']), $this->config->site_name),
-            Mailer::htmlWrapper($this->config, sprintf($this->config->email_download_body, $orderInfo['user']['title'], $orderInfo['user']['lastname'], $orderInfo['order_no'], date('jS F Y g:ia', strtotime($orderInfo['payment_date'] != NULL ? $orderInfo['payment_date'] : 'now')), $date->format('jS F Y'), $this->config->download_attempts, $this->formatDownloadLinks($orderInfo['products'], $orderInfo['order_id']), $this->config->site_name), $subject),
+            sprintf($this->config->email_download_altbody, $orderInfo['user']['title'], $orderInfo['user']['lastname'], $orderInfo['order_no'], date('jS F Y g:ia', strtotime($orderInfo['payment_date'] != null ? $orderInfo['payment_date'] : 'now')), $date->format('jS F Y'), $this->config->download_attempts, $this->formatDownloadLinks($orderInfo['products'], $orderInfo['order_id']), $this->config->site_name),
+            Mailer::htmlWrapper($this->config, sprintf($this->config->email_download_body, $orderInfo['user']['title'], $orderInfo['user']['lastname'], $orderInfo['order_no'], date('jS F Y g:ia', strtotime($orderInfo['payment_date'] != null ? $orderInfo['payment_date'] : 'now')), $date->format('jS F Y'), $this->config->download_attempts, $this->formatDownloadLinks($orderInfo['products'], $orderInfo['order_id']), $this->config->site_name), $subject),
             $this->config->email_from_address,
             $this->config->email_from_name
         );
@@ -178,10 +190,11 @@ class Download{
      * @param string $link This should be the unique link variable given by the user from the download link
      * @return false If the download link doesn't exist will return false but should be redirected to the download if it does exist
      */
-    public function downloadItem($link) {
+    public function downloadItem($link)
+    {
         $date = new DateTime();
         $linkInfo = $this->db->select($this->config->table_downloads, ['link' => $link, 'attempts' => ['<=', intval($this->config->download_attempts)], 'expire' => ['>=', $date->format('Y-m-d H:i:s')]]);
-        if(is_array($linkInfo)) {
+        if (is_array($linkInfo)) {
             $this->db->update($this->config->table_downloads, ['attempts' => intval($linkInfo['attempts'] + 1)]);
             $productInfo = $this->order->product->getProductByID($linkInfo['product']);
             redirect($productInfo['digitalloc']);

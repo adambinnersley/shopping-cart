@@ -5,13 +5,14 @@ namespace ShoppingCart;
 use PHPMailer\PHPMailer\PHPMailer;
 use Configuration\Config;
 
-class Mailer {
+class Mailer
+{
     
     protected static $mail;
     
     /**
-     * Sends an email 
-     * @param string $to This should be the email address the email is going to 
+     * Sends an email
+     * @param string $to This should be the email address the email is going to
      * @param string $subject This should be the subject of the email
      * @param string $plain This should be the email content as plain test
      * @param string $html This should be the HTML format of the email
@@ -21,21 +22,22 @@ class Mailer {
      * @param array $attachment And attachments should be attached as an array
      * @return boolean If the email has been sent successfully will return true else returns false
      */
-    public static function sendEmail($to, $subject, $plain, $html, $from, $fromname, $replyto = '', $attachment = []) {
+    public static function sendEmail($to, $subject, $plain, $html, $from, $fromname, $replyto = '', $attachment = [])
+    {
         self::$mail = new PHPMailer();
         self::$mail->CharSet = 'UTF-8';
         self::$mail->SMTPDebug = SMTP_DEBUG;
-        if(USE_SMTP){
+        if (USE_SMTP) {
             self::$mail->isSMTP();
             self::$mail->Host = SMTP_HOST;
             self::$mail->SMTPAuth = SMTP_AUTH;
             self::$mail->AuthType = SMTP_AUTHTYPE;
-            if(!is_null(SMTP_AUTH)){
+            if (!is_null(SMTP_AUTH)) {
                 self::$mail->Username = SMTP_USERNAME;
                 self::$mail->Password = SMTP_PASSWORD;
             }
             self::$mail->Port = SMTP_PORT;
-            if(!is_null(SMTP_SECURITY)){
+            if (!is_null(SMTP_SECURITY)) {
                 self::$mail->SMTPSecure = SMTP_SECURITY;
             }
             self::$mail->smtpConnect(
@@ -51,17 +53,16 @@ class Mailer {
         
         self::$mail->From = $from;
         self::$mail->FromName = $fromname;
-        if(!empty($replyto)){
+        if (!empty($replyto)) {
             self::$mail->AddReplyTo($replyto, $fromname);
         }
         self::$mail->addAddress($to);
         self::$mail->isHTML(true);
-        if(!empty($attachment)){
-            foreach($attachment as $file){
-                if(@file_exists($file[0])){
+        if (!empty($attachment)) {
+            foreach ($attachment as $file) {
+                if (@file_exists($file[0])) {
                     self::$mail->addAttachment($file[0], $file[1]);
-                }
-                else{
+                } else {
                     self::$mail->addStringAttachment($file[0], $file[1]);
                 }
             }
@@ -72,12 +73,12 @@ class Mailer {
         return self::$mail->send();
     }
     
-    public static function htmlWrapper(Config $config, $content, $subject){
+    public static function htmlWrapper(Config $config, $content, $subject)
+    {
         $image = '';
-        if(file_exists($_SERVER['DOCUMENT_ROOT'].$config->logo_root_path)){
+        if (file_exists($_SERVER['DOCUMENT_ROOT'].$config->logo_root_path)) {
             $image = '<div class="align-center"><img src="'.$config->site_url.$config->logo_root_path.'" alt="'.$config->site_name.' Logo" height="100" /></div>';
         }
         return sprintf($config->email_html_wrapper, $content, $subject, $config->registered_address, $image);
     }
-    
 }

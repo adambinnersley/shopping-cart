@@ -6,7 +6,8 @@ use DBAL\Database;
 use Configuration\Config;
 use ImgUpload\ImageUpload;
 
-class Gallery{
+class Gallery
+{
     protected $db;
     protected $upload;
     public $config;
@@ -15,7 +16,8 @@ class Gallery{
      * Constructor
      * @param Database $db This should be an instance of the database class
      */
-    public function __construct(Database $db, Config $config) {
+    public function __construct(Database $db, Config $config)
+    {
         $this->db = $db;
         $this->config = $config;
         $this->upload = new ImageUpload();
@@ -30,7 +32,8 @@ class Gallery{
      * @param string $path This should be the path where the gallery folder can be located
      * @return $this
      */
-    public function setImageLocation($path) {
+    public function setImageLocation($path)
+    {
         $this->config->gallery_image_folder = $path;
         $this->upload->setImageFolder($this->config->gallery_image_folder);
         return $this;
@@ -41,7 +44,8 @@ class Gallery{
      * @param string $path This should be the path where the gallery thumbnails folder can be located
      * @return $this
      */
-    public function setThumbLocation($path) {
+    public function setThumbLocation($path)
+    {
         $this->config->gallery_thumbs_folder = $path;
         $this->upload->setThumbFolder($this->config->gallery_thumbs_folder);
         return $this;
@@ -52,13 +56,13 @@ class Gallery{
      * @param int $width This should be the maximum number of pixels that the thumbnail should be set to
      * @return $this
      */
-    public function setMaxThumbWidth($width) {
-        if(is_numeric($width)) {
+    public function setMaxThumbWidth($width)
+    {
+        if (is_numeric($width)) {
             $this->config->gallery_thumb_width = intval($width);
             $this->upload->thumbWidth = $this->config->gallery_thumb_width;
-            
         }
-        return $this;        
+        return $this;
     }
     
     /**
@@ -66,7 +70,8 @@ class Gallery{
      * @param array $where Parameters to search on
      * @return array|false Lists all of the images within the gallery database
      */
-    public function listImages($where = []) {
+    public function listImages($where = [])
+    {
         return $this->db->selectAll($this->config->table_gallery, $where);
     }
     
@@ -75,7 +80,8 @@ class Gallery{
      * @param int $product_id This should be the product ID that you are searching for gallery images for
      * @return array|false If any gallery images exist for the product will return an array else will return false
      */
-    public function getProductImages($product_id) {
+    public function getProductImages($product_id)
+    {
         return $this->db->query("SELECT `gallery`.* FROM `{$this->config->table_gallery}` as `gallery`, `{$this->config->table_product_images}` as `ref` WHERE `gallery`.`img_id` = `ref`.`image_id` AND `ref`.`product_id` = ?;", [$product_id]);
     }
     
@@ -84,7 +90,8 @@ class Gallery{
      * @param int $product_id This should be the unique product id that you want t look for gallery images linked to it
      * @return int Th total number of gallery images linked to the product will be returned
      */
-    public function numProductImages($product_id) {
+    public function numProductImages($product_id)
+    {
         return $this->db->count($this->config->table_product_images, ['product_id' => $product_id]);
     }
     
@@ -94,7 +101,8 @@ class Gallery{
      * @param array $where Additional values to search on
      * @return array|false If the image exists the information will be returned as an array else will return false
      */
-    public function getImageInfo($image_id, $where = []) {
+    public function getImageInfo($image_id, $where = [])
+    {
         return $this->db->select($this->config->table_gallery, array_merge(['id' => intval($image_id)], $where));
     }
     
@@ -103,9 +111,10 @@ class Gallery{
      * @param string $name The name of the image
      * @return array|false If the image exists it will return an array else will return false
      */
-    public function getImageInfoByName($name) {
+    public function getImageInfoByName($name)
+    {
         $imageInfo = $this->db->select($this->config->table_gallery, ['image' => $name]);
-        if(is_array($imageInfo)){
+        if (is_array($imageInfo)) {
             return $imageInfo;
         }
         return false;
@@ -115,12 +124,13 @@ class Gallery{
      * Uploads an image or multiple image to the gallery
      * @param int $product_id This should be the product ID that you are uploading gallery images for
      * @param file $images This should be the submitted $_FILES information
-     * @return boolean If the images are inserted will return true else return false 
+     * @return boolean If the images are inserted will return true else return false
      */
-    public function uploadGalleryImages($product_id, $images) {
-        if($images['name']) {
-            foreach($images as $image) {
-                if(self::$upload->uploadImage($image)) {
+    public function uploadGalleryImages($product_id, $images)
+    {
+        if ($images['name']) {
+            foreach ($images as $image) {
+                if (self::$upload->uploadImage($image)) {
                     $this->insertGalleryImage($image['name']);
                     $this->assignProductToImage($this->db->lastInsertId(), $product_id);
                 }
@@ -135,8 +145,9 @@ class Gallery{
      * @param string $name This should be the name of the image with the extension
      * @return boolean If successfully inserted will return true else will return false
      */
-    public function insertGalleryImage($name) {
-        if(!$this->getImageInfoByName($name)){
+    public function insertGalleryImage($name)
+    {
+        if (!$this->getImageInfoByName($name)) {
             return $this->db->insert($this->config->table_gallery, ['image' => $name]);
         }
         return false;
@@ -148,8 +159,9 @@ class Gallery{
      * @param int $product_id This should be the ID of the product you want to display this image for
      * @return boolean If the product has been added will return true else will return false
      */
-    public function assignProductToImage($image_id, $product_id) {
-        if(is_numeric($product_id) && is_numeric($image_id)){
+    public function assignProductToImage($image_id, $product_id)
+    {
+        if (is_numeric($product_id) && is_numeric($image_id)) {
             return $this->db->insert($this->config->table_product_images, ['product_id' => $product_id, 'image_id' => $image_id]);
         }
         return false;
@@ -161,8 +173,9 @@ class Gallery{
      * @param int $product_id This should be the ID of the product you want to display this image for
      * @return boolean If the product has been removed from the image will return true else will return false
      */
-    public function removeProductFromImage($image_id, $product_id) {
-        if(is_numeric($product_id) && is_numeric($image_id)){
+    public function removeProductFromImage($image_id, $product_id)
+    {
+        if (is_numeric($product_id) && is_numeric($image_id)) {
             return $this->db->delete($this->config->table_product_images, ['product_id' => $product_id, 'image_id' => $image_id]);
         }
     }
@@ -173,9 +186,10 @@ class Gallery{
      * @param array $where Additional parameters as an array
      * @return boolean If the item is successfully removed will return true else returns false
      */
-    public function deleteImage($image_id, $where = []) {
+    public function deleteImage($image_id, $where = [])
+    {
         $imageInfo = $this->getImageInfo($image_id, $where);
-        if(!empty($imageInfo)) {
+        if (!empty($imageInfo)) {
             unlink($this->config->gallery_image_folder.$imageInfo['image']);
             unlink($this->config->gallery_thumbs_folder.$imageInfo['image']);
             return $this->db->delete($this->config->table_gallery, array_merge(['id' => intval($image_id)], $where));

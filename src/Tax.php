@@ -5,7 +5,8 @@ namespace ShoppingCart;
 use DBAL\Database;
 use Configuration\Config;
 
-class Tax{
+class Tax
+{
     protected $db;
     public $config;
     
@@ -13,7 +14,8 @@ class Tax{
      * Constructor
      * @param Database $db This should be the database class instance
      */
-    public function __construct(Database $db, Config $config) {
+    public function __construct(Database $db, Config $config)
+    {
         $this->db = $db;
         $this->config = $config;
     }
@@ -22,7 +24,8 @@ class Tax{
      * List all of the tax percentage amounts in the database
      * @return array|false If tax amounts exist they will be returned as an array else if none exist false will be returned
      */
-    public function listTaxAmounts() {
+    public function listTaxAmounts()
+    {
         return $this->db->selectAll($this->config->table_tax);
     }
     
@@ -31,7 +34,8 @@ class Tax{
      * @param int $tax_id This should be the unique tax ID assigned in the database
      * @return array|false If the tax information exists for the tax ID an array will be returned else will return false
      */
-    public function getTaxInformation($tax_id) {
+    public function getTaxInformation($tax_id)
+    {
         return $this->db->select($this->config->table_tax, ['tax_id' => intval($tax_id)]);
     }
     
@@ -39,11 +43,12 @@ class Tax{
      * Add Tax information and percentage to the database
      * @param float $percentage This should be the percentage you wish to add to the database
      * @param string $description A short description for the tax amount
-     * @param array $additionalInfo Any additional information for the database can be added as an array here 
+     * @param array $additionalInfo Any additional information for the database can be added as an array here
      * @return boolean If the information is successfully inserted will return true else will return false
      */
-    public function addTax($percentage, $description = NULL, $additionalInfo = []) {
-        if(is_numeric($percentage) && is_array($additionalInfo)) {
+    public function addTax($percentage, $description = null, $additionalInfo = [])
+    {
+        if (is_numeric($percentage) && is_array($additionalInfo)) {
             return $this->db->insert($this->config->table_tax, array_merge(['percent' => $percentage, 'details' => $description], array_filter($additionalInfo)));
         }
         return false;
@@ -55,8 +60,9 @@ class Tax{
      * @param array $updateInfo Any information that needs updating can be added as an array here
      * @return boolean If the information is update will return true else will return false
      */
-    public function editTax($tax_id, $updateInfo = []) {
-        if(is_numeric($tax_id) && is_array(array_filter($updateInfo))) {
+    public function editTax($tax_id, $updateInfo = [])
+    {
+        if (is_numeric($tax_id) && is_array(array_filter($updateInfo))) {
             return $this->db->update($this->config->table_tax, $updateInfo, ['tax_id' => intval($tax_id)], 1);
         }
         return false;
@@ -67,8 +73,9 @@ class Tax{
      * @param int $tax_id The tax_id of the tax information that you wish to delete
      * @return boolean If the information is deleted will return true else will return false
      */
-    public function deleteTax($tax_id) {
-        if(is_numeric($tax_id)) {
+    public function deleteTax($tax_id)
+    {
+        if (is_numeric($tax_id)) {
             return $this->db->delete($this->config->table_tax, ['tax_id' => intval($tax_id)]);
         }
         return false;
@@ -80,7 +87,8 @@ class Tax{
      * @param int|float $price This should be the current price charged for the item
      * @return double Returns the amount of tax that is paid on the item
      */
-    public function calculateItemTax($tax_id, $price) {
+    public function calculateItemTax($tax_id, $price)
+    {
         $taxInfo = $this->getTaxInformation($tax_id);
         return floor((($price / (100 + $taxInfo['percent'])) * $taxInfo['percent']) * 100) / 100;
     }

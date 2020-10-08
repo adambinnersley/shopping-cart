@@ -2,7 +2,8 @@
 
 namespace ShoppingCart;
 
-class Stock extends Product{
+class Stock extends Product
+{
     
     /**
      * Remove a given amount of items from the quantity of a certain product
@@ -10,7 +11,8 @@ class Stock extends Product{
      * @param int $quantity This should be the number of items you wish to remove
      * @return boolean If the amount has been updated will return true else will return false
      */
-    public function removeQuantity($product_id, $quantity = 1) {
+    public function removeQuantity($product_id, $quantity = 1)
+    {
         return $this->setQuantityInStock($product_id, intval($this->getStockQuantity($product_id) - $quantity));
     }
     
@@ -20,7 +22,8 @@ class Stock extends Product{
      * @param int $quantity This should be the number of items you wish to add
      * @return boolean If the amount has been updated will return true else will return false
      */
-    public function addQuantity($product_id, $quantity) {        
+    public function addQuantity($product_id, $quantity)
+    {
         return $this->setQuantityInStock($product_id, intval($this->getStockQuantity($product_id) + $quantity));
     }
     
@@ -30,7 +33,8 @@ class Stock extends Product{
      * @param int $no_items This should be the number of items have in stock
      * @return boolean If the amount has been updated will return true else will return false
      */
-    public function setQuantityInStock($product_id, $no_items) {
+    public function setQuantityInStock($product_id, $no_items)
+    {
         return $this->db->update($this->config->table_products, ['in_stock' => $no_items], ['product_id' => $product_id]);
     }
     
@@ -39,7 +43,8 @@ class Stock extends Product{
      * @param int $product_id  This should be the product ID you are updating the amount for
      * @return int Will return the amount of items that are in stock for the given product
      */
-    public function getStockQuantity($product_id) {
+    public function getStockQuantity($product_id)
+    {
         $productInfo = $this->getProductByID($product_id);
         return $productInfo['in_stock'];
     }
@@ -49,22 +54,31 @@ class Stock extends Product{
      * @param int $product_id  This should be the product ID you are checking if stock is available for
      * @return boolean If the item is in stock will return true else returns false
      */
-    public function isInStock($product_id) {
-        if($this->getStockQuantity($product_id) >= 1) {return true;}
+    public function isInStock($product_id)
+    {
+        if ($this->getStockQuantity($product_id) >= 1) {
+            return true;
+        }
         return false;
     }
     
     /**
-     * Returns the products that meet the given criteria which should wither be in or out of stock 
+     * Returns the products that meet the given criteria which should wither be in or out of stock
      * @param boolean $instock If this is set to true will return those items in stock else set to false for items out of stock
-     * @param boolean $active If this is set to true will return only active items else will return both active and disabled products 
+     * @param boolean $active If this is set to true will return only active items else will return both active and disabled products
      * @return array|false If any items exist they will be returned as an array else will return false
      */
-    public function getItemsByStockLevel($instock = true, $active = true) {
+    public function getItemsByStockLevel($instock = true, $active = true)
+    {
         $where = [];
-        if($active === true) {$where['active'] = 1;}
-        if($instock === true) {$where['in_stock'] = ['>=' => 1];}
-        else{$where['in_stock'] = 0;}
+        if ($active === true) {
+            $where['active'] = 1;
+        }
+        if ($instock === true) {
+            $where['in_stock'] = ['>=' => 1];
+        } else {
+            $where['in_stock'] = 0;
+        }
         return $this->db->selectAll($this->config->table_products, $where);
     }
 }

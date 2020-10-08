@@ -5,7 +5,8 @@ namespace ShoppingCart\Delivery;
 use DBAL\Database;
 use Configuration\Config;
 
-interface DeliveryInterface {
+interface DeliveryInterface
+{
     public function __construct(Database $db, Config $config);
     public function getDeliveryCost($item);
     public function listDeliveryItems();

@@ -7,7 +7,8 @@ use DBAL\Modifiers\Modifier;
 use Configuration\Config;
 use ShoppingCart\Modifiers\Cost;
 
-class Voucher{
+class Voucher
+{
     protected $db;
     protected $product;
     public $config;
@@ -20,7 +21,8 @@ class Voucher{
      * @param Config $config This should be an instance of the Config class
      * @param object|false $product This should be an instance of the Config class
      */
-    public function __construct(Database $db, Config $config, $product = false) {
+    public function __construct(Database $db, Config $config, $product = false)
+    {
         $this->db = $db;
         $this->config = $config;
         $this->product = $product;
@@ -31,24 +33,28 @@ class Voucher{
      * List all of the vouchers that are in the database
      * @return array|false If any vouchers exist they will be returned as a multidimensional array else if no vouchers exist false will be returned
      */
-    public function listVouchers() {
+    public function listVouchers()
+    {
         return $this->db->selectAll($this->config->table_voucher);
     }
     
     /**
      * Gets voucher information based on given information
-     * @param array $where Array of parameters to search that database on  
+     * @param array $where Array of parameters to search that database on
      * @param boolean $active Set this to true to only search for information from active vouchers
      * @return array If any vouchers exist the information will be returned as an array else if nothing exists will return false
      */
-    protected function getVoucher($where, $active = true) {
-        if($active === true) {
+    protected function getVoucher($where, $active = true)
+    {
+        if ($active === true) {
             $where['active'] = 1;
             $where['expire'] = ['>=', date('Y-m-d H:i:s')];
         }
-        if(is_array($where)) {
+        if (is_array($where)) {
             $voucherInfo = $this->db->select($this->config->table_voucher, array_filter($where));
-            if((($voucherInfo['allowed'] === 0 || $voucherInfo['allowed'] > $voucherInfo['times_used']) && $active === true) || $active !== true) {return $voucherInfo;}
+            if ((($voucherInfo['allowed'] === 0 || $voucherInfo['allowed'] > $voucherInfo['times_used']) && $active === true) || $active !== true) {
+                return $voucherInfo;
+            }
         }
     }
     
@@ -58,10 +64,13 @@ class Voucher{
      * @param boolean $active If you only want active voucher information set this value to true else for all vouchers set to false
      * @return array If a voucher exists will return an array else will return false
      */
-    public function getVoucherByID($voucher_id, $active = true) {
-        if(is_numeric($voucher_id)) {
+    public function getVoucherByID($voucher_id, $active = true)
+    {
+        if (is_numeric($voucher_id)) {
             $voucherInfo = $this->getVoucher(['voucher_id' => $voucher_id], $active);
-            if($voucherInfo['selected_products'] !== NULL) {$voucherInfo['selected_products'] = unserialize($voucherInfo['selected_products']);}
+            if ($voucherInfo['selected_products'] !== null) {
+                $voucherInfo['selected_products'] = unserialize($voucherInfo['selected_products']);
+            }
             return $voucherInfo;
         }
     }
@@ -72,35 +81,38 @@ class Voucher{
      * @param boolean $active If you only want to look at active vouchers information set to true else for any set to false
      * @return array If any vouchers exist an array will be returned else false will be returned if no results
      */
-    public function getVoucherByCode($code, $active = true) {
+    public function getVoucherByCode($code, $active = true)
+    {
         $voucherInfo = $this->getVoucher(['code' => $code], $active);
-        if(is_array($voucherInfo)){
+        if (is_array($voucherInfo)) {
             return $voucherInfo;
         }
     }
     
     /**
      * Adds a voucher to the database
-     * @param string $code This should be the unique voucher code 
+     * @param string $code This should be the unique voucher code
      * @param array $discount This should be the discount['amount'] or discount['percentage']
      * @param date $expiry A date of expiry for the voucher
      * @param int $active If the voucher should be set as active set this value to 1 else set to 0
      * @return boolean If the information is added to the database will return true else returns false
      */
-    public function addVoucher($code, $discount, $expiry, $active = 1, $additionalInfo = []) {
-        if(!$this->getVoucherByCode($code) && (!empty(trim($discount['amount'])) || !empty(trim($discount['percentage'])))) {
+    public function addVoucher($code, $discount, $expiry, $active = 1, $additionalInfo = [])
+    {
+        if (!$this->getVoucherByCode($code) && (!empty(trim($discount['amount'])) || !empty(trim($discount['percentage'])))) {
             return $this->db->insert($this->config->table_voucher, array_merge(['code' => $code, 'expiry' => $expiry, 'active' => intval($active), 'amount' => Modifier::setNullOnEmpty($discount['amount']), 'percent' => Modifier::setNullOnEmpty($discount['percentage'])], $additionalInfo));
         }
         return false;
     }
     
     /**
-     * Edits the voucher information in the database 
+     * Edits the voucher information in the database
      * @param int $voucher_id
      * @param array $additionalInfo
      * @return boolean
      */
-    public function editVoucher($voucher_id, $additionalInfo = []) {
+    public function editVoucher($voucher_id, $additionalInfo = [])
+    {
         $additionalInfo['amount'] = Modifier::setNullOnEmpty($additionalInfo['amount']);
         $additionalInfo['percentage'] = Modifier::setNullOnEmpty($additionalInfo['percentage']);
         return $this->db->update($this->config->table_voucher, $additionalInfo, ['voucher_id' => intval($voucher_id)], 1);
@@ -111,8 +123,9 @@ class Voucher{
      * @param int $voucher_id This should be the unique voucher ID assigned in the database
      * @return boolean If the voucher has successfully been deleted will return true else returns false
      */
-    public function deleteVoucher($voucher_id) {
-        if(is_numeric($voucher_id)) {
+    public function deleteVoucher($voucher_id)
+    {
+        if (is_numeric($voucher_id)) {
             return $this->db->delete($this->config->table_voucher, ['voucher_id' => intval($voucher_id)]);
         }
         return false;
@@ -124,7 +137,8 @@ class Voucher{
      * @param int $status If you want to set the status to active set to 1 else to disable set to 0
      * @return boolean If the voucher has been updated will return true else returns false
      */
-    public function changeVoucherStatus($voucher_id, $status = 1) {
+    public function changeVoucherStatus($voucher_id, $status = 1)
+    {
         return $this->editVoucher($voucher_id, ['active' => $status]);
     }
     
@@ -135,14 +149,17 @@ class Voucher{
      * @param int|string $basket_total This should be the basket total before any discount is applied
      * @return string The total discount amount will be applied
      */
-    public function getDiscountAmount($code, $basket_products, $basket_total) {
-        if(!empty(trim($code))) {
+    public function getDiscountAmount($code, $basket_products, $basket_total)
+    {
+        if (!empty(trim($code))) {
             $codeInfo = $this->getVoucherByCode($code);
-            if(is_array($codeInfo) && $codeInfo['selected_products'] === NULL) {
-                if($codeInfo['percent'] !== NULL) {return Cost::priceUnits(($basket_total - ($basket_total * ($codeInfo['percent'] / 100))), $this->decimals);}
+            if (is_array($codeInfo) && $codeInfo['selected_products'] === null) {
+                if ($codeInfo['percent'] !== null) {
+                    return Cost::priceUnits(($basket_total - ($basket_total * ($codeInfo['percent'] / 100))), $this->decimals);
+                }
                 return Cost::priceUnits(($basket_total - $codeInfo['amount']), $this->decimals);
             }
-            if(is_array($codeInfo['selected_products']) && is_array($basket_products)) {
+            if (is_array($codeInfo['selected_products']) && is_array($basket_products)) {
                 return $this->calculateProductDiscount($codeInfo, $basket_products, $basket_total);
             }
         }
@@ -156,18 +173,22 @@ class Voucher{
      * @param int|string $basket_total This should be the basket_total before any discount
      * @return string The total amount of discount for the voucher will be returned
      */
-    protected function calculateProductDiscount($codeInfo, $basket_products, $basket_total) {
+    protected function calculateProductDiscount($codeInfo, $basket_products, $basket_total)
+    {
         $usage = false;
         $discountablePrice = 0;
-        foreach($basket_products as $product_id => $quantity) {
-            if(array_key_exists($product_id, $codeInfo['selected_products'])) {
+        foreach ($basket_products as $product_id => $quantity) {
+            if (array_key_exists($product_id, $codeInfo['selected_products'])) {
                 $usage = true;
                 $productClass = (is_object($this->product) ? $this->product : new Product($this->db, $this->config));
                 $discountablePrice = ($discountablePrice + ($productClass->getProductPrice($product_id) * $quantity));
             }
         }
-        if($usage === true && $codeInfo['percent'] !== NULL) {return Cost::priceUnits(($discountablePrice - ($discountablePrice * ($codeInfo['percent'] / 100))), $this->decimals);}
-        elseif($usage === true && $codeInfo['amount'] !== NULL) {return Cost::priceUnits(($basket_total - $codeInfo['amount']), $this->decimals);}
+        if ($usage === true && $codeInfo['percent'] !== null) {
+            return Cost::priceUnits(($discountablePrice - ($discountablePrice * ($codeInfo['percent'] / 100))), $this->decimals);
+        } elseif ($usage === true && $codeInfo['amount'] !== null) {
+            return Cost::priceUnits(($basket_total - $codeInfo['amount']), $this->decimals);
+        }
         return Cost::priceUnits(0, $this->decimals);
     }
     
@@ -177,15 +198,15 @@ class Voucher{
      * @param int|array $product_id This should either be a single product ID or an array of product ID to add t the voucher
      * @return boolean If the products are added to the voucher it will return true else will return false
      */
-    public function addSelectedProductToVoucher($voucher_id, $product_id) {
-        if(is_numeric($voucher_id) && (is_numeric($product_id) || is_array($product_id))) {
+    public function addSelectedProductToVoucher($voucher_id, $product_id)
+    {
+        if (is_numeric($voucher_id) && (is_numeric($product_id) || is_array($product_id))) {
             $voucherInfo = $this->getVoucherByID($voucher_id);
-            if(is_array($product_id)) {
-                foreach($product_id as $product) {
+            if (is_array($product_id)) {
+                foreach ($product_id as $product) {
                     $voucherInfo['selected_products'][$product] = 1;
                 }
-            }
-            else{
+            } else {
                 $voucherInfo['selected_products'][$product_id] = 1;
             }
             return $this->db->update($this->config->table_voucher, ['selected_products' => $voucherInfo['selected_products']], ['voucher_id' => $voucher_id]);
@@ -199,11 +220,16 @@ class Voucher{
      * @param int $product_id This should be the product_id to remove as one of the products that the voucher code can be used with
      * @return boolean If the product has successfully been removed will return true else returns false
      */
-    public function removeSelectedProductFromVoucher($voucher_id, $product_id) {
-        if(is_numeric($voucher_id) && is_numeric($product_id)) {
+    public function removeSelectedProductFromVoucher($voucher_id, $product_id)
+    {
+        if (is_numeric($voucher_id) && is_numeric($product_id)) {
             $voucherInfo = $this->getVoucherByID($voucher_id);
             unset($voucherInfo['selected_products'][$product_id]);
-            if(!empty($voucherInfo['selected_products'])) {$products = serialize($voucherInfo['selected_products']);}else{$products = NULL;}
+            if (!empty($voucherInfo['selected_products'])) {
+                $products = serialize($voucherInfo['selected_products']);
+            } else {
+                $products = null;
+            }
             return $this->db->update($this->config->table_voucher, ['selected_products' => $products], ['voucher_id' => $voucher_id]);
         }
         return false;
@@ -214,7 +240,8 @@ class Voucher{
      * @param string $voucher_code This should be the voucher code that has been used
      * @return boolean If the no. of times the voucher has been used field is updated will return true else returns false
      */
-    public function addUsageToVoucher($voucher_code) {
+    public function addUsageToVoucher($voucher_code)
+    {
         $voucherInfo = $this->getVoucherByCode($voucher_code);
         return $this->db->update($this->config->table_voucher, ['times_used' => intval($voucherInfo['times_used'] + 1)], ['code' => $voucher_code]);
     }

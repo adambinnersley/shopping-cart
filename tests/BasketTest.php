@@ -8,7 +8,8 @@ use ShoppingCart\Basket;
 use ShoppingCart\Customers;
 use ShoppingCart\Product;
 
-class BasketTest extends TestCase{
+class BasketTest extends TestCase
+{
     protected $db;
     protected $config;
     protected $basket;
@@ -16,14 +17,20 @@ class BasketTest extends TestCase{
     /**
      * @covers \ShoppingCart\Basket::__construct
      */
-    protected function setUp(): void {
-        $this->db = new Database($GLOBALS['hostname'], $GLOBALS['username'], $GLOBALS['password'], $GLOBALS['database']);
-        if(!$this->db->isConnected()){
+    protected function setUp(): void
+    {
+        $this->db = new Database(
+            $GLOBALS['hostname'],
+            $GLOBALS['username'],
+            $GLOBALS['password'],
+            $GLOBALS['database']
+        );
+        if (!$this->db->isConnected()) {
             $this->markTestSkipped(
                 'No local database connection is available'
             );
         }
-        if(!$this->db->selectAll('store_config')){
+        if (!$this->db->selectAll('store_config')) {
             $this->db->query(file_get_contents(dirname(dirname(__FILE__)).'/database/database_mysql.sql'));
             $this->db->query(file_get_contents(dirname(__FILE__).'/sample_data/data.sql'));
         }
@@ -31,7 +38,8 @@ class BasketTest extends TestCase{
         $this->basket = new Basket($this->db, $config, new Customers($this->db), new Product($this->db, $config));
     }
     
-    protected function tearDown(): void {
+    protected function tearDown(): void
+    {
         $this->db = null;
         $this->basket = null;
     }
@@ -41,7 +49,8 @@ class BasketTest extends TestCase{
      * @covers \ShoppingCart\Basket::getBasket
      * @covers \ShoppingCart\Basket::getProducts
      */
-    public function testGetBasket(){
+    public function testGetBasket()
+    {
         $this->assertFalse($this->basket->getBasket());
 //        $this->markTestIncomplete();
     }
@@ -50,7 +59,8 @@ class BasketTest extends TestCase{
      * @covers \ShoppingCart\Basket::__construct
      * @covers \ShoppingCart\Basket::emptyBasket
      */
-    public function testEmptyBasket(){
+    public function testEmptyBasket()
+    {
         $this->assertFalse($this->basket->emptyBasket());
 //        $this->markTestIncomplete();
     }
@@ -77,7 +87,8 @@ class BasketTest extends TestCase{
      * @covers \ShoppingCart\Delivery::getDeliveryCost
      * @covers \ShoppingCart\Basket::updateBasket
      */
-    public function testAddItemByCodeToBasket(){
+    public function testAddItemByCodeToBasket()
+    {
         $this->assertFalse($this->basket->addItemByCodeToBasket('non_existing_product'));
 //        $this->markTestIncomplete();
     }
@@ -100,7 +111,8 @@ class BasketTest extends TestCase{
      * @covers \ShoppingCart\Delivery::getDeliveryCost
      * @covers \ShoppingCart\Basket::updateBasket
      */
-    public function testAddItemToBasket(){
+    public function testAddItemToBasket()
+    {
         $this->assertFalse($this->basket->addItemToBasket(78));
         $this->assertFalse($this->basket->addItemToBasket('nan'));
 //        $this->markTestIncomplete();
@@ -124,7 +136,8 @@ class BasketTest extends TestCase{
      * @covers \ShoppingCart\Basket::updateBasket
      * @covers \ShoppingCart\Basket::emptyBasket
      */
-    public function testRemoveItemToBasket(){
+    public function testRemoveItemToBasket()
+    {
         $this->assertFalse($this->basket->removeItemFromBasket('test'));
 //        $this->markTestIncomplete();
     }
@@ -147,7 +160,8 @@ class BasketTest extends TestCase{
      * @covers \ShoppingCart\Delivery::getDeliveryCost
      * @covers \ShoppingCart\Basket::updateBasket
      */
-    public function testUpdateQuantityInBasket(){
+    public function testUpdateQuantityInBasket()
+    {
         $this->markTestIncomplete();
     }
 }

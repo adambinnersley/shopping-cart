@@ -8,7 +8,8 @@ use Configuration\Config;
 use ImgUpload\ImageUpload;
 use ShoppingCart\Modifiers\Cost;
 
-class Product extends Category{
+class Product extends Category
+{
     protected $review;
     protected $gallery;
     
@@ -22,7 +23,8 @@ class Product extends Category{
      * @param string $imageFolder This should be the location of the image folder
      * @param string|false $rootFolder This should be the document root folder
      */
-    public function __construct(Database $db, Config $config, $imageFolder = '/images/products/', $rootFolder = false) {
+    public function __construct(Database $db, Config $config, $imageFolder = '/images/products/', $rootFolder = false)
+    {
         parent::__construct($db, $config);
         $this->review = new Review($db, $config, $this);
         $this->gallery = new Gallery($db, $config);
@@ -36,14 +38,17 @@ class Product extends Category{
     
     /**
      * Returns an array of active products
-     * @param boolean $active If you only want to retrieve active products set this to true else for all products should be true 
+     * @param boolean $active If you only want to retrieve active products set this to true else for all products should be true
      * @param int $start The start location for the records in the database used for pagination
      * @param int $limit The maximum number of results to return in the array
      * @param array $where Addition where fields
      * @return array|false If any products exists they will be returned as an array else will return false
      */
-    public function listProducts($active = true, $start = 0, $limit = 50, $where = []) {
-        if($active === true) {$where['active'] = 1;}
+    public function listProducts($active = true, $start = 0, $limit = 50, $where = [])
+    {
+        if ($active === true) {
+            $where['active'] = 1;
+        }
         return $this->db->selectAll($this->config->table_products, $where, '*', [], [$start => $limit]);
     }
     
@@ -53,8 +58,11 @@ class Product extends Category{
      * @param array $where Addition where fields
      * @return int The total number of products in the database will be returned
      */
-    public function countProducts($active = true, $where = []) {
-        if($active === true) {$where['active'] = 1;}
+    public function countProducts($active = true, $where = [])
+    {
+        if ($active === true) {
+            $where['active'] = 1;
+        }
         return $this->db->count($this->config->table_products, $where);
     }
     
@@ -71,8 +79,9 @@ class Product extends Category{
      * @param array $additionalInfo Any additional information should be included as array items
      * @return boolean If the product is added successfully will return true else will return false
      */
-    public function addProduct($name, $code, $description, $price, $category, $tax_id, $active = 1, $image = false, $additionalInfo = []) {
-        if(!$this->getProductByCode($code, false)) {
+    public function addProduct($name, $code, $description, $price, $category, $tax_id, $active = 1, $image = false, $additionalInfo = [])
+    {
+        if (!$this->getProductByCode($code, false)) {
             $additionalInfo['weight'] = number_format($additionalInfo['weight'], 3);
             $additionalInfo['sale_price'] = Modifier::setNullOnEmpty($additionalInfo['sale_price']);
             $additionalInfo['features'] = Modifier::setNullOnEmpty($additionalInfo['features']);
@@ -94,8 +103,9 @@ class Product extends Category{
      * @param array $additionalInfo Any additional information you are updating should be set as an array here
      * @return boolean If the information has successfully been updated will return true else returns false
      */
-    public function editProduct($product_id, $image = false, $additionalInfo = []) {
-        if(is_numeric($product_id)) {
+    public function editProduct($product_id, $image = false, $additionalInfo = [])
+    {
+        if (is_numeric($product_id)) {
             $additionalInfo['weight'] = number_format($additionalInfo['weight'], 3);
             $additionalInfo['description'] = Modifier::setNullOnEmpty($additionalInfo['description']);
             $additionalInfo['sale_price'] = Modifier::setNullOnEmpty($additionalInfo['sale_price']);
@@ -116,9 +126,10 @@ class Product extends Category{
      * @param array|false $image This should be the image information array
      * @return array An array will be returned
      */
-    protected function addImage($image) {
+    protected function addImage($image)
+    {
         $additionalInfo = [];
-        if(is_array($image) && $this->imageUpload->uploadImage($image)) {
+        if (is_array($image) && $this->imageUpload->uploadImage($image)) {
             $additionalInfo['image'] = '/'.trim($this->imageUpload->getImageFolder(), '\/').'/'.$image['name'];
             list($width, $height) = getimagesize($this->imageUpload->getRootFolder().$this->imageUpload->getImageFolder().$image['name']);
             $additionalInfo['width'] = $width;
@@ -133,8 +144,9 @@ class Product extends Category{
      * @param array $where Addition where fields
      * @return boolean If the product is successfully removed will return true else returns false
      */
-    public function deleteProduct($product_id, array $where = []) {
-        if(is_numeric($product_id)) {
+    public function deleteProduct($product_id, array $where = [])
+    {
+        if (is_numeric($product_id)) {
             return $this->db->delete($this->config->table_products, array_merge(['product_id' => $product_id], $where));
         }
         return false;
@@ -145,11 +157,12 @@ class Product extends Category{
      * @param int $productID This should be the product id
      * @return array|false If any values exists an array will be returned else if no values exists false will be returned
      */
-    public function listProductCategories($productID) {
+    public function listProductCategories($productID)
+    {
         $getCategories = $this->db->selectAll($this->config->table_product_categories, ['product_id' => $productID], ['category_id']);
-        if(is_array($getCategories)){
+        if (is_array($getCategories)) {
             $categories = [];
-            foreach($getCategories as $category){
+            foreach ($getCategories as $category) {
                 $categories[] = $category['category_id'];
             }
             return $categories;
@@ -164,11 +177,11 @@ class Product extends Category{
      * @param int $main If it is the main category set to 1 else set to 0
      * @return boolean Returns true on success else return false
      */
-    protected function addProductToCategory($categories, $productID, $main = 1) {
-        if(is_numeric($categories) && is_numeric($productID)) {
+    protected function addProductToCategory($categories, $productID, $main = 1)
+    {
+        if (is_numeric($categories) && is_numeric($productID)) {
             return $this->db->insert($this->config->table_product_categories, ['product_id' => $productID, 'category_id' => $categories, 'main_category' => intval($main)]);
-        }
-        elseif(is_array($categories)) {
+        } elseif (is_array($categories)) {
             foreach ($categories as $i => $category_id) {
                 $this->addProductToCategory($category_id, $productID, ($i == 0 && $main == 1 ? 1 : 0));
             }
@@ -183,18 +196,18 @@ class Product extends Category{
      * @param int $productID This should be the product ID
      * @return boolean Returns true if no changes or updated successfully
      */
-    protected function updateProductCategory($categories, $productID) {
-        if(is_numeric($categories) && is_numeric($productID)) {
+    protected function updateProductCategory($categories, $productID)
+    {
+        if (is_numeric($categories) && is_numeric($productID)) {
             return $this->updateProductCategory([$categories], $productID);
-        }
-        elseif(is_array($categories)) {
+        } elseif (is_array($categories)) {
             $currentCategories = $this->listProductCategories($productID);
             $add = array_diff_assoc($categories, $currentCategories);
-            if(!empty($add)) {
+            if (!empty($add)) {
                 $this->addProductToCategory($add, $productID, 0);
             }
             $remove = array_diff_assoc($currentCategories, $categories);
-            if(!empty($remove)) {
+            if (!empty($remove)) {
                 $this->deleteProductFromCategory($remove, $productID);
             }
             return $this->setMainProductCategory($categories[0], $productID);
@@ -208,11 +221,11 @@ class Product extends Category{
      * @param int $productID This should be the product ID
      * @return boolean If the product has been successfully removed will return true else return false
      */
-    protected function deleteProductFromCategory($category, $productID){
-        if(is_numeric($category) && is_numeric($productID)) {
+    protected function deleteProductFromCategory($category, $productID)
+    {
+        if (is_numeric($category) && is_numeric($productID)) {
             return $this->db->delete($this->config->table_product_categories, ['product_id' => $productID, 'category_id' => $category], 1);
-        }
-        elseif(is_array($category)) {
+        } elseif (is_array($category)) {
             foreach ($category as $i => $category_id) {
                 $this->deleteProductFromCategory($category_id, $productID);
             }
@@ -227,7 +240,8 @@ class Product extends Category{
      * @param int $productID This should be the product ID
      * @return boolean If successfully updated will return true else returns false
      */
-    protected function setMainProductCategory($categoryID, $productID) {
+    protected function setMainProductCategory($categoryID, $productID)
+    {
         $this->db->update($this->config->table_product_categories, ['main_category' => 0], ['product_id' => $productID, 'category_id' => ['!=', $categoryID]]);
         return $this->db->update($this->config->table_product_categories, ['main_category' => 0], ['product_id' => $productID, 'category_id' => $categoryID]);
     }
@@ -238,15 +252,18 @@ class Product extends Category{
      * @param int $active If you only wish to display active products set this to true else set to false for all products
      * @return array|false If a product exists will return the single products information as an array else will return false
      */
-    protected function getProduct($where, $active = true) {
-        if(is_array($where)) {
-            if($active === true) {$where['active'] = 1;}
+    protected function getProduct($where, $active = true)
+    {
+        if (is_array($where)) {
+            if ($active === true) {
+                $where['active'] = 1;
+            }
             $productInfo = $this->db->select($this->config->table_products, $where);
-            if(is_array($productInfo)) {
+            if (is_array($productInfo)) {
                 $productInfo['related'] = $this->getRelatedProducts($productInfo['related']);
                 $productInfo['category_url'] = $this->getPrimaryCategoryURL($productInfo['product_id']);
                 $productInfo['gallery_images'] = ($productInfo['noimages'] >= 1 ? $this->gallery->getProductImages($productInfo['product_id']) : false);
-                if($productInfo['num_reviews'] > 0) {
+                if ($productInfo['num_reviews'] > 0) {
                     $productInfo['reviews'] = $this->review->getProductReviews($productInfo['product_id']);
                     $productInfo['reviewInfo'] = [
                         'numReviews' => $productInfo['num_reviews'],
@@ -266,18 +283,20 @@ class Product extends Category{
      * @param array $where Addition where fields
      * @return array|false If a product exists will return the single products information as an array else will return false
      */
-    public function getProductByID($product_id, $active = true, $where = []) {
+    public function getProductByID($product_id, $active = true, $where = [])
+    {
         return $this->getProduct(array_merge(['product_id' => $product_id], $where), $active);
     }
     
     /**
      * Retrieves product information based on a given unique product code
-     * @param string $product_code This should be the unique product SKU code 
+     * @param string $product_code This should be the unique product SKU code
      * @param boolean $active If you only wish to get the product if it is active set to true else for all products set to false
      * @param array $where Addition where fields
      * @return array|false If a product exists will return the single products information as an array else will return false
      */
-    public function getProductByCode($product_code, $active = true, $where = []) {
+    public function getProductByCode($product_code, $active = true, $where = [])
+    {
         return $this->getProduct(array_merge(['code' => $product_code], $where), $active);
     }
 
@@ -288,7 +307,8 @@ class Product extends Category{
      * @param array $where Addition where fields
      * @return array|false If a product exists will return the single products information as an array else will return false
      */
-    public function getProductByURL($product_url, $active = true, $where = []) {
+    public function getProductByURL($product_url, $active = true, $where = [])
+    {
         return $this->getProduct(array_merge(['custom_url' => $product_url], $where), $active);
     }
     
@@ -298,7 +318,8 @@ class Product extends Category{
      * @param array $where Addition where fields
      * @return array|boolean If the product information has been retrieved from the URL will return an array of information else will return false
      */
-    public function buildProduct($url, $where = []) {
+    public function buildProduct($url, $where = [])
+    {
         return $this->getProductByURL($url, true, $where);
     }
     
@@ -307,9 +328,12 @@ class Product extends Category{
      * @param int $product_id the product ID of the item you are checking if the item is a download item
      * @return boolean If the item is a download item will return true else returns false
      */
-    public function isProductDownload($product_id) {
+    public function isProductDownload($product_id)
+    {
         $productInfo = $this->getProductByID($product_id);
-        if($productInfo['digital']) {return true;}
+        if ($productInfo['digital']) {
+            return true;
+        }
         return false;
     }
     
@@ -318,9 +342,12 @@ class Product extends Category{
      * @param int $product_id This should be the product ID of the item you are getting the price for
      * @return string Will return the current price for the item and whether it is the sale price or normal price
      */
-    public function getProductPrice($product_id) {
+    public function getProductPrice($product_id)
+    {
         $productInfo = $this->getProductByID($product_id);
-        if(is_numeric($productInfo['sale_price'])) {return Cost::priceUnits($productInfo['sale_price'], $this->decimals);}
+        if (is_numeric($productInfo['sale_price'])) {
+            return Cost::priceUnits($productInfo['sale_price'], $this->decimals);
+        }
         return Cost::priceUnits($productInfo['price'], $this->decimals);
     }
     
@@ -329,7 +356,8 @@ class Product extends Category{
      * @param int $product_id This should be the product ID of the item you are getting the price for
      * @return int Will return the weight for the item
      */
-    public function getProductWeight($product_id) {
+    public function getProductWeight($product_id)
+    {
         $productInfo = $this->getProductByID($product_id);
         return $productInfo['weight'];
     }
@@ -339,11 +367,12 @@ class Product extends Category{
      * @param int $limit This should be the number of results to display
      * @param string $findBy This should be how you wish to generate the popular items can either be 'sales' or 'views'
      * @param array $where Addition where fields
-     * @return array|false If items exist an array will be returned else will return false 
+     * @return array|false If items exist an array will be returned else will return false
      */
-    public function getPopularProducts($limit = 5, $findBy = 'sales', $where = []) {
+    public function getPopularProducts($limit = 5, $findBy = 'sales', $where = [])
+    {
         $products = $this->db->selectAll($this->config->table_products, $where, '*', [$findBy => 'DESC'], intval($limit));
-        foreach ($products as $i => $product){
+        foreach ($products as $i => $product) {
             $products[$i] = $this->getProductByID($product['product_id']);
         }
         return $products;
@@ -354,10 +383,11 @@ class Product extends Category{
      * @param array|null $items An array of the associated items
      * @return array|false If any related products exists they will be returned as an array if none exist false will be returned
      */
-    protected function getRelatedProducts($items) {
-        if(is_array($items)) {
+    protected function getRelatedProducts($items)
+    {
+        if (is_array($items)) {
             $related = [];
-            foreach($items as $i => $product) {
+            foreach ($items as $i => $product) {
                 $related[$i] = $this->db->select($this->config->table_products, ['product_id' => $product], ['name', 'image', 'categories', 'custom_url']);
                 $related[$i]['url'] = '/store/'.$this->getPrimaryCategoryURL($product).'/'.$related[$i]['custom_url'];
                 $related[$i]['image'] = removeImageExtension($related[$i]['image']);
@@ -373,12 +403,12 @@ class Product extends Category{
      * @param int $main_category For initial search leave as 1 for the main category if not found will change to search for any category
      * @return string|false If The category exists the primary category URL will be returned false if no categories are assigned
      */
-    protected function getPrimaryCategoryURL($product_id, $main_category = 1) {
+    protected function getPrimaryCategoryURL($product_id, $main_category = 1)
+    {
         $category = $this->db->fetchColumn($this->config->table_product_categories, ['product_id' => $product_id, 'main_category' => $main_category], ['category_id']);
-        if(is_numeric($category)) {
+        if (is_numeric($category)) {
             return $this->getCategoryURL($category);
-        }
-        elseif($main_category === 1){
+        } elseif ($main_category === 1) {
             return $this->getPrimaryCategoryURL($product_id, 0);
         }
         return false;
@@ -386,30 +416,32 @@ class Product extends Category{
     
     /**
      * Get all of the products in a given category based on the given parameters
-     * @param int $category_id This should be the category ID that you are getting all the products within 
-     * @param string $orderBy How the products should be ordered can be on fields such as `sales`, `price`, `views` 
+     * @param int $category_id This should be the category ID that you are getting all the products within
+     * @param string $orderBy How the products should be ordered can be on fields such as `sales`, `price`, `views`
      * @param string $orderDir The direction it should be ordered ASC OR DESC
      * @param int $limit The maximum number of results to show
      * @param int $start The start location for the database results (Used for pagination)
      * @param boolean $activeOnly If you only want to display active product this should be set to true else should be set to false
-     * @return array|false Returns an array containing the products in a given category if any exist else will return false if none exist 
+     * @return array|false Returns an array containing the products in a given category if any exist else will return false if none exist
      */
-    public function getProductsInCategory($category_id, $orderBy = 'sales', $orderDir = 'DESC', $limit = 20, $start = 0, $activeOnly = true) {
+    public function getProductsInCategory($category_id, $orderBy = 'sales', $orderDir = 'DESC', $limit = 20, $start = 0, $activeOnly = true)
+    {
         return $this->buildProductArray(
-                $this->db->query("SELECT `products`.* FROM `{$this->config->table_products}` as `products`, `{$this->config->table_product_categories}` as `category` WHERE ".($activeOnly === true ? "`products`.`active` = 1 AND " : "")."`products`.`product_id` = `category`.`product_id` AND `category`.`category_id` = ? ORDER BY `{$orderBy}` {$orderDir}".($limit > 0 ? " LIMIT {$start}, {$limit}" : "").";", [$category_id])
+            $this->db->query("SELECT `products`.* FROM `{$this->config->table_products}` as `products`, `{$this->config->table_product_categories}` as `category` WHERE ".($activeOnly === true ? "`products`.`active` = 1 AND " : "")."`products`.`product_id` = `category`.`product_id` AND `category`.`category_id` = ? ORDER BY `{$orderBy}` {$orderDir}".($limit > 0 ? " LIMIT {$start}, {$limit}" : "").";", [$category_id])
         );
     }
     
     /**
      * Returns the products that should be featured on the homepage
-     * @param string $orderBy How the products should be ordered can be on fields such as `sales`, `price`, `views` 
+     * @param string $orderBy How the products should be ordered can be on fields such as `sales`, `price`, `views`
      * @param string $orderDir The direction it should be ordered ASC OR DESC
      * @param int $limit The maximum number of results to show
      * @param int $start The start location for the database results (Used for pagination)
      * @param array $additionalInfo Any additional fields to add to the query
-     * @return array|false Returns an array containing the products in a given category if any exist else will return false if none exist 
+     * @return array|false Returns an array containing the products in a given category if any exist else will return false if none exist
      */
-    public function getHomepageProducts($orderBy = 'sales', $orderDir = 'DESC', $limit = 20, $start = 0, array $additionalInfo = []) {
+    public function getHomepageProducts($orderBy = 'sales', $orderDir = 'DESC', $limit = 20, $start = 0, array $additionalInfo = [])
+    {
         return $this->buildProductArray(
             $this->db->selectAll($this->config->table_products, array_merge(['homepage' => 1, 'active' => 1], $additionalInfo), '*', [$orderBy => $orderDir], ($limit > 0 ? [$start => $limit] : 0))
         );
@@ -420,9 +452,10 @@ class Product extends Category{
      * @param array|false $products This should be an array of items if they exists else should be false
      * @return array|boolean Returns the array of items
      */
-    protected function buildProductArray($products) {
-        if(is_array($products)){
-            foreach($products as $i => $product){
+    protected function buildProductArray($products)
+    {
+        if (is_array($products)) {
+            foreach ($products as $i => $product) {
                 $products[$i] = $this->buildProduct($product['custom_url']);
             }
             return $products;
@@ -432,11 +465,12 @@ class Product extends Category{
     
     /**
      * Counts the number of items in a category
-     * @param int $category_id This should be the category ID that you want to count all the products within 
+     * @param int $category_id This should be the category ID that you want to count all the products within
      * @param boolean $activeOnly If you only want to display active product this should be set to true else should be set to false
      * @return int Returns the number of items in a category
      */
-    public function countProductsInCategory($category_id, $activeOnly = true) {
+    public function countProductsInCategory($category_id, $activeOnly = true)
+    {
         return count($this->getProductsInCategory($category_id, 'sales', 'DESC', 0, 0, $activeOnly));
     }
     
@@ -446,11 +480,12 @@ class Product extends Category{
      * @param array $additional Any additional fields to limit the select query with
      * @return boolean|array If any categories exist will return the array else will return false
      */
-    public function buildNavArray($currentURL, array $additional = []){
+    public function buildNavArray($currentURL, array $additional = [])
+    {
         $categories = $this->listCategories(true, $additional);
-        if(is_array($categories)){
+        if (is_array($categories)) {
             $nav = [];
-            foreach($categories as $c => $category) {
+            foreach ($categories as $c => $category) {
                 $nav[$c] = [
                     'label' => $category['name'],
                     'uri' => $this->config->store_url.$category['url'].'/',
@@ -469,11 +504,12 @@ class Product extends Category{
      * @param int $categoryID This should be the category ID
      * @return boolean|array If any products exist will return the array else will return false
      */
-    protected function buildProductNavArray($categoryURL, $categoryID) {
+    protected function buildProductNavArray($categoryURL, $categoryID)
+    {
         $products = $this->getProductsInCategory($categoryID, 'sales', 'DESC', 0, 0, true);
-        if(is_array($products)){
+        if (is_array($products)) {
             $nav = [];
-            foreach($products as $p => $product) {
+            foreach ($products as $p => $product) {
                 $nav[$p] = [
                     'label' => $product['name'],
                     'uri' => $categoryURL.$product['custom_url'],
