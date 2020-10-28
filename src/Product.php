@@ -243,7 +243,7 @@ class Product extends Category
     /**
      * Returns the product information based on the given parameters
      * @param array $where This should be the where parameters you wish to search the database for
-     * @param int $active If you only wish to display active products set this to true else set to false for all products
+     * @param boolean $active If you only wish to display active products set this to true else set to false for all products
      * @return array|false If a product exists will return the single products information as an array else will return false
      */
     protected function getProduct($where, $active = true)
