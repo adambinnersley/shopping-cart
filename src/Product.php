@@ -46,10 +46,7 @@ class Product extends Category
      */
     public function listProducts($active = true, $start = 0, $limit = 50, $where = [])
     {
-        if ($active === true) {
-            $where['active'] = 1;
-        }
-        return $this->db->selectAll($this->config->table_products, $where, '*', [], [$start => $limit]);
+        return $this->db->selectAll($this->config->table_products, $this->addWhereIsActive($active, $where), '*', [], [$start => $limit]);
     }
     
     /**
@@ -60,10 +57,7 @@ class Product extends Category
      */
     public function countProducts($active = true, $where = [])
     {
-        if ($active === true) {
-            $where['active'] = 1;
-        }
-        return $this->db->count($this->config->table_products, $where);
+        return $this->db->count($this->config->table_products, $this->addWhereIsActive($active, $where));
     }
     
     /**
@@ -255,10 +249,7 @@ class Product extends Category
     protected function getProduct($where, $active = true)
     {
         if (is_array($where)) {
-            if ($active === true) {
-                $where['active'] = 1;
-            }
-            $productInfo = $this->db->select($this->config->table_products, $where);
+            $productInfo = $this->db->select($this->config->table_products, $this->addWhereIsActive($active, $where));
             if (is_array($productInfo)) {
                 $productInfo['related'] = $this->getRelatedProducts($productInfo['related']);
                 $productInfo['category_url'] = $this->getPrimaryCategoryURL($productInfo['product_id']);

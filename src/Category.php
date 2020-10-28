@@ -32,10 +32,7 @@ class Category
      */
     public function listCategories($active = true, $where = [])
     {
-        if ($active !== false) {
-            $where['active'] = 1;
-        }
-        return $this->db->selectAll($this->config->table_categories, $where, '*', ['order' => 'ASC']);
+        return $this->db->selectAll($this->config->table_categories, $this->addWhereIsActive($active, $where), '*', ['order' => 'ASC']);
     }
     
     /**
@@ -166,5 +163,18 @@ class Category
     protected function numberOfProductsInCategory($category_id)
     {
         return $this->db->count($this->config->table_product_categories, ['category_id' => intval($category_id)]);
+    }
+    
+    /**
+     * Adds an additional key to the where array
+     * @param boolean $active If you only want to view the active results set to true else set to false
+     * @param array $where Addition where fields
+     * @return array
+     */
+    protected function addWhereIsActive($active = true, $where = []){
+        if ($active !== false) {
+            $where['active'] = 1;
+        }
+        return $where;
     }
 }
