@@ -40,7 +40,7 @@ class Basket
         $this->product = (is_object($product) ? $product : new Product($this->db, $this->config));
         $this->tax = new Tax($this->db, $this->config);
         $this->voucher = new Voucher($this->db, $this->config, $this->product);
-        $this->user = (is_object($user) ? $user : new Customers($this->db));
+        $this->user = (is_object($user) ? $user : new Customers($this->db, $config));
         $this->user_id = $this->user->getUserID();
         $this->decimals = Currency::getCurrencyDecimals($this->config->currency);
         $this->ip_address = new IPBlock($this->db);
