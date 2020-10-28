@@ -1,17 +1,12 @@
 <?php
 namespace ShoppingCart\Tests;
 
-use PHPUnit\Framework\TestCase;
-use DBAL\Database;
-use Configuration\Config;
 use ShoppingCart\Basket;
 use ShoppingCart\Customers;
 use ShoppingCart\Product;
 
-class BasketTest extends TestCase
+class BasketTest extends SetUp
 {
-    protected $db;
-    protected $config;
     protected $basket;
     
     /**
@@ -19,28 +14,13 @@ class BasketTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->db = new Database(
-            $GLOBALS['hostname'],
-            $GLOBALS['username'],
-            $GLOBALS['password'],
-            $GLOBALS['database']
-        );
-        if (!$this->db->isConnected()) {
-            $this->markTestSkipped(
-                'No local database connection is available'
-            );
-        }
-        if (!$this->db->selectAll('store_config')) {
-            $this->db->query(file_get_contents(dirname(dirname(__FILE__)).'/database/database_mysql.sql'));
-            $this->db->query(file_get_contents(dirname(__FILE__).'/sample_data/data.sql'));
-        }
-        $config = new Config($this->db, 'store_config');
-        $this->basket = new Basket($this->db, $config, new Customers($this->db), new Product($this->db, $config));
+        parent::setUp();
+        $this->basket = new Basket($this->db, $this->config, new Customers($this->db, $this->config), new Product($this->db, $this->config));
     }
     
     protected function tearDown(): void
     {
-        $this->db = null;
+        parent::tearDown();
         $this->basket = null;
     }
     
