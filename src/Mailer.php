@@ -19,10 +19,11 @@ class Mailer
      * @param string $from This should be the email address that the email is coming from
      * @param string $fromname This should be the name to be displayed, who the email is from
      * @param string $replyto This should be any reply to email address
-     * @param array $attachment And attachments should be attached as an array
+     * @param array $attachment Any attachments should be attached as an array
+     * @param array $cc Any additional emails to send a copy of the email 
      * @return boolean If the email has been sent successfully will return true else returns false
      */
-    public static function sendEmail($to, $subject, $plain, $html, $from, $fromname, $replyto = '', $attachment = [])
+    public static function sendEmail($to, $subject, $plain, $html, $from, $fromname, $replyto = '', $attachment = [], $cc = [])
     {
         self::$mail = new PHPMailer();
         self::$mail->CharSet = 'UTF-8';
@@ -57,6 +58,11 @@ class Mailer
             self::$mail->AddReplyTo($replyto, $fromname);
         }
         self::$mail->addAddress($to);
+        if (!empty($cc)) {
+            foreach($cc as $email){
+                self::$mail->addCC($email);
+            }
+        }
         self::$mail->isHTML(true);
         if (!empty($attachment)) {
             foreach ($attachment as $file) {
