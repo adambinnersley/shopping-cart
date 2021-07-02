@@ -16,8 +16,6 @@ class Order extends Basket
 {
     
     protected $download;
-    
-    protected $hasDownload = false;
 
     public $status_list = [1 => 'Pending', 2 => 'Paid', 3 => 'Order Complete &amp; Dispatched', 4 => 'Order Cancelled', 5 => 'Order Refunded'];
     
@@ -295,7 +293,6 @@ class Order extends Basket
                 $this->totals['product'][$i]['tax'] = Cost::priceUnits($this->tax->calculateItemTax((isset($product['product_info']['tax_id']) ? $product['product_info']['tax_id'] : $this->totals['product'][$i]['tax_id']), $this->totals['product'][$i]['price']), $this->decimals);
                 $this->totals['numproducts'] = intval($this->totals['numproducts']) + $this->totals['product'][$i]['quantity'];
                 if ($this->product->isProductDownload($product['product_id']) && ($orderInfo['status'] == 2 || $orderInfo['status'] == 3)) {
-                    $this->hasDownload = true;
                     if ($this->download->getDownloadInformation($product['product_id'], $order_id) === false) {
                         $this->download->addDownloadLink($orderInfo['user']['id'], $order_id, [$product['product_id'] => $this->totals['product'][$i]['quantity']], $orderInfo['user']['email']);
                     }
@@ -365,7 +362,7 @@ class Order extends Basket
             $this->db->update($this->config->table_basket, array_merge(['status' => intval($new_status)], $date), ['order_id' => $order_id], 1);
             $orderInfo = $this->getOrderByID($order_id);
             if ($sendEmail === true && is_array($orderInfo)) {
-                $this->hasDownload === true && ($new_status == 2 || $new_status == 3) ? $this->download->sendDownloadLink($orderInfo['order_no']) : '';
+                ($orderInfo['digital'] == 1 && ($new_status == 2 || $new_status == 3) ? $this->download->sendDownloadLink($orderInfo['order_no']) : '');
                 isset($this->orderEmailTypes($orderInfo)[$new_status]) ? $this->sendOrderEmail($orderInfo, $this->orderEmailTypes($orderInfo)[$new_status]['email'], $this->orderEmailTypes($orderInfo)[$new_status]['variables']) : '';
                 isset($this->orderEmailTypes($orderInfo)[$new_status.'_office']) ? $this->sendOrderEmail($orderInfo, $this->orderEmailTypes($orderInfo)[$new_status.'_office']['email'], $this->orderEmailTypes($orderInfo)[$new_status.'_office']['variables'], false) : '';
             }

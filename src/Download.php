@@ -195,7 +195,7 @@ class Download
         $date = new DateTime();
         $linkInfo = $this->db->select($this->config->table_downloads, ['link' => $link, 'attempts' => ['<=', intval($this->config->download_attempts)], 'expire' => ['>=', $date->format('Y-m-d H:i:s')]]);
         if (is_array($linkInfo)) {
-            $this->db->update($this->config->table_downloads, ['attempts' => intval($linkInfo['attempts'] + 1)]);
+            $this->db->update($this->config->table_downloads, ['attempts' => intval($linkInfo['attempts'] + 1)], ['dlid' => $linkInfo['dlid']], 1);
             $productInfo = $this->order->product->getProductByID($linkInfo['product']);
             redirect($productInfo['digitalloc']);
         }
