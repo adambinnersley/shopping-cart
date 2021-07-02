@@ -80,7 +80,7 @@ class Basket
         if (empty(trim($orderNo))) {
             $where = ['status' => 1, 'customer_id' => ($this->user_id === 0 ? 'IS NULL' : $this->user_id), 'sessionid' => session_id()];
         } else {
-            $where = ['order_no' => ['LIKE', '%'.$orderNo.'%']];
+            $where = ['order_no' => $orderNo];
         }
         
         $basketInfo = $this->db->select($this->config->table_basket, array_merge($where, $additional), '*', ['order_id' => 'DESC']);
