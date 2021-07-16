@@ -1,4 +1,5 @@
 <?php
+
 namespace ShoppingCart;
 
 use DBAL\Database;
@@ -35,7 +36,7 @@ class Serial
      */
     protected function generateSerial()
     {
-        return str_pad(rand(0, 9999), 4, '0', STR_PAD_LEFT).'-'.str_pad(rand(0, 9999), 4, '0', STR_PAD_LEFT).'-'.str_pad(rand(0, 9999), 4, '0', STR_PAD_LEFT).'-'.str_pad(rand(0, 9999), 4, '0', STR_PAD_LEFT);
+        return str_pad(rand(0, 9999), 4, '0', STR_PAD_LEFT) . '-' . str_pad(rand(0, 9999), 4, '0', STR_PAD_LEFT) . '-' . str_pad(rand(0, 9999), 4, '0', STR_PAD_LEFT) . '-' . str_pad(rand(0, 9999), 4, '0', STR_PAD_LEFT);
     }
     
     /**
@@ -61,7 +62,7 @@ class Serial
     public function getSerials($order_id, $product_id)
     {
         if (is_numeric($product_id) && is_numeric($order_id)) {
-            return $this->db->selectAll($this->config->table_serials, ['active' => 1, 'order_id' => $order_id, 'product_id' => $product_id], ['serial']);
+            return $this->db->selectAll($this->config->table_serials, ['active' => 1, 'order_id' => $order_id, 'product_id' => $product_id], ['serial'], [], 0, 300);
         }
         return false;
     }
@@ -80,7 +81,7 @@ class Serial
             if (is_numeric($product_id)) {
                 $where['product_id'] = intval($product_id);
             }
-            return ($this->db->count($this->config->table_serials, $where) ? true : false);
+            return ($this->db->count($this->config->table_serials, $where, false) ? true : false);
         }
         return false;
     }
@@ -102,6 +103,6 @@ class Serial
      */
     public function getNumInstalls($serial)
     {
-        return $this->db->count($this->config->table_attempts, ['serials' => $serial]);
+        return $this->db->count($this->config->table_attempts, ['serials' => $serial], false);
     }
 }

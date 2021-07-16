@@ -10,7 +10,7 @@ class StatisticsTest extends SetUp
     protected function setUp(): void
     {
         parent::setUp();
-        $this->stats = new Statistics($this->db, $this->config);
+        $this->stats = new Statistics(self::$db, self::$config);
     }
     
     protected function tearDown(): void
@@ -19,8 +19,18 @@ class StatisticsTest extends SetUp
         $this->stats = null;
     }
     
-    public function testExample()
+    /**
+     * @covers \ShoppingCart\Statistics::__construct
+     * @covers \ShoppingCart\Currency::getCurrencyDecimals
+     * @covers \ShoppingCart\Statistics::getSalesByMonth
+     * 
+     */
+    public function testGetSalesByMonth()
     {
-        $this->markTestIncomplete();
+        $statistics = $this->stats->getSalesByMonth(6, 2021);
+        $this->assertArrayHasKey('days', $statistics);
+        $this->assertArrayHasKey('statistics', $statistics);
+        $this->assertArrayHasKey(15, $statistics['days']);
+        $this->assertArrayNotHasKey(32, $statistics['days']);
     }
 }

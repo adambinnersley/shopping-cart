@@ -11,7 +11,7 @@ class SerialTest extends SetUp
     protected function setUp(): void
     {
         parent::setUp();
-        $this->serial = new Serial($this->db, $this->config);
+        $this->serial = new Serial(self::$db, self::$config);
     }
     
     protected function tearDown(): void

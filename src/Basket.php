@@ -5,6 +5,7 @@ namespace ShoppingCart;
 use DBAL\Database;
 use Configuration\Config;
 use ShoppingCart\Modifiers\Cost;
+use DBAL\Modifiers\Modifier;
 use Blocking\IPBlock;
 
 class Basket
@@ -55,7 +56,7 @@ class Basket
      */
     protected function createOrderID()
     {
-        return date('ymd').'-'.date('His').'-'.rand(1000, 9999);
+        return date('ymd') . '-' . date('His') . '-' . rand(1000, 9999);
     }
     
     /**
@@ -83,7 +84,7 @@ class Basket
             $where = ['order_no' => $orderNo];
         }
         
-        $basketInfo = $this->db->select($this->config->table_basket, array_merge($where, $additional), '*', ['order_id' => 'DESC']);
+        $basketInfo = $this->db->select($this->config->table_basket, array_merge($where, $additional), '*', ['order_id' => 'DESC'], false);
         if (is_array($basketInfo)) {
             $this->getProducts($basketInfo['order_id'], $additional);
             $basketInfo['products'] = $this->products;
@@ -121,7 +122,7 @@ class Basket
      */
     public function changeCurrentBasket($orderNo)
     {
-        if ($this->db->select($this->config->table_basket, ['customer_id' => $this->user_id, 'order_no' => $orderNo, 'status' => 1])) {
+        if ($this->db->select($this->config->table_basket, ['customer_id' => $this->user_id, 'order_no' => $orderNo, 'status' => 1], '*', [], false)) {
             $this->db->update($this->config->table_basket, ['sessionid' => 'NULL'], ['customer_id' => $this->user_id, 'sessionid' => session_id(), 'status' => 1]);
             return $this->db->update($this->config->table_basket, ['sessionid' => session_id()], ['customer_id' => $this->user_id, 'order_no' => $orderNo, 'status' => 1]);
         }
@@ -141,7 +142,7 @@ class Basket
         if (!empty($this->products) && is_array($this->products)) {
             return $this->products;
         } elseif (is_numeric($orderID)) {
-            $this->products = $this->db->selectAll($this->config->table_basket_products, ['order_id' => $orderID]);
+            $this->products = $this->db->selectAll($this->config->table_basket_products, ['order_id' => $orderID], '*', [], false);
             if (is_array($this->products)) {
                 foreach ($this->products as $i => $product) {
                     $this->products[$i]['product_info'] = unserialize($product['product_info']);
@@ -306,9 +307,6 @@ class Basket
     public function updateVoucherCode($code)
     {
         $voucherInfo = $this->voucher->getVoucherByCode($code, true);
-        if (empty($voucherInfo) || $voucherInfo === false) {
-            $code = null;
-        }
-        return $this->db->update($this->config->table_basket, ['voucher' => $code], ['customer_id' => ($this->user_id === 0 ? 'IS NULL' : $this->user_id), 'sessionid' => session_id(), 'status' => 1], 1);
+        return $this->db->update($this->config->table_basket, ['voucher' => Modifier::setNullOnEmpty($voucherInfo['code'])], ['customer_id' => ($this->user_id === 0 ? 'IS NULL' : $this->user_id), 'sessionid' => session_id(), 'status' => 1], 1);
     }
 }

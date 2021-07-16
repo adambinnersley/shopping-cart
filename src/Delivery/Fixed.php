@@ -31,7 +31,7 @@ class Fixed implements DeliveryInterface
      */
     public function getDeliveryCost($item = '')
     {
-        $price = $this->db->fetchColumn($this->config->table_delivery_fixed_cost, [], ['cost']);
+        $price = $this->db->fetchColumn($this->config->table_delivery_fixed_cost, [], ['cost'], 0, [], 600);
         if ($price === false) {
             $price = 0;
         }
@@ -44,7 +44,7 @@ class Fixed implements DeliveryInterface
      */
     public function listDeliveryItems()
     {
-        return $this->db->select($this->config->table_delivery_fixed_cost);
+        return $this->db->select($this->config->table_delivery_fixed_cost, [], '*', [], 0, 300);
     }
     
     /**
@@ -63,7 +63,7 @@ class Fixed implements DeliveryInterface
      */
     public function addDeliveryItem($cost)
     {
-        if ($this->db->count($this->config->table_delivery_fixed_cost) == 1) {
+        if ($this->db->count($this->config->table_delivery_fixed_cost, [], false) == 1) {
             return $this->editDeliveryItem(1, $cost);
         }
         return$this->db->insert($this->config->table_delivery_fixed_cost, ['cost' => Cost::priceUnits($cost, $this->decimals)]);

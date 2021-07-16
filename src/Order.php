@@ -71,7 +71,7 @@ class Order extends Basket
             $additional['status'] = $status;
         }
         $extraSQL = SQLBuilder::createAdditionalString($additional);
-        return $this->db->query("SELECT * FROM `{$this->config->table_basket}` as `bskt`, `{$this->config->table_users}` AS `usr` WHERE `bskt`.`customer_id` = `usr`.`id`".(strlen($extraSQL) >= 1 ? ' AND '.$extraSQL : '')." ORDER BY `date` DESC".($limit >= 1 ? " LIMIT ".intval($start).", ".intval($limit) : '').";", SQLBuilder::$values);
+        return $this->db->query("SELECT * FROM `{$this->config->table_basket}` as `bskt`, `{$this->config->table_users}` AS `usr` WHERE `bskt`.`customer_id` = `usr`.`id`" . (strlen($extraSQL) >= 1 ? ' AND ' . $extraSQL : '') . " ORDER BY `date` DESC" . ($limit >= 1 ? " LIMIT " . intval($start) . ", " . intval($limit) : '') . ";", SQLBuilder::$values, false);
     }
     
     /**
@@ -86,7 +86,7 @@ class Order extends Basket
     public function listOrders($status = 2, $start = 0, $limit = 50, array $additional = [], $count = false)
     {
         $extraSQL = SQLBuilder::createAdditionalString($additional);
-        return $this->db->query("SELECT ".($count === false ? "*" : "count(`{$this->config->table_basket}`.`order_id`) as `count`")." FROM `{$this->config->table_basket}`, `{$this->config->table_users}` WHERE `{$this->config->table_basket}`.`customer_id` = `{$this->config->table_users}`.`id` AND `{$this->config->table_basket}`.`customer_id` != '0'".(is_numeric($status) ? " AND `{$this->config->table_basket}`.`status` = ".intval($status) : "").(strlen($extraSQL) >= 1 ? ' AND '.$extraSQL : '')." ORDER BY `date` DESC".($limit >= 1 ? " LIMIT ".intval($start).", ".intval($limit) : '').";", SQLBuilder::$values);
+        return $this->db->query("SELECT " . ($count === false ? "*" : "count(`{$this->config->table_basket}`.`order_id`) as `count`") . " FROM `{$this->config->table_basket}`, `{$this->config->table_users}` WHERE `{$this->config->table_basket}`.`customer_id` = `{$this->config->table_users}`.`id` AND `{$this->config->table_basket}`.`customer_id` != '0'" . (is_numeric($status) ? " AND `{$this->config->table_basket}`.`status` = " . intval($status) : "") . (strlen($extraSQL) >= 1 ? ' AND ' . $extraSQL : '') . " ORDER BY `date` DESC" . ($limit >= 1 ? " LIMIT " . intval($start) . ", " . intval($limit) : '') . ";", SQLBuilder::$values, false);
     }
     
     /**
@@ -112,7 +112,7 @@ class Order extends Basket
     public function searchOrders($search, $start = 0, $limit = 50, $status = false, array $additional = [])
     {
         $extraSQL = SQLBuilder::createAdditionalString($additional);
-        return $this->db->query("SELECT * FROM `{$this->config->table_basket}`, `{$this->config->table_users}` WHERE (`{$this->config->table_basket}`.`customer_id` = `{$this->config->table_users}`.`id` AND `{$this->config->table_basket}`.`customer_id` != '0') AND (`{$this->config->table_basket}`.`order_no` LIKE :SEARCH OR `{$this->config->table_users}`.`firstname` LIKE :SEARCH OR `{$this->config->table_users}`.`lastname` LIKE :SEARCH OR `{$this->config->table_users}`.`add_1` LIKE :SEARCH OR `{$this->config->table_users}`.`add_2` LIKE :SEARCH OR `{$this->config->table_users}`.`town` LIKE :SEARCH OR `{$this->config->table_users}`.`postcode` LIKE :SEARCH OR `{$this->config->table_users}`.`phone` LIKE :SEARCH OR `{$this->config->table_users}`.`mobile` LIKE :SEARCH OR `email` LIKE :SEARCH)".(is_numeric($status) ? " AND `{$this->config->table_basket}`.`status` = ".intval($status) : "").(strlen($extraSQL) >= 1 ? ' AND '.$extraSQL : '')." ORDER BY `date` DESC".($limit >= 1 ? " LIMIT ".intval($start).", ".intval($limit) : '').";", array_merge(SQLBuilder::$values, [':SEARCH' => "%{$search}%"]));
+        return $this->db->query("SELECT * FROM `{$this->config->table_basket}`, `{$this->config->table_users}` WHERE (`{$this->config->table_basket}`.`customer_id` = `{$this->config->table_users}`.`id` AND `{$this->config->table_basket}`.`customer_id` != '0') AND (`{$this->config->table_basket}`.`order_no` LIKE :SEARCH OR `{$this->config->table_users}`.`firstname` LIKE :SEARCH OR `{$this->config->table_users}`.`lastname` LIKE :SEARCH OR `{$this->config->table_users}`.`add_1` LIKE :SEARCH OR `{$this->config->table_users}`.`add_2` LIKE :SEARCH OR `{$this->config->table_users}`.`town` LIKE :SEARCH OR `{$this->config->table_users}`.`postcode` LIKE :SEARCH OR `{$this->config->table_users}`.`phone` LIKE :SEARCH OR `{$this->config->table_users}`.`mobile` LIKE :SEARCH OR `email` LIKE :SEARCH)" . (is_numeric($status) ? " AND `{$this->config->table_basket}`.`status` = " . intval($status) : "") . (strlen($extraSQL) >= 1 ? ' AND ' . $extraSQL : '') . " ORDER BY `date` DESC" . ($limit >= 1 ? " LIMIT " . intval($start) . ", " . intval($limit) : '') . ";", array_merge(SQLBuilder::$values, [':SEARCH' => "%{$search}%"]), false);
     }
     
     /**
@@ -200,7 +200,7 @@ class Order extends Basket
      */
     protected function getOrdersBy($where, $limit = 1)
     {
-        $orderInfo = $this->db->selectAll($this->config->table_basket, $where, '*', ['date' => 'DESC'], $limit);
+        $orderInfo = $this->db->selectAll($this->config->table_basket, $where, '*', ['date' => 'DESC'], $limit, false);
         if (is_array($orderInfo)) {
             if ($limit === 1) {
                 return $this->buildOrder($orderInfo);
@@ -311,8 +311,8 @@ class Order extends Basket
     protected function getDeliveryInfo($orderInfo, $delivery = true)
     {
         $type = ($delivery === true ? 'delivery' : 'billing');
-        if (isset($orderInfo[$type.'_id']) && !is_null($orderInfo[$type.'_id']) && $orderInfo[$type.'_id'] >= 1) {
-            return $this->user->getDeliveryAddress($orderInfo[$type.'_id'], $orderInfo['customer_id']);
+        if (isset($orderInfo[$type . '_id']) && !is_null($orderInfo[$type . '_id']) && $orderInfo[$type . '_id'] >= 1) {
+            return $this->user->getDeliveryAddress($orderInfo[$type . '_id'], $orderInfo['customer_id']);
         }
         return $orderInfo['user'];
     }
@@ -364,7 +364,7 @@ class Order extends Basket
             if ($sendEmail === true && is_array($orderInfo)) {
                 ($orderInfo['digital'] == 1 && ($new_status == 2 || $new_status == 3) ? $this->download->sendDownloadLink($orderInfo['order_no']) : '');
                 isset($this->orderEmailTypes($orderInfo)[$new_status]) ? $this->sendOrderEmail($orderInfo, $this->orderEmailTypes($orderInfo)[$new_status]['email'], $this->orderEmailTypes($orderInfo)[$new_status]['variables']) : '';
-                isset($this->orderEmailTypes($orderInfo)[$new_status.'_office']) ? $this->sendOrderEmail($orderInfo, $this->orderEmailTypes($orderInfo)[$new_status.'_office']['email'], $this->orderEmailTypes($orderInfo)[$new_status.'_office']['variables'], false) : '';
+                isset($this->orderEmailTypes($orderInfo)[$new_status . '_office']) ? $this->sendOrderEmail($orderInfo, $this->orderEmailTypes($orderInfo)[$new_status . '_office']['email'], $this->orderEmailTypes($orderInfo)[$new_status . '_office']['variables'], false) : '';
             }
             return true;
         }
@@ -381,18 +381,18 @@ class Order extends Basket
      */
     public function sendOrderEmail($orderInfo, $emailType, $variables = [], $toUser = true)
     {
-        $subject = sprintf($this->config->{"email_".strtolower($emailType)."_subject"}, $orderInfo['order_no'], date('d M Y', strtotime(isset($orderInfo['payment_date']) ? $orderInfo['payment_date'] : $orderInfo['date'])), $this->config->site_name);
+        $subject = sprintf($this->config->{"email_" . strtolower($emailType) . "_subject"}, $orderInfo['order_no'], date('d M Y', strtotime(isset($orderInfo['payment_date']) ? $orderInfo['payment_date'] : $orderInfo['date'])), $this->config->site_name);
         return Mailer::sendEmail(
             ($toUser === true ? $orderInfo['user']['email'] : $this->config->email_office_address),
             $subject,
-            vsprintf($this->config->{"email_".strtolower($emailType)."_altbody"}, array_map(function ($v) {
+            vsprintf($this->config->{"email_" . strtolower($emailType) . "_altbody"}, array_map(function ($v) {
                 return Html2Text::convert($v, ['ignore_errors' => true]);
             }, $variables)),
-            Mailer::htmlWrapper($this->config, vsprintf($this->config->{"email_".strtolower($emailType)."_body"}, $variables), $subject),
+            Mailer::htmlWrapper($this->config, vsprintf($this->config->{"email_" . strtolower($emailType) . "_body"}, $variables), $subject),
             $this->config->email_from_address,
             $this->config->email_from_name,
             '',
-            ($emailType === 'order_confirm' ? [0 => [$this->createOrderPDF($orderInfo['order_id'], $orderInfo['customer_id'], false, false, true), 'Order'.$orderInfo['order_no'].'.pdf']] : [])
+            ($emailType === 'order_confirm' ? [0 => [$this->createOrderPDF($orderInfo['order_id'], $orderInfo['customer_id'], false, false, true), 'Order' . $orderInfo['order_no'] . '.pdf']] : [])
         );
     }
     
@@ -408,7 +408,7 @@ class Order extends Basket
             3 => ['email' => 'dispatch', 'variables' => [(empty($orderInfo['user']['title']) ? $orderInfo['user']['firstname'] : $orderInfo['user']['title']), $orderInfo['user']['lastname'], $orderInfo['order_no'], date('d/m/Y', strtotime(isset($orderInfo['payment_date']) ? $orderInfo['payment_date'] : $orderInfo['date'])), $this->emailFormatProducts($orderInfo), $orderInfo['user']['add_1'], $orderInfo['delivery_info']['add_1'], $orderInfo['user']['add_2'], $orderInfo['delivery_info']['add_2'], $orderInfo['user']['town'], $orderInfo['delivery_info']['town'], $orderInfo['user']['county'], $orderInfo['delivery_info']['county'], $orderInfo['user']['postcode'], $orderInfo['delivery_info']['postcode']]],
             4 => ['email' => 'order_cancel', 'variables' => [(empty($orderInfo['user']['title']) ? $orderInfo['user']['firstname'] : $orderInfo['user']['title']), $orderInfo['user']['lastname'], $orderInfo['order_no'], $this->config->site_url, $this->config->order_history_url]],
             5 => ['email' => 'order_refund', 'variables' => [(empty($orderInfo['user']['title']) ? $orderInfo['user']['firstname'] : $orderInfo['user']['title']), $orderInfo['user']['lastname'], $orderInfo['order_no'], $this->config->site_url, $this->config->order_history_url]],
-            '2_office' => ['email' => 'order_office', 'variables' => [$orderInfo['order_no'], date('d/m/Y H:i', strtotime(isset($orderInfo['payment_date']) ? $orderInfo['payment_date'] : $orderInfo['date'])), trim($orderInfo['user']['title'].' '.$orderInfo['user']['firstname'].' '.$orderInfo['user']['lastname']), Currency::getCurrencySymbol($this->config->currency), $orderInfo['cart_total'], $this->config->admin_url, $this->config->admin_order_url, $this->emailFormatProducts($orderInfo, false)]]
+            '2_office' => ['email' => 'order_office', 'variables' => [$orderInfo['order_no'], date('d/m/Y H:i', strtotime(isset($orderInfo['payment_date']) ? $orderInfo['payment_date'] : $orderInfo['date'])), trim($orderInfo['user']['title'] . ' ' . $orderInfo['user']['firstname'] . ' ' . $orderInfo['user']['lastname']), Currency::getCurrencySymbol($this->config->currency), $orderInfo['cart_total'], $this->config->admin_url, $this->config->admin_order_url, $this->emailFormatProducts($orderInfo, false)]]
         );
     }
     
@@ -422,21 +422,21 @@ class Order extends Basket
     public function emailFormatProducts($orderInfo, $download = true, $tangible = false)
     {
         $table = '<table width="100%" border="0" cellpadding="2" cellspacing="0">
-<tr><th>Quantity</th><th>Name</th><th>Unit Price</th><th>Total Price</th></tr>'."\n\r";
+<tr><th>Quantity</th><th>Name</th><th>Unit Price</th><th>Total Price</th></tr>' . "\n\r";
         foreach ($this->removeUnwantedItems($orderInfo['products'], $tangible) as $product) {
-            $table.= '<tr><td class="align-center" valign="middle">'.$product['quantity'].'</td><td class="align-center" valign="middle">'.$product['name'];
+            $table .= '<tr><td class="align-center" valign="middle">' . $product['quantity'] . '</td><td class="align-center" valign="middle">' . $product['name'];
             if (isset($product['link']) && $download === true) {
-                $table.= '<br /><br /><strong>Download Link:</strong> <a href="'.$product['link'].'" target="_blank">'.$product['link'].'</a>';
+                $table .= '<br /><br /><strong>Download Link:</strong> <a href="' . $product['link'] . '" target="_blank">' . $product['link'] . '</a>';
             }
             if (isset($product['serials']) && $download === true) {
-                $table.= '<br /><br /><strong>Serial No(s):</strong>';
+                $table .= '<br /><br /><strong>Serial No(s):</strong>';
                 foreach ($product['serials'] as $serial) {
-                    $table.= $serial['serial'].'<br />';
+                    $table .= $serial['serial'] . '<br />';
                 }
             }
-            $table.= '</td><td class="align-center" valign="middle">'.Currency::getCurrencySymbol($this->config->currency).$product['price'].'</td><td class="align-center" valign="middle">'.Currency::getCurrencySymbol($this->config->currency).number_format(($product['quantity']*$product['price']), Currency::getCurrencyDecimals($this->config->currency), '.', '')."</td></tr>\n\r";
+            $table .= '</td><td class="align-center" valign="middle">' . Currency::getCurrencySymbol($this->config->currency) . $product['price'] . '</td><td class="align-center" valign="middle">' . Currency::getCurrencySymbol($this->config->currency) . number_format(($product['quantity'] * $product['price']), Currency::getCurrencyDecimals($this->config->currency), '.', '') . "</td></tr>\n\r";
         }
-        $table.= '</table>';
+        $table .= '</table>';
         return $table;
     }
     

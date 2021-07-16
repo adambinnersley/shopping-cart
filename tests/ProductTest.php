@@ -10,7 +10,7 @@ class ProductTest extends SetUp
     protected function setUp(): void
     {
         parent::setUp();
-        $this->product = new Product($this->db, $this->config);
+        $this->product = new Product(self::$db, self::$config);
     }
     
     protected function tearDown(): void

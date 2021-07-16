@@ -11,7 +11,7 @@ class VoucherTest extends SetUp
     protected function setUp(): void
     {
         parent::setUp();
-        $this->voucher = new Voucher($this->db, $this->config, new Product($this->db, $this->config));
+        $this->voucher = new Voucher(self::$db, self::$config, new Product(self::$db, self::$config));
     }
     
     protected function tearDown(): void

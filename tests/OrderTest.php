@@ -11,7 +11,7 @@ class OrderTest extends SetUp
     protected function setUp(): void
     {
         parent::setUp();
-        $this->order = new Order($this->db, $this->config, false, new Product($this->db, $this->config));
+        $this->order = new Order(self::$db, self::$config, false, new Product(self::$db, self::$config));
     }
     
     protected function tearDown(): void

@@ -8,32 +8,38 @@ use Configuration\Config;
 
 abstract class SetUp extends TestCase
 {
-    protected $db;
-    protected $config;
+    protected static $db;
+    protected static $config;
     
-    protected function setUp(): void
+    /**
+     * This method is called before the first test of this test class is run.
+     */
+    public static function setUpBeforeClass(): void
     {
-        $this->db = new Database(
+        self::$db = new Database(
             $GLOBALS['hostname'],
             $GLOBALS['username'],
             $GLOBALS['password'],
             $GLOBALS['database']
         );
-        if (!$this->db->isConnected()) {
+        if (!self::$db->isConnected()) {
             $this->markTestSkipped(
                 'No local database connection is available'
             );
         }
-        $this->db->query(file_get_contents(dirname(dirname(__FILE__)).'/database/database_mysql.sql'));
-        if (!$this->db->selectAll('store_config')) {
-            $this->db->query(file_get_contents(dirname(__FILE__).'/sample_data/data.sql'));
-        }
-        $this->config = new Config($this->db, 'store_config');
+        self::$db->query(file_get_contents(dirname(dirname(__FILE__)).'/database/database_mysql.sql'));
+        self::$db->query(file_get_contents(dirname(dirname(__FILE__)).'/vendor/adamb/blocking/files/database/database.sql'));
+        self::$db->query(file_get_contents(dirname(__FILE__).'/sample_data/data.sql'));
+        self::$config = new Config(self::$db, 'store_config');
     }
-    
-    protected function tearDown(): void
+
+    /**
+     * This method is called after the last test of this test class is run.
+     */
+    public static function tearDownAfterClass(): void
     {
-        $this->db = null;
-        $this->config = null;
+        
+        self::$db = null;
+        self::$config = null;
     }
 }

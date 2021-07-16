@@ -32,7 +32,7 @@ class Category
      */
     public function listCategories($active = true, $where = [])
     {
-        return $this->db->selectAll($this->config->table_categories, $this->addWhereIsActive($active, $where), '*', ['order' => 'ASC']);
+        return $this->db->selectAll($this->config->table_categories, $this->addWhereIsActive($active, $where), '*', ['order' => 'ASC'], 0, 86400);
     }
     
     /**
@@ -42,10 +42,7 @@ class Category
      */
     protected function getCategoryInfo($where)
     {
-        if (is_array($where)) {
-            return $this->db->select($this->config->table_categories, $where);
-        }
-        return false;
+        return $this->db->select($this->config->table_categories, $where, '*', [], 86400);
     }
     
     /**
@@ -73,7 +70,10 @@ class Category
      */
     public function getCategoryByURL($category_url, $where = [])
     {
-        return $this->getCategoryInfo(array_merge(['url' => $category_url], $where));
+        if (is_array($where)) {
+            return $this->getCategoryInfo(array_merge(['url' => $category_url], $where));
+        }
+        return false;
     }
     
     /**
@@ -86,7 +86,7 @@ class Category
      */
     public function addCategory($category_name, $description, $url, $additionalInfo = [])
     {
-        if (!empty(trim($category_name)) && !empty(trim($description))) {
+        if (!empty(trim($category_name)) && !empty(trim($description)) && !$this->getCategoryByURL($url)) {
             return $this->db->insert($this->config->table_categories, array_merge(['name' => $category_name, 'description' => $description, 'url' => URL::makeURI($url)], $additionalInfo));
         }
         return false;
@@ -145,9 +145,9 @@ class Category
      */
     public function changeCategoryOrder($category_id, $direction = 'up', $additional = [])
     {
-        $catdetails = $this->db->select($this->config->table_categories, array_merge(['id' => $category_id], $additional), ['order']);
+        $catdetails = $this->db->select($this->config->table_categories, array_merge(['id' => $category_id], $additional), ['order'], [], false);
         $neworder = ($direction === 'up' ? ($catdetails['order'] - 1) : ($catdetails['order'] + 1));
-        $new = $this->db->select($this->config->table_categories, array_merge(['order' => $neworder], $additional), ['id']);
+        $new = $this->db->select($this->config->table_categories, array_merge(['order' => $neworder], $additional), ['id'], [], false);
         $this->db->update($this->config->table_categories, ['order' => $catdetails['order']], array_merge(['id' => $new['id']], $additional), 1);
         if ($neworder < 1) {
             $neworder = 1;
@@ -162,7 +162,7 @@ class Category
      */
     protected function numberOfProductsInCategory($category_id)
     {
-        return $this->db->count($this->config->table_product_categories, ['category_id' => intval($category_id)]);
+        return $this->db->count($this->config->table_product_categories, ['category_id' => intval($category_id)], 86400);
     }
     
     /**
@@ -171,7 +171,8 @@ class Category
      * @param array $where Addition where fields
      * @return array
      */
-    protected function addWhereIsActive($active = true, $where = []){
+    protected function addWhereIsActive($active = true, $where = [])
+    {
         if ($active !== false) {
             $where['active'] = 1;
         }

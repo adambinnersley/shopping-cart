@@ -106,7 +106,7 @@ class Customers extends \UserAuth\User
      */
     public function listCustomers($start = 0, $limit = 50, $additionalInfo = [])
     {
-        $customers = $this->db->selectAll($this->table_users, $additionalInfo, '*', ['regtime' => 'DESC'], [intval($start) => intval($limit)]);
+        $customers = $this->db->selectAll($this->table_users, $additionalInfo, '*', ['regtime' => 'DESC'], [intval($start) => intval($limit)], 300);
         if (is_array($customers)) {
             foreach ($customers as $i => $customer) {
                 if (isset($customer['county']) && is_numeric($customer['county']) && $customer['county'] >= 1) {
@@ -124,7 +124,7 @@ class Customers extends \UserAuth\User
      */
     public function countCustomers($additionalInfo = [])
     {
-        return $this->db->count($this->table_users, $additionalInfo);
+        return $this->db->count($this->table_users, $additionalInfo, 300);
     }
     
     /**
@@ -138,7 +138,7 @@ class Customers extends \UserAuth\User
     public function searchCustomers($search, $start = 0, $limit = 50, $additionalInfo = [])
     {
         $sql = $this->formatAdditionalSQL($additionalInfo);
-        return $this->db->query("SELECT * FROM `{$this->table_users}` WHERE `firstname` LIKE :SEARCH OR `lastname` LIKE :SEARCH OR `add_1` LIKE :SEARCH OR `add_2` LIKE :SEARCH OR `town` LIKE :SEARCH OR `postcode` LIKE :SEARCH OR `phone` LIKE :SEARCH OR `mobile` LIKE :SEARCH OR `email` LIKE :SEARCH{$sql['string']} ORDER BY `regtime` DESC LIMIT ".intval($start).", ".intval($limit).";", array_merge([':SEARCH' => '%'.$search.'%'], $sql['values']));
+        return $this->db->query("SELECT * FROM `{$this->table_users}` WHERE `firstname` LIKE :SEARCH OR `lastname` LIKE :SEARCH OR `add_1` LIKE :SEARCH OR `add_2` LIKE :SEARCH OR `town` LIKE :SEARCH OR `postcode` LIKE :SEARCH OR `phone` LIKE :SEARCH OR `mobile` LIKE :SEARCH OR `email` LIKE :SEARCH{$sql['string']} ORDER BY `regtime` DESC LIMIT " . intval($start) . ", " . intval($limit) . ";", array_merge([':SEARCH' => '%' . $search . '%'], $sql['values']), 300);
     }
     
     /**
@@ -150,7 +150,7 @@ class Customers extends \UserAuth\User
     public function countSearchResults($search, $additionalInfo = [])
     {
         $sql = $this->formatAdditionalSQL($additionalInfo);
-        $results = $this->db->query("SELECT COUNT(*) as `count` FROM `{$this->table_users}` WHERE `firstname` LIKE :SEARCH OR `lastname` LIKE :SEARCH OR `add_1` LIKE :SEARCH OR `add_2` LIKE :SEARCH OR `town` LIKE :SEARCH OR `postcode` LIKE :SEARCH OR `phone` LIKE :SEARCH OR `mobile` LIKE :SEARCH OR `email` LIKE :SEARCH{$sql['string']} ORDER BY `regtime` DESC;", array_merge([':SEARCH' => '%'.$search.'%'], $sql['values']));
+        $results = $this->db->query("SELECT COUNT(*) as `count` FROM `{$this->table_users}` WHERE `firstname` LIKE :SEARCH OR `lastname` LIKE :SEARCH OR `add_1` LIKE :SEARCH OR `add_2` LIKE :SEARCH OR `town` LIKE :SEARCH OR `postcode` LIKE :SEARCH OR `phone` LIKE :SEARCH OR `mobile` LIKE :SEARCH OR `email` LIKE :SEARCH{$sql['string']} ORDER BY `regtime` DESC;", array_merge([':SEARCH' => '%' . $search . '%'], $sql['values']), 300);
         return $results[0]['count'];
     }
     
@@ -168,7 +168,7 @@ class Customers extends \UserAuth\User
             foreach ($additionalInfo as $field => $value) {
                 $fieldVal = SafeString::makeSafe($field);
                 $sql['string'] .= " AND `{$fieldVal}` = :{$fieldVal}";
-                $sql['values'][':'.$fieldVal] = $value;
+                $sql['values'][':' . $fieldVal] = $value;
             }
         }
         return $sql;
@@ -215,7 +215,7 @@ class Customers extends \UserAuth\User
      */
     public function getDeliveryAddress($address_id, $customerID)
     {
-        $deliveryInfo = $this->db->select($this->config->table_delivery_address, ['id' => $address_id, 'customer_id' => $customerID]);
+        $deliveryInfo = $this->db->select($this->config->table_delivery_address, ['id' => $address_id, 'customer_id' => $customerID], '*', [], false);
         if (is_array($deliveryInfo)) {
             if (empty($deliveryInfo['title']) || empty($deliveryInfo['firstname']) || empty($deliveryInfo['lastname'])) {
                 $userInfo = $this->getUserInfo($customerID);
@@ -239,10 +239,10 @@ class Customers extends \UserAuth\User
     public function setDeliveryAddress($customerID, $deliveryInfo, $delivery = true)
     {
         $type = ($delivery === true ? 'delivery' : 'billing');
-        if ($this->checkIfAddressExists($customerID, $deliveryInfo['add_1'], $deliveryInfo['postcode']) === false && $this->compareDeliveryToBillingAddress($customerID, $deliveryInfo) === false) {
+        if ($this->checkIfAddressExists($customerID, $deliveryInfo['add_1'], $deliveryInfo['postcode']) === false && $this->compareDeliveryToBillingAddress($customerID, $deliveryInfo) === false && Modifier::arrayMustContainFields(['add_1', 'town', 'postcode'], $deliveryInfo)) {
             $userInfo = $this->getUserInfo(intval($customerID));
             $this->db->insert($this->config->table_delivery_address, ['customer_id' => intval($customerID), 'title' => (!empty(trim($deliveryInfo['title'])) ? $deliveryInfo['title'] : $userInfo['title']), 'firstname' => (!empty(trim($deliveryInfo['firstname'])) ? $deliveryInfo['firstname'] : $userInfo['firstname']), 'lastname' => (!empty(trim($deliveryInfo['lastname'])) ? $deliveryInfo['lastname'] : $userInfo['lastname']), 'add_1' => $deliveryInfo['add_1'], 'add_2' => $deliveryInfo['add_2'], 'town' => $deliveryInfo['town'], 'county' => intval($deliveryInfo['county']), 'postcode' => strtoupper(Modifier::removeNoneAlphaNumeric($deliveryInfo['postcode']))]);
-            return $this->db->update($this->config->table_basket, [$type.'_id' => $this->db->lastInsertID()], ['customer_id' => $customerID, 'sessionid' => session_id(), 'status' => 1], 1);
+            return $this->db->update($this->config->table_basket, [$type . '_id' => $this->db->lastInsertID()], ['customer_id' => $customerID, 'sessionid' => session_id(), 'status' => 1], 1);
         }
         return false;
     }
@@ -299,7 +299,7 @@ class Customers extends \UserAuth\User
      */
     public function checkIfAddressExists($customerID, $address, $postcode)
     {
-        return $this->db->select($this->config->table_delivery_address, ['customer_id' => $customerID, 'add_1' => ['LIKE', $address], 'postcode' => strtoupper($postcode)]);
+        return $this->db->select($this->config->table_delivery_address, ['customer_id' => $customerID, 'add_1' => ['LIKE', $address], 'postcode' => strtoupper($postcode)], '*', [], false);
     }
     
     /**
@@ -309,7 +309,7 @@ class Customers extends \UserAuth\User
      */
     public function listCustomerDeliveryAddresses($customerID)
     {
-        return $this->db->selectAll($this->config->table_delivery_address, ['customer_id' => $customerID]);
+        return $this->db->selectAll($this->config->table_delivery_address, ['customer_id' => $customerID], '*', [], 0, 300);
     }
 
     /**

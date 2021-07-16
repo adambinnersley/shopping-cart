@@ -1,4 +1,5 @@
 <?php
+
 namespace ShoppingCart;
 
 class Currency

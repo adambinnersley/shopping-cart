@@ -10,7 +10,7 @@ class DeliveryTest extends SetUp
     protected function setUp(): void
     {
         parent::setUp();
-        $this->delivery = new Delivery($this->db, $this->config);
+        $this->delivery = new Delivery(self::$db, self::$config);
     }
     
     protected function tearDown(): void
@@ -19,8 +19,19 @@ class DeliveryTest extends SetUp
         $this->delivery = null;
     }
     
-    public function testExample()
+    /**
+     * @covers \ShoppingCart\Delivery::__construct
+     * @covers \ShoppingCart\Delivery::getDeliveryCost
+     * @covers \ShoppingCart\Modifiers\Cost::priceUnits
+     * @covers \ShoppingCart\Delivery\Free::__construct
+     * @covers \ShoppingCart\Delivery\Free::getDeliveryCost
+     */
+    public function testFreeDelivery()
     {
-        $this->markTestIncomplete();
+        self::$config->delivery_type = 'Free';
+        $this->assertEquals('0.00', $this->delivery->getDeliveryCost(9234423));
+        $this->assertEquals('0.00', $this->delivery->getDeliveryCost(1, 150));
+        self::$config->delivery_type = '';
+        $this->assertEquals('0.00', $this->delivery->getDeliveryCost(1, 150));
     }
 }

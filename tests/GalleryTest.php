@@ -10,7 +10,7 @@ class GalleryTest extends SetUp
     protected function setUp(): void
     {
         parent::setUp();
-        $this->gallery = new Gallery($this->db, $this->config);
+        $this->gallery = new Gallery(self::$db, self::$config);
     }
     
     protected function tearDown(): void

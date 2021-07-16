@@ -22,7 +22,7 @@ class Gallery
         $this->config = $config;
         $this->upload = new ImageUpload();
         $this->upload->thumbWidth = $this->config->gallery_thumb_width;
-        $this->upload->setRootFolder(getcwd().DIRECTORY_SEPARATOR.'images'.DIRECTORY_SEPARATOR)
+        $this->upload->setRootFolder(getcwd() . DIRECTORY_SEPARATOR . 'images' . DIRECTORY_SEPARATOR)
                      ->setImageFolder($this->config->gallery_image_folder)
                      ->setThumbFolder($this->config->gallery_thumbs_folder);
     }
@@ -72,7 +72,7 @@ class Gallery
      */
     public function listImages($where = [])
     {
-        return $this->db->selectAll($this->config->table_gallery, $where);
+        return $this->db->selectAll($this->config->table_gallery, $where, '*', [], 0, 86400);
     }
     
     /**
@@ -82,7 +82,7 @@ class Gallery
      */
     public function getProductImages($product_id)
     {
-        return $this->db->query("SELECT `gallery`.* FROM `{$this->config->table_gallery}` as `gallery`, `{$this->config->table_product_images}` as `ref` WHERE `gallery`.`img_id` = `ref`.`image_id` AND `ref`.`product_id` = ?;", [$product_id]);
+        return $this->db->query("SELECT `gallery`.* FROM `{$this->config->table_gallery}` as `gallery`, `{$this->config->table_product_images}` as `ref` WHERE `gallery`.`img_id` = `ref`.`image_id` AND `ref`.`product_id` = ?;", [$product_id], 86400);
     }
     
     /**
@@ -92,7 +92,7 @@ class Gallery
      */
     public function numProductImages($product_id)
     {
-        return $this->db->count($this->config->table_product_images, ['product_id' => $product_id]);
+        return $this->db->count($this->config->table_product_images, ['product_id' => $product_id], 86400);
     }
     
     /**
@@ -103,7 +103,7 @@ class Gallery
      */
     public function getImageInfo($image_id, $where = [])
     {
-        return $this->db->select($this->config->table_gallery, array_merge(['id' => intval($image_id)], $where));
+        return $this->db->select($this->config->table_gallery, array_merge(['id' => intval($image_id)], $where), '*', [], 86400);
     }
     
     /**
@@ -190,8 +190,8 @@ class Gallery
     {
         $imageInfo = $this->getImageInfo($image_id, $where);
         if (!empty($imageInfo)) {
-            unlink($this->config->gallery_image_folder.$imageInfo['image']);
-            unlink($this->config->gallery_thumbs_folder.$imageInfo['image']);
+            unlink($this->config->gallery_image_folder . $imageInfo['image']);
+            unlink($this->config->gallery_thumbs_folder . $imageInfo['image']);
             return $this->db->delete($this->config->table_gallery, array_merge(['id' => intval($image_id)], $where));
         }
         return false;

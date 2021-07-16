@@ -15,7 +15,7 @@ class BasketTest extends SetUp
     protected function setUp(): void
     {
         parent::setUp();
-        $this->basket = new Basket($this->db, $this->config, new Customers($this->db, $this->config), new Product($this->db, $this->config));
+        $this->basket = new Basket(self::$db, self::$config, new Customers(self::$db, self::$config), new Product(self::$db, self::$config));
     }
     
     protected function tearDown(): void
@@ -55,6 +55,7 @@ class BasketTest extends SetUp
      * @covers \ShoppingCart\Basket::getProducts
      * @covers \ShoppingCart\Basket::getBasket
      * @covers \ShoppingCart\Basket::createOrder
+     * @covers \ShoppingCart\Basket::createOrderID
      * @covers \ShoppingCart\Basket::updateBasket
      * @covers \ShoppingCart\Basket::updateTotals
      * @covers \ShoppingCart\Product::getProductByID
@@ -95,7 +96,39 @@ class BasketTest extends SetUp
     {
         $this->assertFalse($this->basket->addItemToBasket(78));
         $this->assertFalse($this->basket->addItemToBasket('nan'));
+        $this->assertTrue($this->basket->addItemToBasket(1));
 //        $this->markTestIncomplete();
+    }
+    
+    /**
+     * @covers \ShoppingCart\Basket::__construct
+     * @covers \ShoppingCart\Basket::addItemToBasket
+     * @covers \ShoppingCart\Basket::getProducts
+     * @covers \ShoppingCart\Basket::getBasket
+     * @covers \ShoppingCart\Basket::createOrder
+     * @covers \ShoppingCart\Basket::updateBasket
+     * @covers \ShoppingCart\Basket::updateTotals
+     * @covers \ShoppingCart\Basket::updateQuantityInBasket
+     * @covers \ShoppingCart\Basket::removeItemFromBasket
+     * @covers \ShoppingCart\Product::getProductByID
+     * @covers \ShoppingCart\Product::getProductWeight
+     * @covers \ShoppingCart\Product::getProductPrice
+     * @covers \ShoppingCart\Product::isProductDownload
+     * @covers \ShoppingCart\Tax::calculateItemTax
+     * @covers \ShoppingCart\Modifiers\Cost::priceUnits
+     * @covers \ShoppingCart\Delivery::__construct
+     * @covers \ShoppingCart\Delivery::getDeliveryCost
+     * @covers \ShoppingCart\Basket::updateBasket
+     */
+    public function testUpdateQuantityInBasket()
+    {
+        $this->assertEquals(1, $this->basket->getBasket()['products'][0]['quantity']);
+        $this->assertTrue($this->basket->addItemToBasket(1, 3));
+        $this->assertEquals(3, $this->basket->getBasket()['products'][0]['quantity']);
+        $this->assertTrue($this->basket->updateQuantityInBasket(1, 2));
+        $this->assertEquals(2, $this->basket->getBasket()['products'][0]['quantity']);
+        $this->assertTrue($this->basket->updateQuantityInBasket(1, 0));
+        $this->assertFalse($this->basket->getBasket());
     }
     
     /**
@@ -119,29 +152,24 @@ class BasketTest extends SetUp
     public function testRemoveItemToBasket()
     {
         $this->assertFalse($this->basket->removeItemFromBasket('test'));
-//        $this->markTestIncomplete();
+        $this->assertTrue($this->basket->addItemToBasket(1, 3));
+        $this->assertTrue($this->basket->addItemToBasket(2));
+        $this->assertCount(2, $this->basket->getBasket()['products']);
+        $this->assertTrue($this->basket->removeItemFromBasket(1));
+        $this->assertCount(1, $this->basket->getBasket()['products']);
     }
     
     /**
      * @covers \ShoppingCart\Basket::__construct
-     * @covers \ShoppingCart\Basket::addItemToBasket
-     * @covers \ShoppingCart\Basket::getProducts
-     * @covers \ShoppingCart\Basket::getBasket
-     * @covers \ShoppingCart\Basket::createOrder
-     * @covers \ShoppingCart\Basket::updateBasket
-     * @covers \ShoppingCart\Basket::updateTotals
-     * @covers \ShoppingCart\Product::getProductByID
-     * @covers \ShoppingCart\Product::getProductWeight
-     * @covers \ShoppingCart\Product::getProductPrice
-     * @covers \ShoppingCart\Product::isProductDownload
-     * @covers \ShoppingCart\Tax::calculateItemTax
-     * @covers \ShoppingCart\Modifiers\Cost::priceUnits
-     * @covers \ShoppingCart\Delivery::__construct
-     * @covers \ShoppingCart\Delivery::getDeliveryCost
-     * @covers \ShoppingCart\Basket::updateBasket
+     * @covers \ShoppingCart\Basket::addVoucherCode
+     * @covers \ShoppingCart\Basket::updateVoucherCode
+     * @covers \ShoppingCart\Voucher::getVoucherByCode
      */
-    public function testUpdateQuantityInBasket()
+    public function testAddVoucher()
     {
-        $this->markTestIncomplete();
+        $this->assertTrue($this->basket->addItemToBasket(1));
+        $this->assertFalse($this->basket->addVoucherCode(''));
+        $this->assertTrue($this->basket->addVoucherCode('DISC10'));
+        $this->assertTrue($this->basket->addVoucherCode(''));
     }
 }

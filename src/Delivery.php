@@ -48,8 +48,10 @@ class Delivery
     public function getDeliveryCost($orderInfo, $total_cart_weight = 0)
     {
         $deliveryType = ucwords($this->config->delivery_type);
-        $deliveryObject = "ShoppingCart\Delivery\\".$deliveryType;
-        $delivery = new $deliveryObject($this->db, $this->config, $this->decimals);
+        $deliveryObject = "ShoppingCart\Delivery\\" . $deliveryType;
+        if (class_exists($deliveryObject)) {
+            $delivery = new $deliveryObject($this->db, $this->config, $this->decimals);
+        }
         if ($deliveryType === 'Free' || $deliveryType == 'Fixed') {
             return $delivery->getDeliveryCost();
         } elseif ($deliveryType === 'Method' && is_array($orderInfo) && $orderInfo['delivery_method'] !== null) {

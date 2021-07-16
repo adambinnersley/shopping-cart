@@ -48,7 +48,7 @@ class Review
     public function getReviews($limit = false, $start = 0, $where = [])
     {
         $extraSQL = SQLBuilder::createAdditionalString($where);
-        return $this->db->query("SELECT `reviews`.*, `product`.`name` as `product_name` FROM `{$this->config->table_review}` as `reviews`, `{$this->config->table_products}` as `product` WHERE `reviews`.`product` = `product`.`product_id`".(strlen($extraSQL) >= 1 ? ' AND '.$extraSQL : '')." ORDER BY `date` DESC".($limit !== false ? " LIMIT ".intval($start).", ".intval($limit) : "").";", array_merge((!empty($where) ? array_values($where) : []), SQLBuilder::$values));
+        return $this->db->query("SELECT `reviews`.*, `product`.`name` as `product_name` FROM `{$this->config->table_review}` as `reviews`, `{$this->config->table_products}` as `product` WHERE `reviews`.`product` = `product`.`product_id`" . (strlen($extraSQL) >= 1 ? ' AND ' . $extraSQL : '') . " ORDER BY `date` DESC" . ($limit !== false ? " LIMIT " . intval($start) . ", " . intval($limit) : "") . ";", SQLBuilder::$values, 86400);
     }
     
     /**
@@ -68,7 +68,7 @@ class Review
      */
     public function getProductReviews($productID, $start = 0, $limit = 50)
     {
-        return $this->db->selectAll($this->config->table_review, ['approved' => 1, 'product' => $productID], '*', ['date' => 'DESC'], [$start => $limit]);
+        return $this->db->selectAll($this->config->table_review, ['approved' => 1, 'product' => $productID], '*', ['date' => 'DESC'], [$start => $limit], 86400);
     }
     
     /**
@@ -89,7 +89,7 @@ class Review
         } else {
             $spam = 0;
         }
-        if (!$this->checkIfCustomerReviewExists($productID, $email) && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        if (!$this->checkIfCustomerReviewExists($productID, $email) && filter_var($email, FILTER_VALIDATE_EMAIL) && $this->product->getProductByID($productID) !== false) {
             if ($this->db->insert($this->config->table_review, ['product' => $productID, 'type' => $type, 'rating' => $rating, 'name' => $name, 'email' => $email, 'title' => $title, 'review' => strip_tags($review, '<img>'), 'ipaddress' => $this->ip->getUserIP(), 'spam' => $spam])) {
                 return $this->sendReviewEmail($productID);
             }
@@ -193,7 +193,7 @@ class Review
         if (isset($this->count[$productID])) {
             return intval($this->count[$productID]);
         }
-        $this->count[$productID] = $this->db->count($this->config->table_review, ['approved' => 1, 'product' => $productID]);
+        $this->count[$productID] = $this->db->count($this->config->table_review, ['approved' => 1, 'product' => $productID], false);
         return intval($this->count[$productID]);
     }
     
@@ -206,7 +206,7 @@ class Review
     {
         $total = 0;
         if ($this->countProductReviews($productID) > 0) {
-            foreach ($this->db->selectAll($this->config->table_review, ['approved' => 1, 'product' => $productID]) as $review) {
+            foreach ($this->db->selectAll($this->config->table_review, ['approved' => 1, 'product' => $productID], '*', [], 0, 3600) as $review) {
                 $total = $total + $review['rating'];
             }
             return number_format(($total / $this->countProductReviews($productID)), 1, '.', '');
@@ -239,7 +239,7 @@ class Review
             $datetime = new DateTime();
             $datetime->setTimezone(new DateTimeZone($this->config->timezone));
             $datetime->modify('-24 hours');
-            return $this->db->count($this->config->table_review, ['ipaddress' => $ip, 'timestamp' => ['>=', $datetime->format('Y-m-d H:i:s')]]);
+            return $this->db->count($this->config->table_review, ['ipaddress' => $ip, 'date' => ['>=', $datetime->format('Y-m-d H:i:s')]], 3600);
         }
         return 0;
     }

@@ -12,7 +12,7 @@ class DownloadTest extends SetUp
     protected function setUp(): void
     {
         parent::setUp();
-        $this->download = new Download($this->db, $this->config, new Basket($this->db, $this->config), new Product($this->db, $this->config));
+        $this->download = new Download(self::$db, self::$config, new Basket(self::$db, self::$config), new Product(self::$db, self::$config));
     }
     
     protected function tearDown(): void

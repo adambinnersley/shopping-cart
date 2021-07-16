@@ -20,7 +20,7 @@ class Mailer
      * @param string $fromname This should be the name to be displayed, who the email is from
      * @param string $replyto This should be any reply to email address
      * @param array $attachment Any attachments should be attached as an array
-     * @param array $cc Any additional emails to send a copy of the email 
+     * @param array $cc Any additional emails to send a copy of the email
      * @return boolean If the email has been sent successfully will return true else returns false
      */
     public static function sendEmail($to, $subject, $plain, $html, $from, $fromname, $replyto = '', $attachment = [], $cc = [])
@@ -59,7 +59,7 @@ class Mailer
         }
         self::$mail->addAddress($to);
         if (!empty($cc)) {
-            foreach($cc as $email){
+            foreach ($cc as $email) {
                 self::$mail->addCC($email);
             }
         }
@@ -82,8 +82,8 @@ class Mailer
     public static function htmlWrapper(Config $config, $content, $subject)
     {
         $image = '';
-        if (file_exists($_SERVER['DOCUMENT_ROOT'].$config->logo_root_path)) {
-            $image = '<div class="align-center"><img src="'.$config->site_url.$config->logo_root_path.'" alt="'.$config->site_name.' Logo" height="100" /></div>';
+        if (file_exists($_SERVER['DOCUMENT_ROOT'] . $config->logo_root_path)) {
+            $image = '<div class="align-center"><img src="' . $config->site_url . $config->logo_root_path . '" alt="' . $config->site_name . ' Logo" height="100" /></div>';
         }
         return sprintf($config->email_html_wrapper, $content, $subject, $config->registered_address, $image);
     }

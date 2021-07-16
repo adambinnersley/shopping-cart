@@ -1,6 +1,10 @@
 <?php
+
 namespace ShoppingCart\FPDF;
 
+/**
+ * @codeCoverageIgnore
+ */
 class PDF_JavaScript extends \FPDF
 {
 
@@ -19,15 +23,15 @@ class PDF_JavaScript extends \FPDF
     protected function _putjavascript()
     {
         $this->_newobj();
-        $this->n_js=$this->n;
+        $this->n_js = $this->n;
         $this->_out('<<');
-        $this->_out('/Names [(EmbeddedJS) '.($this->n+1).' 0 R]');
+        $this->_out('/Names [(EmbeddedJS) ' . ($this->n + 1) . ' 0 R]');
         $this->_out('>>');
         $this->_out('endobj');
         $this->_newobj();
         $this->_out('<<');
         $this->_out('/S /JavaScript');
-        $this->_out('/JS '.$this->_textstring($this->javascript));
+        $this->_out('/JS ' . $this->_textstring($this->javascript));
         $this->_out('>>');
         $this->_out('endobj');
     }
@@ -44,7 +48,7 @@ class PDF_JavaScript extends \FPDF
     {
         parent::_putcatalog();
         if (!empty($this->javascript)) {
-            $this->_out('/Names <</JavaScript '.($this->n_js).' 0 R>>');
+            $this->_out('/Names <</JavaScript ' . ($this->n_js) . ' 0 R>>');
         }
     }
 }

@@ -32,7 +32,7 @@ class Method implements DeliveryInterface
      */
     public function getDeliveryCost($method_id)
     {
-        $price = $this->db->fetchColumn($this->config->table_delivery_methods, ['id' => $method_id], 'price');
+        $price = $this->db->fetchColumn($this->config->table_delivery_methods, ['id' => $method_id], ['price'], 0, [], 3600);
         if ($price !== false) {
             return Cost::priceUnits($price, $this->decimals);
         }
@@ -45,16 +45,17 @@ class Method implements DeliveryInterface
      */
     public function listDeliveryItems()
     {
-        return $this->db->selectAll($this->config->table_delivery_methods);
+        return $this->db->selectAll($this->config->table_delivery_methods, [], '*', [], 0, 300);
     }
     
     /**
      * Gets delivery item information
      * @param int $id This is the unique id of the item
+     * @return array|false Returns delivery method item if it exists else returns false
      */
     public function getDeliveryItem($id = 1)
     {
-        return $this->db->select($this->config->table_delivery_methods, ['id' => $id]);
+        return $this->db->select($this->config->table_delivery_methods, ['id' => $id], '*', [], 3600);
     }
     
     /**

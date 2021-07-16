@@ -35,7 +35,7 @@ class Voucher
      */
     public function listVouchers()
     {
-        return $this->db->selectAll($this->config->table_voucher);
+        return $this->db->selectAll($this->config->table_voucher, [], '*', [], 0, 3600);
     }
     
     /**
@@ -51,7 +51,7 @@ class Voucher
             $where['expire'] = ['>=', date('Y-m-d H:i:s')];
         }
         if (is_array($where)) {
-            $voucherInfo = $this->db->select($this->config->table_voucher, array_filter($where));
+            $voucherInfo = $this->db->select($this->config->table_voucher, $where);
             if ((($voucherInfo['allowed'] === 0 || $voucherInfo['allowed'] > $voucherInfo['times_used']) && $active === true) || $active !== true) {
                 return $voucherInfo;
             }

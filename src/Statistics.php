@@ -38,7 +38,7 @@ class Statistics
         $daysales = [];
         for ($day = 1; $day <= cal_days_in_month(CAL_GREGORIAN, $month, $year); $day++) {
             $totalsales = 0;
-            $sales = $this->db->selectAll($this->config->table_basket, array_merge(['status' => ['IN' => [2, 3]], 'date' => ['BETWEEN' => [$year."-".sprintf("%02d", $month)."-".sprintf("%02d", $day)." 00:00:00", $year."-".sprintf("%02d", $month)."-".sprintf("%02d", $day)." 23:59:59"]]], $additionalInfo));
+            $sales = $this->db->selectAll($this->config->table_basket, array_merge(['status' => ['IN' => [2, 3]], 'date' => ['BETWEEN' => [$year . "-" . sprintf("%02d", $month) . "-" . sprintf("%02d", $day) . " 00:00:00", $year . "-" . sprintf("%02d", $month) . "-" . sprintf("%02d", $day) . " 23:59:59"]]], $additionalInfo), '*', [], 0, 3600);
             if (is_array($sales)) {
                 foreach ($sales as $totals) {
                     $totalsales = $totalsales + $totals['cart_total'];
@@ -61,7 +61,7 @@ class Statistics
         $monthsales = [];
         for ($month = 1; $month <= 12; $month++) {
             $totalsales = 0;
-            $sales = $this->db->selectAll($this->config->table_basket, array_merge(['status' => ['IN' => [2, 3]], 'date' => ['BETWEEN' => [$year."-".sprintf("%02d", $month)."-01 00:00:00", $year."-".sprintf("%02d", $month)."-31 23:59:59"]]], $additionalInfo));
+            $sales = $this->db->selectAll($this->config->table_basket, array_merge(['status' => ['IN' => [2, 3]], 'date' => ['BETWEEN' => [$year . "-" . sprintf("%02d", $month) . "-01 00:00:00", $year . "-" . sprintf("%02d", $month) . "-31 23:59:59"]]], $additionalInfo), '*', [], 0, 3600);
             if (is_array($sales)) {
                 foreach ($sales as $totals) {
                     $totalsales = $totalsales + $totals['cart_total'];
@@ -101,7 +101,7 @@ class Statistics
      */
     protected function getProductStats($order_by = 'sales', $where = [])
     {
-        $productList = $this->db->selectAll($this->config->table_products, array_merge(['active' => 1], $where), '*', [$order_by => 'DESC']);
+        $productList = $this->db->selectAll($this->config->table_products, array_merge(['active' => 1], $where), '*', [$order_by => 'DESC'], 0, 3600);
         $total = 0;
         $stats = [];
         foreach ($productList as $product) {
@@ -125,7 +125,7 @@ class Statistics
     {
         $daysales = [];
         for ($day = 1; $day <= cal_days_in_month(CAL_GREGORIAN, $month, $year); $day++) {
-            $sales = $this->db->query("SELECT SUM(`products`.`quantity`) as `sales` FROM `{$this->config->table_basket}` as `basket`, `{$this->config->table_basket_products}` as `products` WHERE `basket`.`status` IN (2, 3) AND `basket`.`order_id` = `products`.`order_id` AND `products`.`product_id` = ? AND `basket`.`date` BETWEEN ? AND ?;", [$product_id, $year."-".sprintf("%02d", $month)."-".sprintf("%02d", $day)." 00:00:00", $year."-".sprintf("%02d", $month)."-".sprintf("%02d", $day)." 23:59:59"]);
+            $sales = $this->db->query("SELECT SUM(`products`.`quantity`) as `sales` FROM `{$this->config->table_basket}` as `basket`, `{$this->config->table_basket_products}` as `products` WHERE `basket`.`status` IN (2, 3) AND `basket`.`order_id` = `products`.`order_id` AND `products`.`product_id` = ? AND `basket`.`date` BETWEEN ? AND ?;", [$product_id, $year . "-" . sprintf("%02d", $month) . "-" . sprintf("%02d", $day) . " 00:00:00", $year . "-" . sprintf("%02d", $month) . "-" . sprintf("%02d", $day) . " 23:59:59"], 3600);
             $daysales['days'][] = $day;
             $daysales['statistics'][] = $sales[0]['sales'];
         }
@@ -142,7 +142,7 @@ class Statistics
     {
         $monthsales = [];
         for ($month = 1; $month <= 12; $month++) {
-            $sales = $this->db->query("SELECT SUM(`products`.`quantity`) as `sales` FROM `{$this->config->table_basket}` as `basket`, `{$this->config->table_basket_products}` as `products` WHERE `basket`.`status` IN (2, 3) AND `basket`.`order_id` = `products`.`order_id` AND `products`.`product_id` = ? AND `basket`.`date` BETWEEN ? AND ?;", [$product_id, $year."-".sprintf("%02d", $month)."-01 00:00:00", $year."-".sprintf("%02d", $month)."-31 23:59:59"]);
+            $sales = $this->db->query("SELECT SUM(`products`.`quantity`) as `sales` FROM `{$this->config->table_basket}` as `basket`, `{$this->config->table_basket_products}` as `products` WHERE `basket`.`status` IN (2, 3) AND `basket`.`order_id` = `products`.`order_id` AND `products`.`product_id` = ? AND `basket`.`date` BETWEEN ? AND ?;", [$product_id, $year . "-" . sprintf("%02d", $month) . "-01 00:00:00", $year . "-" . sprintf("%02d", $month) . "-31 23:59:59"], 3600);
             $dateObj = DateTime::createFromFormat('!m', $month);
             $monthsales['months'][] = $dateObj->format('F');
             $monthsales['statistics'][] = $sales[0]['sales'];

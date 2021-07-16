@@ -26,7 +26,7 @@ class Tax
      */
     public function listTaxAmounts()
     {
-        return $this->db->selectAll($this->config->table_tax);
+        return $this->db->selectAll($this->config->table_tax, [], '*', [], 0, 3600);
     }
     
     /**
@@ -36,7 +36,7 @@ class Tax
      */
     public function getTaxInformation($tax_id)
     {
-        return $this->db->select($this->config->table_tax, ['tax_id' => intval($tax_id)]);
+        return $this->db->select($this->config->table_tax, ['tax_id' => intval($tax_id)], '*', [], 3600);
     }
     
     /**

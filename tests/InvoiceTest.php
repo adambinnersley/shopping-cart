@@ -14,7 +14,7 @@ class InvoiceTest extends SetUp
     protected function setUp(): void
     {
         parent::setUp();
-        $this->invoice = new Invoice($this->db, $this->config, new Order($this->db, $this->config));
+        $this->invoice = new Invoice(self::$db, self::$config, new Order(self::$db, self::$config));
     }
     
     protected function tearDown(): void

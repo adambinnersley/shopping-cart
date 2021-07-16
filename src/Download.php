@@ -41,7 +41,7 @@ class Download
     protected function createUniqueLink($order_id, $product_id)
     {
         $date = new DateTime();
-        return hash('sha256', $order_id.$product_id.$date->format('Y-m-d H:i:s'));
+        return hash('sha256', $order_id . $product_id . $date->format('Y-m-d H:i:s'));
     }
     
     /**
@@ -77,7 +77,7 @@ class Download
      */
     public function getDownloadInformation($product_id, $order_id)
     {
-        return $this->db->select($this->config->table_downloads, ['order_id' => $order_id, 'product' => $product_id]);
+        return $this->db->select($this->config->table_downloads, ['order_id' => $order_id, 'product' => $product_id], '*', [], false);
     }
     
     /**
@@ -102,7 +102,7 @@ class Download
             $downloadInfo = '';
             foreach ($products as $product) {
                 if ($this->order->product->isProductDownload($product['product_id']) === true) {
-                    $downloadInfo.= $this->formatProductLink($product, $order_id);
+                    $downloadInfo .= $this->formatProductLink($product, $order_id);
                 }
             }
             return $downloadInfo;
@@ -193,7 +193,7 @@ class Download
     public function downloadItem($link)
     {
         $date = new DateTime();
-        $linkInfo = $this->db->select($this->config->table_downloads, ['link' => $link, 'attempts' => ['<=', intval($this->config->download_attempts)], 'expire' => ['>=', $date->format('Y-m-d H:i:s')]]);
+        $linkInfo = $this->db->select($this->config->table_downloads, ['link' => $link, 'attempts' => ['<=', intval($this->config->download_attempts)], 'expire' => ['>=', $date->format('Y-m-d H:i:s')]], '*', [], false);
         if (is_array($linkInfo)) {
             $this->db->update($this->config->table_downloads, ['attempts' => intval($linkInfo['attempts'] + 1)], ['dlid' => $linkInfo['dlid']], 1);
             $productInfo = $this->order->product->getProductByID($linkInfo['product']);

@@ -10,7 +10,7 @@ class TaxTest extends SetUp
     protected function setUp(): void
     {
         parent::setUp();
-        $this->tax = new Tax($this->db, $this->config);
+        $this->tax = new Tax(self::$db, self::$config);
     }
     
     protected function tearDown(): void

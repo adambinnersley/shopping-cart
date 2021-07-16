@@ -71,14 +71,12 @@ class Stock extends Product
     public function getItemsByStockLevel($instock = true, $active = true)
     {
         $where = [];
-        if ($active === true) {
-            $where['active'] = 1;
-        }
+        $where['active'] = ($active === true ? 1 : 0);
         if ($instock === true) {
             $where['in_stock'] = ['>=' => 1];
         } else {
             $where['in_stock'] = 0;
         }
-        return $this->db->selectAll($this->config->table_products, $where);
+        return $this->db->selectAll($this->config->table_products, $where, '*', [], 0, false);
     }
 }

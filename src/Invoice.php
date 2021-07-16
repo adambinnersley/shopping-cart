@@ -57,23 +57,23 @@ class Invoice
         
         $this->pdf->Cell(129, 7, '');
         $this->pdf->Cell(30, 7, 'Sub Total', 1, 0, 'R');
-        $this->pdf->Cell(30, 7, utf8_decode($this->symbol).$orderInfo['subtotal'], 1, 1, 'R');
+        $this->pdf->Cell(30, 7, utf8_decode($this->symbol) . $orderInfo['subtotal'], 1, 1, 'R');
         $this->pdf->Cell(129, 7, '');
         $this->pdf->Cell(30, 7, 'VAT', 1, 0, 'R');
-        $this->pdf->Cell(30, 7, utf8_decode($this->symbol).$orderInfo['total_tax'], 1, 1, 'R');
+        $this->pdf->Cell(30, 7, utf8_decode($this->symbol) . $orderInfo['total_tax'], 1, 1, 'R');
         
         if (Cost::priceUnits($orderInfo['discount'], $this->decimals) !== Cost::priceUnits(0, $this->decimals)) {
             $this->pdf->Cell(129, 7, '');
             $this->pdf->Cell(30, 7, 'Discount', 1, 0, 'R');
-            $this->pdf->Cell(30, 7, utf8_decode($this->symbol).$orderInfo['discount'], 1, 1, 'R');
+            $this->pdf->Cell(30, 7, utf8_decode($this->symbol) . $orderInfo['discount'], 1, 1, 'R');
         }
         $this->pdf->Cell(129, 7, '');
         $this->pdf->Cell(30, 7, 'Delivery', 1, 0, 'R');
-        $this->pdf->Cell(30, 7, utf8_decode($this->symbol).$orderInfo['delivery'], 1, 1, 'R');
+        $this->pdf->Cell(30, 7, utf8_decode($this->symbol) . $orderInfo['delivery'], 1, 1, 'R');
         $this->pdf->Cell(129, 7, '');
         $this->pdf->SetFont('Arial', 'B', 10);
         $this->pdf->Cell(30, 7, 'Total', 1, 0, 'R', true);
-        $this->pdf->Cell(30, 7, utf8_decode($this->symbol).$orderInfo['cart_total'], 1, 1, 'R', true);
+        $this->pdf->Cell(30, 7, utf8_decode($this->symbol) . $orderInfo['cart_total'], 1, 1, 'R', true);
         $this->pdf->SetFont('Arial', '', 10);
     }
     
@@ -98,8 +98,8 @@ class Invoice
             $this->pdf->SetFillColor(241, 241, 241);
             $this->pdf->SetTextColor(54, 54, 54);
 
-            if (file_exists($_SERVER['DOCUMENT_ROOT'].$this->config->logo_root_path)) {
-                $this->pdf->Image($_SERVER['DOCUMENT_ROOT'].$this->config->logo_root_path, 10, 10, 40, 20);
+            if (file_exists($_SERVER['DOCUMENT_ROOT'] . $this->config->logo_root_path)) {
+                $this->pdf->Image($_SERVER['DOCUMENT_ROOT'] . $this->config->logo_root_path, 10, 10, 40, 20);
             }
             $this->pdf->SetFont('Arial', 'B', 18);
             $this->pdf->Cell(189, 5, 'Invoice / Receipt', 0, 1, 'R');
@@ -125,7 +125,7 @@ class Invoice
             $this->pdf->SetTextColor(54, 54, 54);
             $this->pdf->SetFont('Arial', 'B', 10);
             $this->pdf->Cell(40, 5, 'Order Total', 1, 0, 'R', true);
-            $this->pdf->Cell(55, 5, utf8_decode($this->symbol).$orderInfo['cart_total'], 1, 1, 'R', true);
+            $this->pdf->Cell(55, 5, utf8_decode($this->symbol) . $orderInfo['cart_total'], 1, 1, 'R', true);
             $this->pdf->SetFont('Arial', '', 10);
 
             $this->pdf->MultiCell(90, 4, str_replace([', ', ' ,'], "\n\r", $this->config->registered_address));
@@ -134,7 +134,7 @@ class Invoice
             $this->pdf->SetFont('Arial', 'B', 12);
             $this->pdf->Cell(94, 6, 'To:', 0, 1);
             $this->pdf->SetFont('Arial', '', 10);
-            $this->pdf->Cell(95, 4, $orderInfo['delivery_info']['title'].' '.$orderInfo['delivery_info']['firstname'].' '.$orderInfo['delivery_info']['lastname'], 0, 1);
+            $this->pdf->Cell(95, 4, $orderInfo['delivery_info']['title'] . ' ' . $orderInfo['delivery_info']['firstname'] . ' ' . $orderInfo['delivery_info']['lastname'], 0, 1);
             $this->pdf->Cell(120, 4, $orderInfo['delivery_info']['add_1'], 0, 1);
             if (!empty(trim($orderInfo['delivery_info']['add_2']))) {
                 $this->pdf->Cell(120, 4, $orderInfo['delivery_info']['add_2'], 0, 1);
@@ -150,7 +150,7 @@ class Invoice
 
             $this->pdf->Cell(55, 15, '', 0, 1);
             $this->pdf->SetFont('Arial', 'B', 16);
-            $this->pdf->Cell(189, 7, 'Thanks for choosing '.$this->config->site_name, 0, 1, 'C');
+            $this->pdf->Cell(189, 7, 'Thanks for choosing ' . $this->config->site_name, 0, 1, 'C');
             $this->pdf->SetFont('Arial', 'B', 12);
             $this->pdf->Cell(189, 7, $this->config->site_url, 0, 1, 'C', false, $this->config->site_url);
             $this->pdf->SetFont('Arial', '', 10);
@@ -159,7 +159,7 @@ class Invoice
             if ($print === true) {
                 $this->pdf->AutoPrint(true);
             }
-            return $this->pdf->Output(($download === true ? 'D' : ($send === true ? 'S' : 'I')), 'Order'.$orderInfo['order_no'].'.pdf');
+            return $this->pdf->Output(($download === true ? 'D' : ($send === true ? 'S' : 'I')), 'Order' . $orderInfo['order_no'] . '.pdf');
         } else {
             echo('Document not found');
         }
@@ -189,7 +189,7 @@ class Invoice
                     $this->pdf->SetFont('Arial', 'B', 9);
                     $this->pdf->SetTextColor(51, 153, 204);
                 }
-                $this->pdf->Cell($widths[$i], $height, (is_array($col) ? $col[0] : $col), 'LR'.$bottom, 0, ($left[$i] !== false ? 'L' : 'C'), false, (is_array($col) ? $col[1] : false));
+                $this->pdf->Cell($widths[$i], $height, (is_array($col) ? $col[0] : $col), 'LR' . $bottom, 0, ($left[$i] !== false ? 'L' : 'C'), false, (is_array($col) ? $col[1] : false));
                 if (is_array($col)) {
                     $this->pdf->SetFont('Arial', '', 10);
                     $this->pdf->SetTextColor(54, 54, 54);
@@ -212,9 +212,9 @@ class Invoice
         foreach ($products as $productDetails) {
             $productArray[$i][0] = $productDetails['quantity'];
             $productArray[$i][1] = $productDetails['name'];
-            $productArray[$i][2] = utf8_decode($this->symbol).Cost::priceUnits(($productDetails['price'] - $productDetails['tax']), $this->decimals);
-            $productArray[$i][3] = utf8_decode($this->symbol).Cost::priceUnits($productDetails['tax'], $this->decimals);
-            $productArray[$i][4] = utf8_decode($this->symbol).Cost::priceUnits(($productDetails['quantity'] * $productDetails['price']), $this->decimals);
+            $productArray[$i][2] = utf8_decode($this->symbol) . Cost::priceUnits(($productDetails['price'] - $productDetails['tax']), $this->decimals);
+            $productArray[$i][3] = utf8_decode($this->symbol) . Cost::priceUnits($productDetails['tax'], $this->decimals);
+            $productArray[$i][4] = utf8_decode($this->symbol) . Cost::priceUnits(($productDetails['quantity'] * $productDetails['price']), $this->decimals);
             if (isset($productDetails['dlid'])) {
                 $productArray[$i]['download'] = true;
             }
@@ -224,7 +224,7 @@ class Invoice
                 $i++;
                 if (is_array($productDetails['serials'])) {
                     foreach ($productDetails['serials'] as $serials) {
-                        $productArray[$i] = ["", "Serial: ".$serials['serial'], "", ""];
+                        $productArray[$i] = ["", "Serial: " . $serials['serial'], "", ""];
                         $i++;
                     }
                 }
@@ -252,7 +252,7 @@ class Invoice
         foreach ($words as $w) {
             $acronym .= $w[0];
         }
-        return $acronym.$id;
+        return $acronym . $id;
     }
     
     /**
@@ -262,7 +262,7 @@ class Invoice
     {
         $this->pdf->SetY(-20, true);
         $this->pdf->SetFont('Arial', 'I', 7);
-        $this->pdf->MultiCell(189, 5, 'Registered as '.($this->config->trading_as ? $this->config->trading_as.', ' : '').$this->config->registered_address.'. '.($this->config->vat_number ? 'VAT No. '.$this->config->vat_number : ''), 0, 'C');
-        $this->pdf->Cell(189, 5, 'Page '.$this->pdf->PageNo().' of {nb}', 0, 1, 'C');
+        $this->pdf->MultiCell(189, 5, 'Registered as ' . ($this->config->trading_as ? $this->config->trading_as . ', ' : '') . $this->config->registered_address . '. ' . ($this->config->vat_number ? 'VAT No. ' . $this->config->vat_number : ''), 0, 'C');
+        $this->pdf->Cell(189, 5, 'Page ' . $this->pdf->PageNo() . ' of {nb}', 0, 1, 'C');
     }
 }

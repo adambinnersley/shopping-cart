@@ -7,8 +7,8 @@ CREATE TABLE IF NOT EXISTS `store_categories` (
   `order` tinyint(3) UNSIGNED NOT NULL DEFAULT '0',
   `noproducts` tinyint(3) UNSIGNED NOT NULL DEFAULT '0',
   `active` tinyint(1) UNSIGNED NOT NULL DEFAULT '0',
-  `metatitle` varchar(150) NOT NULL,
-  `metadesc` text NOT NULL,
+  `metatitle` varchar(150) DEFAULT NULL,
+  `metadesc` text,
   PRIMARY KEY (`id`),
   UNIQUE KEY `url` (`url`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -254,7 +254,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `email` varchar(150) DEFAULT NULL,
   `password` varchar(72) NOT NULL,
   `ipaddress` varchar(30) NOT NULL,
-  `noorders` tinyint(3) UNSIGNED NOT NULL DEFAULT '0',
+  `no_orders` tinyint(3) UNSIGNED NOT NULL DEFAULT '0',
   `regtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `last_login` datetime DEFAULT NULL,
   `require_pass` tinyint(3) UNSIGNED NOT NULL DEFAULT '0',
@@ -424,6 +424,7 @@ CREATE TABLE IF NOT EXISTS `store_products` (
   `homepage` tinyint(1) UNSIGNED NOT NULL DEFAULT '0',
   `date_added` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `custom_url` varchar(100) DEFAULT NULL,
+  `in_stock` int(11) UNSIGNED NOT NULL DEFAULT '0',
   `type` varchar(20) DEFAULT NULL,
   `isbn` varchar(30) DEFAULT NULL,
   `mpn` varchar(20) DEFAULT NULL,
@@ -433,7 +434,8 @@ CREATE TABLE IF NOT EXISTS `store_products` (
   UNIQUE KEY `custom_url` (`custom_url`),
   UNIQUE KEY `code` (`code`),
   KEY `disabled` (`active`),
-  KEY `tax_id` (`tax_id`)
+  KEY `tax_id` (`tax_id`),
+  KEY `in_stock` (`in_stock`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE IF NOT EXISTS `store_product_category` (

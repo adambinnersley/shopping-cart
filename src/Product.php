@@ -46,7 +46,7 @@ class Product extends Category
      */
     public function listProducts($active = true, $start = 0, $limit = 50, $where = [])
     {
-        return $this->db->selectAll($this->config->table_products, $this->addWhereIsActive($active, $where), '*', [], [$start => $limit]);
+        return $this->db->selectAll($this->config->table_products, $this->addWhereIsActive($active, $where), '*', [], [$start => $limit], 86400);
     }
     
     /**
@@ -57,7 +57,7 @@ class Product extends Category
      */
     public function countProducts($active = true, $where = [])
     {
-        return $this->db->count($this->config->table_products, $this->addWhereIsActive($active, $where));
+        return $this->db->count($this->config->table_products, $this->addWhereIsActive($active, $where), 86400);
     }
     
     /**
@@ -124,8 +124,8 @@ class Product extends Category
     {
         $additionalInfo = [];
         if (is_array($image) && $this->imageUpload->uploadImage($image)) {
-            $additionalInfo['image'] = '/'.trim($this->imageUpload->getImageFolder(), '\/').'/'.$image['name'];
-            list($width, $height) = getimagesize($this->imageUpload->getRootFolder().$this->imageUpload->getImageFolder().$image['name']);
+            $additionalInfo['image'] = '/' . trim($this->imageUpload->getImageFolder(), '\/') . '/' . $image['name'];
+            list($width, $height) = getimagesize($this->imageUpload->getRootFolder() . $this->imageUpload->getImageFolder() . $image['name']);
             $additionalInfo['width'] = $width;
             $additionalInfo['height'] = $height;
         }
@@ -153,7 +153,7 @@ class Product extends Category
      */
     public function listProductCategories($productID)
     {
-        $getCategories = $this->db->selectAll($this->config->table_product_categories, ['product_id' => $productID], ['category_id']);
+        $getCategories = $this->db->selectAll($this->config->table_product_categories, ['product_id' => $productID], ['category_id'], [], 0, 86400);
         if (is_array($getCategories)) {
             $categories = [];
             foreach ($getCategories as $category) {
@@ -249,7 +249,7 @@ class Product extends Category
     protected function getProduct($where, $active = true)
     {
         if (is_array($where)) {
-            $productInfo = $this->db->select($this->config->table_products, $this->addWhereIsActive($active, $where));
+            $productInfo = $this->db->select($this->config->table_products, $this->addWhereIsActive($active, $where), '*', [], 86400);
             if (is_array($productInfo)) {
                 $productInfo['related'] = $this->getRelatedProducts($productInfo['related']);
                 $productInfo['category_url'] = $this->getPrimaryCategoryURL($productInfo['product_id']);
@@ -362,7 +362,7 @@ class Product extends Category
      */
     public function getPopularProducts($limit = 5, $findBy = 'sales', $where = [])
     {
-        $products = $this->db->selectAll($this->config->table_products, $where, '*', [$findBy => 'DESC'], intval($limit));
+        $products = $this->db->selectAll($this->config->table_products, $where, '*', [$findBy => 'DESC'], intval($limit), 86400);
         foreach ($products as $i => $product) {
             $products[$i] = $this->getProductByID($product['product_id']);
         }
@@ -380,7 +380,7 @@ class Product extends Category
             $related = [];
             foreach ($items as $i => $product) {
                 $related[$i] = $this->db->select($this->config->table_products, ['product_id' => $product], ['name', 'image', 'categories', 'custom_url']);
-                $related[$i]['url'] = '/store/'.$this->getPrimaryCategoryURL($product).'/'.$related[$i]['custom_url'];
+                $related[$i]['url'] = '/store/' . $this->getPrimaryCategoryURL($product) . '/' . $related[$i]['custom_url'];
                 $related[$i]['image'] = removeImageExtension($related[$i]['image']);
             }
             return $related;
@@ -418,7 +418,7 @@ class Product extends Category
     public function getProductsInCategory($category_id, $orderBy = 'sales', $orderDir = 'DESC', $limit = 20, $start = 0, $activeOnly = true)
     {
         return $this->buildProductArray(
-            $this->db->query("SELECT `products`.* FROM `{$this->config->table_products}` as `products`, `{$this->config->table_product_categories}` as `category` WHERE ".($activeOnly === true ? "`products`.`active` = 1 AND " : "")."`products`.`product_id` = `category`.`product_id` AND `category`.`category_id` = ? ORDER BY `{$orderBy}` {$orderDir}".($limit > 0 ? " LIMIT {$start}, {$limit}" : "").";", [$category_id])
+            $this->db->query("SELECT `products`.* FROM `{$this->config->table_products}` as `products`, `{$this->config->table_product_categories}` as `category` WHERE " . ($activeOnly === true ? "`products`.`active` = 1 AND " : "") . "`products`.`product_id` = `category`.`product_id` AND `category`.`category_id` = ? ORDER BY `{$orderBy}` {$orderDir}" . ($limit > 0 ? " LIMIT {$start}, {$limit}" : "") . ";", [$category_id], 86400)
         );
     }
     
@@ -434,7 +434,7 @@ class Product extends Category
     public function getHomepageProducts($orderBy = 'sales', $orderDir = 'DESC', $limit = 20, $start = 0, array $additionalInfo = [])
     {
         return $this->buildProductArray(
-            $this->db->selectAll($this->config->table_products, array_merge(['homepage' => 1, 'active' => 1], $additionalInfo), '*', [$orderBy => $orderDir], ($limit > 0 ? [$start => $limit] : 0))
+            $this->db->selectAll($this->config->table_products, array_merge(['homepage' => 1, 'active' => 1], $additionalInfo), '*', [$orderBy => $orderDir], ($limit > 0 ? [$start => $limit] : 0), 86400)
         );
     }
     

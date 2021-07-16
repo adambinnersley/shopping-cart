@@ -37,6 +37,7 @@ class Free implements DeliveryInterface
     /**
      * Added for compatibility (not used)
      * @return false
+     * @codeCoverageIgnore
      */
     public function listDeliveryItems()
     {
@@ -46,6 +47,8 @@ class Free implements DeliveryInterface
     /**
      * Gets delivery item information
      * @param int $id This is the unique id of the item
+     * @return false;
+     * @codeCoverageIgnore
      */
     public function getDeliveryItem($id = 1)
     {
@@ -54,7 +57,9 @@ class Free implements DeliveryInterface
     
     /**
      * Added for compatibility (not used)
+     * @param mixed Can enter anything it won't be used anyway just added for compatibilty
      * @return false
+     * @codeCoverageIgnore
      */
     public function addDeliveryItem($info)
     {
@@ -63,7 +68,10 @@ class Free implements DeliveryInterface
     
     /**
      * Added for compatibility (not used)
+     * @param int $id The delivery ID
+     * @param mixed $info Wont be used enter anything you want
      * @return false
+     * @codeCoverageIgnore
      */
     public function editDeliveryItem($id, $info)
     {
@@ -73,6 +81,7 @@ class Free implements DeliveryInterface
     /**
      * Added for compatibility (not used)
      * @return false
+     * @codeCoverageIgnore
      */
     public function deleteDeliveryItem($id)
     {
