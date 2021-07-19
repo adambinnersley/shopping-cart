@@ -32,11 +32,7 @@ class Weight implements DeliveryInterface
      */
     public function getDeliveryCost($weight)
     {
-        $deliveryInfo = $this->db->fetchColumn($this->config->table_delivery_weight, ['max_weight' => ['<=', $weight]], ['price'], 0, ['max_weight' => 'DESC'], 600);
-        if ($deliveryInfo !== false) {
-            return Cost::priceUnits($deliveryInfo, $this->decimals);
-        }
-        return Cost::priceUnits(0, $this->decimals);
+        return Cost::priceUnits($this->db->fetchColumn($this->config->table_delivery_weight, ['max_weight' => ['>=', $weight]], ['price'], 0, ['max_weight' => 'ASC'], 600), $this->decimals);
     }
     
     /**

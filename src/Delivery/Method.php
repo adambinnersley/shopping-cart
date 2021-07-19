@@ -3,6 +3,7 @@
 namespace ShoppingCart\Delivery;
 
 use DBAL\Database;
+use DBAL\Modifiers\Modifier;
 use ShoppingCart\Modifiers\Cost;
 use Configuration\Config;
 
@@ -32,11 +33,7 @@ class Method implements DeliveryInterface
      */
     public function getDeliveryCost($method_id)
     {
-        $price = $this->db->fetchColumn($this->config->table_delivery_methods, ['id' => $method_id], ['price'], 0, [], 3600);
-        if ($price !== false) {
-            return Cost::priceUnits($price, $this->decimals);
-        }
-        return Cost::priceUnits(0, $this->decimals);
+        return Cost::priceUnits($this->db->fetchColumn($this->config->table_delivery_methods, ['id' => $method_id], ['price'], 0, [], 3600), $this->decimals);
     }
     
     /**
@@ -65,8 +62,11 @@ class Method implements DeliveryInterface
      */
     public function addDeliveryItem($info)
     {
-        $info['price'] = Cost::priceUnits($info['price'], $this->decimals);
-        return $this->db->insert($this->config->table_delivery_methods, $info);
+        if(Modifier::arrayMustContainFields(['description', 'price'], $info)){
+            $info['price'] = Cost::priceUnits($info['price'], $this->decimals);
+            return $this->db->insert($this->config->table_delivery_methods, $info);
+        }
+        return false;
     }
     
     /**

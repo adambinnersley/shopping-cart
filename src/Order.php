@@ -39,7 +39,7 @@ class Order extends Basket
     {
         $date = new DateTime();
         $date->modify($timeframe);
-        $this->db->delete($this->config->table_basket, ['cust_id' => 0, 'status' => 1, 'date' => ['<=', $date->format('Y-m-d H:i:s')]]);
+        $this->db->delete($this->config->table_basket, ['customer_id' => 0, 'status' => 1, 'date' => ['<=', $date->format('Y-m-d H:i:s')]]);
         $this->db->update($this->config->table_basket, ['status' => 4, 'sessionid' => null], ['status' => 1, 'date' => ['<=', $date->format('Y-m-d H:i:s')]]);
     }
     

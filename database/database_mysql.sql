@@ -217,7 +217,7 @@ hr {border: 0;border-bottom: 1px solid #f6f6f6;margin: 20px 0}
 ('table_basket', 'store_orders'),
 ('table_basket_products', 'store_order_products'),
 ('table_categories', 'store_categories'),
-('table_delivery_fixed_cost', 'store_delivery_fixed_costs'),
+('table_delivery_fixed_cost', 'store_delivery_fixed_cost'),
 ('table_delivery_methods', 'store_delivery_methods'),
 ('table_delivery_value', 'store_delivery_value'),
 ('table_delivery_weight', 'store_delivery_weight'),

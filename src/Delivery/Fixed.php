@@ -31,11 +31,7 @@ class Fixed implements DeliveryInterface
      */
     public function getDeliveryCost($item = '')
     {
-        $price = $this->db->fetchColumn($this->config->table_delivery_fixed_cost, [], ['cost'], 0, [], 600);
-        if ($price === false) {
-            $price = 0;
-        }
-        return Cost::priceUnits($price, $this->decimals);
+        return Cost::priceUnits($this->db->fetchColumn($this->config->table_delivery_fixed_cost, [], ['cost'], 0, [], 600), $this->decimals);
     }
     
     /**

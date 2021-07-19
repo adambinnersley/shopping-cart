@@ -32,11 +32,7 @@ class Value implements DeliveryInterface
      */
     public function getDeliveryCost($price)
     {
-        $cost = $this->db->fetchColumn($this->config->table_delivery_value, ['min_price' => ['>=', Cost::priceUnits($price, $this->decimals)], 'max_price' => ['<=', Cost::priceUnits($price, $this->decimals)]], ['price'], 0, [], 3600);
-        if ($cost !== false) {
-            return Cost::priceUnits($cost, $this->decimals);
-        }
-        return Cost::priceUnits(0, $this->decimals);
+        return Cost::priceUnits($this->db->fetchColumn($this->config->table_delivery_value, ['min_price' => ['<=', Cost::priceUnits($price, $this->decimals)], 'max_price' => ['>=', Cost::priceUnits($price, $this->decimals)]], ['price'], 0, [], 3600), $this->decimals);
     }
     
     /**
