@@ -10,6 +10,7 @@ class CurrencyTest extends TestCase
     /**
      * @covers \ShoppingCart\Currency::retrieveCurrencies
      * @covers \ShoppingCart\Currency::listCurrencyNames
+     * @covers \ShoppingCart\Currency::retrieveCurrencies
      */
     public function testListCurrencyNames()
     {
@@ -22,6 +23,7 @@ class CurrencyTest extends TestCase
     /**
      * @covers \ShoppingCart\Currency::retrieveCurrencies
      * @covers \ShoppingCart\Currency::listCurrencyCodes
+     * @covers \ShoppingCart\Currency::retrieveCurrencies
      */
     public function testListCurrencyCodes()
     {
@@ -34,6 +36,7 @@ class CurrencyTest extends TestCase
     /**
      * @covers \ShoppingCart\Currency::retrieveCurrencies
      * @covers \ShoppingCart\Currency::getCurrencyDecimals
+     * @covers \ShoppingCart\Currency::retrieveCurrencies
      */
     public function testGetCurrencyDecimals()
     {
@@ -45,6 +48,7 @@ class CurrencyTest extends TestCase
     /**
      * @covers \ShoppingCart\Currency::retrieveCurrencies
      * @covers \ShoppingCart\Currency::getCurrencyName
+     * @covers \ShoppingCart\Currency::retrieveCurrencies
      */
     public function testGetCurrencyName()
     {
@@ -56,6 +60,7 @@ class CurrencyTest extends TestCase
     /**
      * @covers \ShoppingCart\Currency::retrieveCurrencies
      * @covers \ShoppingCart\Currency::getCurrencySymbol
+     * @covers \ShoppingCart\Currency::retrieveCurrencies
      */
     public function testGetCurrencySymbol()
     {

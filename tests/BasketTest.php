@@ -164,6 +164,7 @@ class BasketTest extends SetUp
      * @covers \ShoppingCart\Basket::addVoucherCode
      * @covers \ShoppingCart\Basket::updateVoucherCode
      * @covers \ShoppingCart\Voucher::getVoucherByCode
+     * @covers \ShoppingCart\Voucher::getVoucher
      */
     public function testAddVoucher()
     {

@@ -1,6 +1,6 @@
 SET FOREIGN_KEY_CHECKS = 0;
 TRUNCATE TABLE `store_delivery_fixed_cost`;
-INSERT INTO `store_delivery_fixed_cost` (`id`, `cost`) VALUES (NULL, '4.99'), (NULL, '1.50');
+INSERT INTO `store_delivery_fixed_cost` (`id`, `cost`) VALUES (NULL, '4.99');
 
 TRUNCATE TABLE `store_delivery_methods`;
 INSERT INTO `store_delivery_methods` (`id`, `description`, `price`) VALUES (NULL, '1st Class', '3.99'), (NULL, '2nd Class', '1.29'), (NULL, 'Next Day (Guaranteed)', '7.99');
@@ -26,6 +26,12 @@ INSERT INTO `store_product_category` (`product_id`, `category_id`, `main_categor
 
 TRUNCATE TABLE `store_vouchers`;
 INSERT INTO `store_vouchers` (`voucher_id`, `active`, `code`, `percent`, `amount`, `description`, `expire`, `selected_products`, `allowed`, `times_used`) VALUES (NULL, '1', 'DISC10', '10', NULL, '10% Discount', '2040-12-31 00:00:00', NULL, '50', '0'), (NULL, '1', 'FIXED1', NULL, '1.00', 'A fixed amount off', '2040-12-31 00:00:00', NULL, '100', '0');
+
+TRUNCATE TABLE `store_gallery_images`;
+INSERT INTO `store_gallery_images` (`img_id`, `image`, `caption`, `active`) VALUES (NULL, '/images/image1.jpg', 'This is the first image', 1), (NULL, '/images/image2.jpg', 'Another image', 1), (NULL, '/images/image3.jpg', 'Yet another image', 1), (NULL, '/images/image4.jpg', 'The final image', 1);
+
+TRUNCATE TABLE `store_product_images`;
+INSERT INTO `store_product_images` (`product_id`, `image_id`) VALUES ('1', '1'), ('1', '2'), ('1', '4');
 
 TRUNCATE TABLE `store_orders`;
 TRUNCATE TABLE `store_order_products`;
