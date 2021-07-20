@@ -3,21 +3,26 @@ namespace ShoppingCart\Tests;
 
 use ShoppingCart\Order;
 use ShoppingCart\Product;
+use ShoppingCart\Customers;
 
 class OrderTest extends SetUp
 {
     protected $order;
+    protected $customer;
     
     protected function setUp(): void
     {
         parent::setUp();
+        $this->customer = new Customers(self::$db, self::$config);
         $this->order = new Order(self::$db, self::$config, false, new Product(self::$db, self::$config));
+        $this->customer->login('sample.name@emaple.com', 'password');
     }
     
     protected function tearDown(): void
     {
         parent::tearDown();
         $this->order = null;
+        $this->customer = null;
     }
     
     /**
@@ -28,6 +33,11 @@ class OrderTest extends SetUp
      */
     public function testFetchOrders()
     {
+        $this->assertEmpty($this->order->fetchOrders());
+        $this->order->addItemToBasket(1);
+        /*$orders = $this->order->fetchOrders(1);
+        $this->assertCount(1, $orders);
+        $this->assertCount(1, $this->order->fetchOrders(1, 0, 0, 50, []));*/
         $this->markTestIncomplete();
     }
     
@@ -58,7 +68,7 @@ class OrderTest extends SetUp
     /**
      * @covers \ShoppingCart\Order::__construct
      * @covers \ShoppingCart\Order::getOrderByID
-     * @covers \ShoppingCart\Order::getOrderBy
+     * @covers \ShoppingCart\Order::getOrdersBy
      * @covers \ShoppingCart\Order::buildOrder
      * @covers \ShoppingCart\Order::orderStatus
      * @covers \ShoppingCart\Order::getDeliveryInfo
@@ -74,7 +84,7 @@ class OrderTest extends SetUp
     /**
      * @covers \ShoppingCart\Order::__construct
      * @covers \ShoppingCart\Order::getOrderByOrderNo
-     * @covers \ShoppingCart\Order::getOrderBy
+     * @covers \ShoppingCart\Order::getOrdersBy
      * @covers \ShoppingCart\Order::buildOrder
      * @covers \ShoppingCart\Order::orderStatus
      * @covers \ShoppingCart\Order::getDeliveryInfo
@@ -91,7 +101,7 @@ class OrderTest extends SetUp
      * @covers \ShoppingCart\Order::__construct
      * @covers \ShoppingCart\Order::getOrdersByUser
      * @covers \ShoppingCart\Order::getUserOrder
-     * @covers \ShoppingCart\Order::getOrderBy
+     * @covers \ShoppingCart\Order::getOrdersBy
      * @covers \ShoppingCart\Order::buildOrder
      * @covers \ShoppingCart\Order::orderStatus
      * @covers \ShoppingCart\Order::getDeliveryInfo
@@ -101,14 +111,15 @@ class OrderTest extends SetUp
      */
     public function testGetOrdersByUser()
     {
-        $this->markTestIncomplete();
+        $this->assertFalse($this->order->getOrdersByUser(99));
+        //$this->markTestIncomplete();
     }
     
     /**
      * @covers \ShoppingCart\Order::__construct
      * @covers \ShoppingCart\Order::getOrderInformation
      * @covers \ShoppingCart\Order::getOrderByID
-     * @covers \ShoppingCart\Order::getOrderBy
+     * @covers \ShoppingCart\Order::getOrdersBy
      * @covers \ShoppingCart\Order::buildOrder
      * @covers \ShoppingCart\Order::orderStatus
      * @covers \ShoppingCart\Order::getDeliveryInfo

@@ -25,7 +25,10 @@ class GalleryTest extends SetUp
      */
     public function testSetImageLocation()
     {
-        $this->markTestIncomplete();
+        $newLocation = '/gallery/images/';
+        $this->assertNotEquals($newLocation, self::$config->gallery_image_folder);
+        $this->assertObjectHasAttribute('config', $this->gallery->setImageLocation($newLocation));
+        $this->assertEquals($newLocation, self::$config->gallery_image_folder);
     }
     
     /**
@@ -34,7 +37,10 @@ class GalleryTest extends SetUp
      */
     public function testSetThumbLocation()
     {
-        $this->markTestIncomplete();
+        $newThumbs = 'new-thumbs';
+        $this->assertNotEquals($newThumbs, self::$config->gallery_thumbs_folder);
+        $this->assertObjectHasAttribute('config', $this->gallery->setThumbLocation($newThumbs));
+        $this->assertEquals($newThumbs, self::$config->gallery_thumbs_folder);
     }
     
     /**
@@ -88,7 +94,8 @@ class GalleryTest extends SetUp
      */
     public function testGetImageInfoByName()
     {
-        $this->markTestIncomplete();
+        $this->assertFalse($this->gallery->getImageInfoByName('/images/my-image-26.jpg'));
+        $this->assertArrayHasKey('caption', $this->gallery->getImageInfoByName('/images/image1.jpg'));
     }
     
     /**
@@ -106,6 +113,32 @@ class GalleryTest extends SetUp
      */
     public function testAssignProductToImage()
     {
-        $this->markTestIncomplete();
+        $this->assertFalse($this->gallery->assignProductToImage(12, 1));
+        $this->assertFalse($this->gallery->assignProductToImage('NAN', 1));
+        $this->assertFalse($this->gallery->assignProductToImage(3, 'NAN'));
+        $this->assertTrue($this->gallery->assignProductToImage(3, 1));
+    }
+    
+    /**
+     * @covers \ShoppingCart\Gallery::__construct
+     * @covers \ShoppingCart\Gallery::removeProductFromImage
+     */
+    public function testRemoveProductFromImage()
+    {
+        $this->assertFalse($this->gallery->removeProductFromImage(3, 2));
+        $this->assertTrue($this->gallery->removeProductFromImage(4, 1));
+    }
+    
+    /**
+     * @covers \ShoppingCart\Gallery::__construct
+     * @covers \ShoppingCart\Gallery::deleteImage
+     * @covers \ShoppingCart\Gallery::getImageInfo
+     */
+    public function testDeleteImage()
+    {
+        $this->assertFalse($this->gallery->deleteImage(99));
+        $this->assertFalse($this->gallery->deleteImage(1, ['active' => 0]));
+        $this->assertTrue($this->gallery->deleteImage(1));
+        $this->assertTrue($this->gallery->deleteImage(2, ['active' => 1]));
     }
 }

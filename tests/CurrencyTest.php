@@ -14,6 +14,7 @@ class CurrencyTest extends TestCase
      */
     public function testListCurrencyNames()
     {
+        Currency::$currencies = [];
         $this->assertContains('US Dollar', Currency::listCurrencyNames());
         $this->assertContains('Euro', Currency::listCurrencyNames());
         $this->assertGreaterThan(40, count(Currency::listCurrencyNames()));

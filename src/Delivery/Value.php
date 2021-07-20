@@ -4,6 +4,7 @@ namespace ShoppingCart\Delivery;
 
 use ShoppingCart\Modifiers\Cost;
 use DBAL\Database;
+use DBAL\Modifiers\Modifier;
 use Configuration\Config;
 
 class Value implements DeliveryInterface
@@ -60,7 +61,7 @@ class Value implements DeliveryInterface
      */
     public function addDeliveryItem($info)
     {
-        if (!$this->checkForConflicts($info['min_price'], $info['max_price']) && is_array($info)) {
+        if (!$this->checkForConflicts($info['min_price'], $info['max_price']) && Modifier::arrayMustContainFields(['min_price', 'max_price', 'price'], $info)) {
             $info['price'] = Cost::priceUnits($info['price'], $this->decimals);
             return $this->db->insert($this->config->table_delivery_value, $info);
         }
@@ -75,7 +76,7 @@ class Value implements DeliveryInterface
      */
     public function editDeliveryItem($cost_id, $info)
     {
-        if (!$this->checkForConflicts($info['min_price'], $info['max_price'], $cost_id) && is_array($info)) {
+        if (!$this->checkForConflicts($info['min_price'], $info['max_price'], $cost_id) && Modifier::arrayMustContainFields(['min_price', 'max_price', 'price'], $info)) {
             $info['price'] = Cost::priceUnits($info['price'], $this->decimals);
             return $this->db->update($this->config->table_delivery_value, $info, ['id' => $cost_id]);
         }
@@ -102,7 +103,7 @@ class Value implements DeliveryInterface
     protected function checkForConflicts($min_price, $max_price, $cost_id = false)
     {
         foreach ($this->listDeliveryItems() as $range) {
-            if (($min_price === $range['min_price'] || $min_price === $range['max_price'] || ($min_price >= $range['min_price'] && $min_price <= $range['max_price']) || $max_price === $range['min_price'] || $max_price === $range['max_price'] || ($max_price >= $range['min_price'] && $max_price <= $range['max_price'])) && $cost_id !== $range['id']) {
+            if (($min_price === $range['min_price'] || $min_price === $range['max_price'] || ($min_price >= $range['min_price'] && $min_price <= $range['max_price']) || $max_price === $range['min_price'] || $max_price === $range['max_price'] || ($max_price >= $range['min_price'] && $max_price <= $range['max_price'])) && $cost_id != $range['id']) {
                 return true;
             }
         }

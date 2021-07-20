@@ -4,6 +4,7 @@ namespace ShoppingCart\Delivery;
 
 use ShoppingCart\Modifiers\Cost;
 use DBAL\Database;
+use DBAL\Modifiers\Modifier;
 use Configuration\Config;
 
 class Weight implements DeliveryInterface
@@ -60,7 +61,7 @@ class Weight implements DeliveryInterface
      */
     public function addDeliveryItem($info)
     {
-        if (!$this->checkForConflicts($info['max_weight']) && is_array($info)) {
+        if (!$this->checkForConflicts($info['max_weight']) && Modifier::arrayMustContainFields(['max_weight', 'price'], $info)) {
             $info['price'] = Cost::priceUnits($info['price'], $this->decimals);
             return $this->db->insert($this->config->table_delivery_weight, $info);
         }
@@ -75,7 +76,7 @@ class Weight implements DeliveryInterface
      */
     public function editDeliveryItem($weight_id, $info)
     {
-        if (!$this->checkForConflicts($info['max_weight'], $weight_id) && is_array($info)) {
+        if (!$this->checkForConflicts($info['max_weight'], $weight_id) && Modifier::arrayMustContainFields(['max_weight', 'price'], $info)) {
             $info['price'] = Cost::priceUnits($info['price'], $this->decimals);
             return $this->db->update($this->config->table_delivery_weight, $info, ['id' => $weight_id], 1);
         }

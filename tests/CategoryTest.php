@@ -63,7 +63,9 @@ class CategoryTest extends SetUp
      */
     public function testEditCategory()
     {
-        $this->markTestIncomplete();
+        $this->assertFalse($this->category->editCategory('NAN', ['description' => '<p>This should not change as the ID need to be a number</p>']));
+        $this->assertFalse($this->category->editCategory(99, ['description' => '<p>This should not change as the ID shouldn\'t exist</p>']));
+        $this->assertTrue($this->category->editCategory(3, ['description' => '<p>This will be updated</p>', 'url' => 'this will be reformatted']));
     }
     
     /**
@@ -73,7 +75,10 @@ class CategoryTest extends SetUp
      */
     public function testDeleteCategory()
     {
-        $this->markTestIncomplete();
+        $this->assertFalse($this->category->deleteCategory('NAN'));
+        $this->assertFalse($this->category->deleteCategory(99)); // None existant category
+        $this->assertFalse($this->category->deleteCategory(1)); // Products in category
+        $this->assertTrue($this->category->deleteCategory(3)); // Products in category
     }
     
     /**
@@ -83,7 +88,8 @@ class CategoryTest extends SetUp
      */
     public function testGetCategoryURL()
     {
-        $this->markTestIncomplete();
+        $this->assertFalse($this->category->getCategoryURL(99));
+        $this->assertEquals('first-category', $this->category->getCategoryURL(1));
     }
     /**
      * @covers \ShoppingCart\Category::__construct
@@ -91,6 +97,11 @@ class CategoryTest extends SetUp
      */
     public function testChangeCategoryOrder()
     {
-        $this->markTestIncomplete();
+        $this->assertEquals(1, $this->category->listCategories()[0]['id']);
+        $this->assertFalse($this->category->changeCategoryOrder(1));
+        $this->assertTrue($this->category->changeCategoryOrder(1, 'down'));
+        $this->assertEquals(2, $this->category->listCategories()[0]['id']);
+        $this->assertTrue($this->category->changeCategoryOrder(1));
+        $this->assertEquals(1, $this->category->listCategories()[0]['id']);
     }
 }

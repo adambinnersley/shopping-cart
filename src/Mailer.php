@@ -22,6 +22,7 @@ class Mailer
      * @param array $attachment Any attachments should be attached as an array
      * @param array $cc Any additional emails to send a copy of the email
      * @return boolean If the email has been sent successfully will return true else returns false
+     * @codeCoverageIgnore
      */
     public static function sendEmail($to, $subject, $plain, $html, $from, $fromname, $replyto = '', $attachment = [], $cc = [])
     {
@@ -79,6 +80,14 @@ class Mailer
         return self::$mail->send();
     }
     
+    /**
+     * Adds a HTML wrapper to the email content
+     * @param Config $config This should be the configuration information
+     * @param string $content The main content you are wrapping
+     * @param string $subject The subject of the email message
+     * @return string The wrapped email will be returned
+     * @codeCoverageIgnore
+     */
     public static function htmlWrapper(Config $config, $content, $subject)
     {
         $image = '';

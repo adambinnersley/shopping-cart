@@ -58,6 +58,7 @@ class BasketTest extends SetUp
      * @covers \ShoppingCart\Basket::createOrderID
      * @covers \ShoppingCart\Basket::updateBasket
      * @covers \ShoppingCart\Basket::updateTotals
+     * @covers \ShoppingCart\Basket::getDeliveryCost
      * @covers \ShoppingCart\Product::getProductByID
      * @covers \ShoppingCart\Product::getProductWeight
      * @covers \ShoppingCart\Product::getProductPrice
@@ -80,8 +81,10 @@ class BasketTest extends SetUp
      * @covers \ShoppingCart\Basket::getProducts
      * @covers \ShoppingCart\Basket::getBasket
      * @covers \ShoppingCart\Basket::createOrder
+     * @covers \ShoppingCart\Basket::createOrderID
      * @covers \ShoppingCart\Basket::updateBasket
      * @covers \ShoppingCart\Basket::updateTotals
+     * @covers \ShoppingCart\Basket::getDeliveryCost
      * @covers \ShoppingCart\Product::getProductByID
      * @covers \ShoppingCart\Product::getProductWeight
      * @covers \ShoppingCart\Product::getProductPrice
@@ -106,8 +109,10 @@ class BasketTest extends SetUp
      * @covers \ShoppingCart\Basket::getProducts
      * @covers \ShoppingCart\Basket::getBasket
      * @covers \ShoppingCart\Basket::createOrder
+     * @covers \ShoppingCart\Basket::createOrderID
      * @covers \ShoppingCart\Basket::updateBasket
      * @covers \ShoppingCart\Basket::updateTotals
+     * @covers \ShoppingCart\Basket::getDeliveryCost
      * @covers \ShoppingCart\Basket::updateQuantityInBasket
      * @covers \ShoppingCart\Basket::removeItemFromBasket
      * @covers \ShoppingCart\Product::getProductByID
@@ -138,6 +143,7 @@ class BasketTest extends SetUp
      * @covers \ShoppingCart\Basket::getBasket
      * @covers \ShoppingCart\Basket::updateBasket
      * @covers \ShoppingCart\Basket::updateTotals
+     * @covers \ShoppingCart\Basket::getDeliveryCost
      * @covers \ShoppingCart\Product::getProductByID
      * @covers \ShoppingCart\Product::getProductWeight
      * @covers \ShoppingCart\Product::getProductPrice

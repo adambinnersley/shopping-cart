@@ -62,7 +62,7 @@ class Method implements DeliveryInterface
      */
     public function addDeliveryItem($info)
     {
-        if(Modifier::arrayMustContainFields(['description', 'price'], $info)){
+        if (Modifier::arrayMustContainFields(['description', 'price'], $info)) {
             $info['price'] = Cost::priceUnits($info['price'], $this->decimals);
             return $this->db->insert($this->config->table_delivery_methods, $info);
         }
@@ -78,7 +78,9 @@ class Method implements DeliveryInterface
     public function editDeliveryItem($method_id, $info)
     {
         if (is_numeric($method_id) && is_array($info) && (array_key_exists('price', $info) || array_key_exists('description', $info))) {
-            if(array_key_exists('price', $info)){$info['price'] = Cost::priceUnits($info['price'], $this->decimals);}
+            if (array_key_exists('price', $info)) {
+                $info['price'] = Cost::priceUnits($info['price'], $this->decimals);
+            }
             return $this->db->update($this->config->table_delivery_methods, $info, ['id' => $method_id]);
         }
         return false;

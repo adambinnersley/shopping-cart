@@ -83,7 +83,7 @@ class Gallery
     public function getProductImages($product_id)
     {
         $images = $this->db->query("SELECT `gallery`.* FROM `{$this->config->table_gallery}` as `gallery`, `{$this->config->table_product_images}` as `ref` WHERE `gallery`.`img_id` = `ref`.`image_id` AND `ref`.`product_id` = ?;", [$product_id], 86400);
-        if(!empty($images)){
+        if (!empty($images)) {
             return $images;
         }
         return false;
@@ -117,11 +117,7 @@ class Gallery
      */
     public function getImageInfoByName($name)
     {
-        $imageInfo = $this->db->select($this->config->table_gallery, ['image' => $name]);
-        if (is_array($imageInfo)) {
-            return $imageInfo;
-        }
-        return false;
+        return $this->db->select($this->config->table_gallery, ['image' => $name]);
     }
     
     /**
@@ -129,6 +125,7 @@ class Gallery
      * @param int $product_id This should be the product ID that you are uploading gallery images for
      * @param file $images This should be the submitted $_FILES information
      * @return boolean If the images are inserted will return true else return false
+     * @codeCoverageIgnore
      */
     public function uploadGalleryImages($product_id, $images)
     {
@@ -165,7 +162,7 @@ class Gallery
      */
     public function assignProductToImage($image_id, $product_id)
     {
-        if (is_numeric($product_id) && is_numeric($image_id)) {
+        if (is_numeric($product_id) && $this->getImageInfo($image_id)) {
             return $this->db->insert($this->config->table_product_images, ['product_id' => $product_id, 'image_id' => $image_id]);
         }
         return false;
@@ -179,9 +176,7 @@ class Gallery
      */
     public function removeProductFromImage($image_id, $product_id)
     {
-        if (is_numeric($product_id) && is_numeric($image_id)) {
-            return $this->db->delete($this->config->table_product_images, ['product_id' => $product_id, 'image_id' => $image_id]);
-        }
+        return $this->db->delete($this->config->table_product_images, ['product_id' => $product_id, 'image_id' => $image_id]);
     }
     
     /**
@@ -194,8 +189,12 @@ class Gallery
     {
         $imageInfo = $this->getImageInfo($image_id, $where);
         if (!empty($imageInfo)) {
-            unlink($this->config->gallery_image_folder . $imageInfo['image']);
-            unlink($this->config->gallery_thumbs_folder . $imageInfo['image']);
+            if (file_exists($this->config->gallery_image_folder . $imageInfo['image'])) {
+                unlink($this->config->gallery_image_folder . $imageInfo['image']);
+            }
+            if (file_exists($this->config->gallery_thumbs_folder . $imageInfo['image'])) {
+                unlink($this->config->gallery_thumbs_folder . $imageInfo['image']);
+            }
             return $this->db->delete($this->config->table_gallery, array_merge(['img_id' => intval($image_id)], $where));
         }
         return false;

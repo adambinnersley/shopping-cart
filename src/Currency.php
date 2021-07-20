@@ -9,15 +9,17 @@ class Currency
      * This should be empty until the array of currencies is set
      * @var * If currencies list is retrieved will be set as an array else will be empty
      */
-    protected static $currencies;
+    public static $currencies;
 
     /**
      * Retrieves a list of the currencies
      */
     private static function retrieveCurrencies()
     {
-        $file = file_get_contents('Currencies/Common-Currency.json', true);
-        self::$currencies = json_decode($file, true);
+        if (empty(self::$currencies) || !is_array(self::$currencies)) {
+            $file = file_get_contents('Currencies/Common-Currency.json', true);
+            self::$currencies = json_decode($file, true);
+        }
     }
     
     /**
@@ -27,9 +29,7 @@ class Currency
      */
     public static function getCurrencySymbol($code)
     {
-        if (!is_array(self::$currencies)) {
-            self::retrieveCurrencies();
-        }
+        self::retrieveCurrencies();
         return isset(self::$currencies[strtoupper($code)]) ? self::$currencies[strtoupper($code)]['symbol'] : false;
     }
     
@@ -40,9 +40,7 @@ class Currency
      */
     public static function getCurrencyName($code)
     {
-        if (!is_array(self::$currencies)) {
-            self::retrieveCurrencies();
-        }
+        self::retrieveCurrencies();
         return isset(self::$currencies[strtoupper($code)]) ? self::$currencies[strtoupper($code)]['name'] : false;
     }
     
@@ -53,9 +51,7 @@ class Currency
      */
     public static function getCurrencyDecimals($code)
     {
-        if (!is_array(self::$currencies)) {
-            self::retrieveCurrencies();
-        }
+        self::retrieveCurrencies();
         return isset(self::$currencies[strtoupper($code)]) ? intval(self::$currencies[strtoupper($code)]['decimal_digits']) : 2;
     }
     
@@ -66,12 +62,9 @@ class Currency
     public static function listCurrencyNames()
     {
         $names = [];
-        if (!is_array(self::$currencies)) {
-            self::retrieveCurrencies();
-        } else {
-            foreach (self::$currencies as $currency) {
-                $names[] = $currency['name'];
-            }
+        self::retrieveCurrencies();
+        foreach (self::$currencies as $currency) {
+            $names[] = $currency['name'];
         }
         return $names;
     }
@@ -82,9 +75,6 @@ class Currency
      */
     public static function listCurrencyCodes()
     {
-        if (!is_array(self::$currencies)) {
-            self::retrieveCurrencies();
-        }
         $codes = array_keys(self::$currencies);
         sort($codes);
         return $codes;

@@ -53,13 +53,11 @@ class PDF_JavaScript extends \FPDF
     }
 }
 
+/**
+ * @codeCoverageIgnore
+ */
 class FPDF extends PDF_JavaScript
 {
-    
-    /**
-     *
-     * @param string|boolean $printer
-     */
     public function AutoPrint($printer = '')
     {
         $script = '';

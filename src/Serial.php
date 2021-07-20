@@ -61,10 +61,7 @@ class Serial
      */
     public function getSerials($order_id, $product_id)
     {
-        if (is_numeric($product_id) && is_numeric($order_id)) {
-            return $this->db->selectAll($this->config->table_serials, ['active' => 1, 'order_id' => $order_id, 'product_id' => $product_id], ['serial'], [], 0, 300);
-        }
-        return false;
+        return $this->db->selectAll($this->config->table_serials, ['active' => 1, 'order_id' => $order_id, 'product_id' => $product_id], ['serial'], [], 0, 300);
     }
     
     /**

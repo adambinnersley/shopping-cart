@@ -58,13 +58,14 @@ class Download
             $date = new DateTime();
             $date->modify("+{$this->config->download_link_expiry}");
             $productClass = (is_object($this->product) ? $this->product : new Product($this->db, $this->config));
+            $insert = false;
             foreach ($products as $product_id => $quantity) {
                 if ($productClass->isProductDownload($product_id)) {
-                    $this->db->insert($this->config->table_downloads, ['customer_id' => $customer_id, 'order_id' => $order_id, 'product' => $product_id, 'expire' => $date->format('Y-m-d H:i:s'), 'link' => $this->createUniqueLink($order_id, $product_id)]);
+                    $insert = ($this->db->insert($this->config->table_downloads, ['customer_id' => $customer_id, 'order_id' => $order_id, 'product' => $product_id, 'expire' => $date->format('Y-m-d H:i:s'), 'link' => $this->createUniqueLink($order_id, $product_id)]) || $insert === true ? true : false);
                     $this->addDownloadSerials($product_id, $quantity, $order_id, $email);
                 }
             }
-            return true;
+            return $insert;
         }
         return false;
     }

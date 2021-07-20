@@ -129,15 +129,24 @@ class DeliveryTest extends SetUp
      * @covers \ShoppingCart\Delivery\Value::addDeliveryItem
      * @covers \ShoppingCart\Delivery\Value::editDeliveryItem
      * @covers \ShoppingCart\Delivery\Value::deleteDeliveryItem
+     * @covers \ShoppingCart\Delivery\Value::checkForConflicts
      */
-    public function testValueDeleivery()
+    public function testValueDelivery()
     {
         self::$config->delivery_type = 'Value';
         $this->assertEquals('3.99', $this->delivery->getDeliveryCost(['cart_total' => '34.78']));
         $this->assertEquals('0.00', $this->delivery->getDeliveryCost(['cart_total' => '92.30']));
         $value = new Value(self::$db, self::$config);
         $this->assertCount(2, $value->listDeliveryItems());
-        //$this->markTestIncomplete();
+        $this->assertEquals('3.99', $value->getDeliveryItem()['price']);
+        $this->assertEquals('0.00', $value->getDeliveryItem(2)['price']);
+        $this->assertFalse($value->getDeliveryItem(78));
+        $this->assertTrue($value->addDeliveryItem(['min_price' => '100.00', 'max_price' => '199.99', 'price' => '1.49']));
+        $this->assertFalse($value->addDeliveryItem(['min_price' => '75.00', 'max_price' => '124.99', 'price' => '1.79']));
+        $this->assertFalse($value->editDeliveryItem(2, ['min_price' => '75.00', 'max_price' => '124.99', 'price' => '1.79']));
+        $this->assertTrue($value->editDeliveryItem(3, ['min_price' => '100.00', 'max_price' => '149.99', 'price' => '1.49']));
+        $this->assertFalse($value->deleteDeliveryItem(6));
+        $this->assertTrue($value->deleteDeliveryItem(3));
     }
     
     /**
@@ -151,6 +160,7 @@ class DeliveryTest extends SetUp
      * @covers \ShoppingCart\Delivery\Weight::addDeliveryItem
      * @covers \ShoppingCart\Delivery\Weight::editDeliveryItem
      * @covers \ShoppingCart\Delivery\Weight::deleteDeliveryItem
+     * @covers \ShoppingCart\Delivery\Weight::checkForConflicts
      */
     public function testWeightDelivery()
     {
@@ -159,6 +169,14 @@ class DeliveryTest extends SetUp
         $this->assertEquals('3.50', $this->delivery->getDeliveryCost([], '3.26'));
         $weight = new Weight(self::$db, self::$config);
         $this->assertArrayHasKey('max_weight', $weight->listDeliveryItems()[0]);
-        //$this->markTestIncomplete();
+        $this->assertFalse($weight->getDeliveryItem(99));
+        $this->assertEquals('2.500', $weight->getDeliveryItem(4)['max_weight']);
+        $this->assertFalse($weight->addDeliveryItem(['max_weight' => '5.500', 'price' => '5.60']));
+        $this->assertTrue($weight->addDeliveryItem(['max_weight' => '6.500', 'price' => '6.50']));
+        $this->assertFalse($weight->editDeliveryItem(99, ['max_weight' => '7.500', 'price' => '7.50']));
+        $this->assertFalse($weight->editDeliveryItem(11, ['max_weight' => '7.500']));
+        $this->assertTrue($weight->editDeliveryItem(11, ['max_weight' => '7.500', 'price' => '7.50']));
+        $this->assertFalse($weight->deleteDeliveryItem(99));
+        $this->assertTrue($weight->deleteDeliveryItem(12));
     }
 }
