@@ -253,7 +253,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `mobile` varchar(50) DEFAULT NULL,
   `email` varchar(150) DEFAULT NULL,
   `password` varchar(72) NOT NULL,
-  `ipaddress` varchar(30) NOT NULL,
+  `ipaddress` varchar(30) DEFAULT NULL,
   `no_orders` tinyint(3) UNSIGNED NOT NULL DEFAULT '0',
   `regtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `last_login` datetime DEFAULT NULL,
