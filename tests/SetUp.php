@@ -27,9 +27,9 @@ abstract class SetUp extends TestCase
                 'No local database connection is available'
             );
         }
-        self::$db->query(file_get_contents(dirname(dirname(__FILE__)).'/database/database_mysql.sql'));
-        self::$db->query(file_get_contents(dirname(dirname(__FILE__)).'/vendor/adamb/blocking/files/database/database.sql'));
-        self::$db->query(file_get_contents(dirname(__FILE__).'/sample_data/data.sql'));
+        self::$db->query(file_get_contents(dirname(dirname(__FILE__)) . '/database/database_mysql.sql'));
+        self::$db->query(file_get_contents(dirname(dirname(__FILE__)) . '/vendor/adamb/blocking/files/database/database.sql'));
+        self::$db->query(file_get_contents(dirname(__FILE__) . '/sample_data/data.sql'));
         self::$config = new Config(self::$db, 'store_config');
     }
 

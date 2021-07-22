@@ -1,4 +1,5 @@
 <?php
+
 namespace ShoppingCart\Tests;
 
 use ShoppingCart\Delivery;
@@ -7,7 +8,6 @@ use ShoppingCart\Delivery\Fixed;
 use ShoppingCart\Delivery\Method;
 use ShoppingCart\Delivery\Value;
 use ShoppingCart\Delivery\Weight;
-
 
 class DeliveryTest extends SetUp
 {

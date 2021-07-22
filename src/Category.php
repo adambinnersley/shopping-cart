@@ -101,7 +101,7 @@ class Category
     public function editCategory($category_id, $editInfo)
     {
         if (is_numeric($category_id)) {
-            if ($editInfo['url']) {
+            if (!empty($editInfo['url'])) {
                 $editInfo['url'] = URL::makeURI($editInfo['url']);
             }
             return $this->db->update($this->config->table_categories, $editInfo, ['id' => intval($category_id)]);

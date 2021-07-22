@@ -1,4 +1,5 @@
 <?php
+
 namespace ShoppingCart\Tests;
 
 use ShoppingCart\Customers;
@@ -143,8 +144,8 @@ class CustomersTest extends SetUp
         $this->assertTrue($this->customers->forgotPassword(2)['error']);
         $this->customers->requestReset('my-email@email.com', false);
         $key = self::$db->fetchColumn('users_requests', ['uid' => 2], ['rkey']);
-        $this->assertTrue($this->customers->resetPassword($key, 'my-NeW-PaSS#word1', 'doesnotmatch', NULL, false, false)['error']);
-        $this->assertFalse($this->customers->resetPassword($key, 'my-NeW-PaSS#word1', 'my-NeW-PaSS#word1', NULL)['error']);
+        $this->assertTrue($this->customers->resetPassword($key, 'my-NeW-PaSS#word1', 'doesnotmatch', null, false, false)['error']);
+        $this->assertFalse($this->customers->resetPassword($key, 'my-NeW-PaSS#word1', 'my-NeW-PaSS#word1', null)['error']);
     }
     
     /**

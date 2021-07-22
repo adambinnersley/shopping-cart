@@ -1,4 +1,5 @@
 <?php
+
 namespace ShoppingCart\Tests;
 
 use ShoppingCart\Statistics;
@@ -23,7 +24,7 @@ class StatisticsTest extends SetUp
      * @covers \ShoppingCart\Statistics::__construct
      * @covers \ShoppingCart\Currency::getCurrencyDecimals
      * @covers \ShoppingCart\Statistics::getSalesByMonth
-     * 
+     *
      */
     public function testGetSalesByMonth()
     {

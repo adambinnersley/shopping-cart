@@ -1,4 +1,5 @@
 <?php
+
 namespace ShoppingCart\Tests;
 
 use ShoppingCart\Product;

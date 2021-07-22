@@ -1,4 +1,5 @@
 <?php
+
 namespace ShoppingCart\Tests;
 
 use PHPUnit\Framework\TestCase;
