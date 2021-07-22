@@ -454,8 +454,8 @@ class Customers extends \UserAuth\User
     public function resetPassword($key, $newpass, $repeatnewpass, $captcha = null, $sendmail = true, $login = true)
     {
         $request = $this->getRequest($key, "reset");
-        if (isset($request)) {
-            $userInfo = $this->getUserInfo(['uid']);
+        if (isset($request['uid'])) {
+            $userInfo = $this->getUserInfo($request['uid']);
         }
         $return = $this->resetPass($key, $newpass, $repeatnewpass, $captcha);
         if ($return['error'] === true) {
