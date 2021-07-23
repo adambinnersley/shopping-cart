@@ -31,6 +31,7 @@ abstract class SetUp extends TestCase
         self::$db->query(file_get_contents(dirname(dirname(__FILE__)) . '/vendor/adamb/blocking/files/database/database.sql'));
         self::$db->query(file_get_contents(dirname(__FILE__) . '/sample_data/data.sql'));
         self::$config = new Config(self::$db, 'store_config');
+        error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING);
     }
 
     /**
