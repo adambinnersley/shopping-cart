@@ -16,7 +16,6 @@ class OrderTest extends SetUp
         parent::setUp();
         $this->customer = new Customers(self::$db, self::$config);
         $this->order = new Order(self::$db, self::$config, false, new Product(self::$db, self::$config));
-        $this->customer->login('sample.name@emaple.com', 'password');
     }
     
     protected function tearDown(): void
@@ -34,12 +33,11 @@ class OrderTest extends SetUp
      */
     public function testFetchOrders()
     {
-        $this->assertEmpty($this->order->fetchOrders());
-        $this->order->addItemToBasket(1);
-        /*$orders = $this->order->fetchOrders(1);
-        $this->assertCount(1, $orders);
-        $this->assertCount(1, $this->order->fetchOrders(1, 0, 0, 50, []));*/
-        $this->markTestIncomplete();
+        $this->assertEmpty($this->order->fetchOrders(3));
+        $this->assertCount(1, $this->order->fetchOrders());
+        $this->assertCount(1, $this->order->fetchOrders(0, 0, 0, 50, []));
+        $this->assertArrayHasKey('order_no', $this->order->fetchOrders()[0]);
+//        $this->markTestIncomplete();
     }
     
     /**
@@ -63,7 +61,9 @@ class OrderTest extends SetUp
      */
     public function testSearchOrders()
     {
-        $this->markTestIncomplete();
+        $this->assertEmpty($this->order->searchOrders('Adam'));
+        $this->assertEquals(0, $this->order->searchOrdersCount('Adam'));
+        //$this->markTestIncomplete();
     }
     
     /**
@@ -113,6 +113,7 @@ class OrderTest extends SetUp
     public function testGetOrdersByUser()
     {
         $this->assertFalse($this->order->getOrdersByUser(99));
+        $this->assertCount(1, $this->order->getOrdersByUser(1, false));
         //$this->markTestIncomplete();
     }
     

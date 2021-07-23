@@ -50,7 +50,10 @@ class GalleryTest extends SetUp
      */
     public function testSetMaxThumbWidth()
     {
-        $this->markTestIncomplete();
+        $newWidth = (self::$config->gallery_thumb_width + 50);
+        $this->assertNotEquals($newWidth, self::$config->gallery_thumb_width);
+        $this->assertObjectHasAttribute('config', $this->gallery->setMaxThumbWidth($newWidth));
+        $this->assertEquals($newWidth, self::$config->gallery_thumb_width);
     }
     
     /**
@@ -59,7 +62,9 @@ class GalleryTest extends SetUp
      */
     public function testListImages()
     {
-        $this->markTestIncomplete();
+        $this->assertCount(4, $this->gallery->listImages());
+        $this->assertCount(4, $this->gallery->listImages(['active' => 1]));
+        $this->assertFalse($this->gallery->listImages(['active' => 0]));
     }
     
     /**
@@ -102,10 +107,13 @@ class GalleryTest extends SetUp
     /**
      * @covers \ShoppingCart\Gallery::__construct
      * @covers \ShoppingCart\Gallery::insertGalleryImage
+     * @covers \ShoppingCart\Gallery::listImages
      */
     public function testInsertGalleryImage()
     {
-        $this->markTestIncomplete();
+        $this->assertFalse($this->gallery->insertGalleryImage('/images/image4.jpg')); // Duplicate image
+        $this->assertTrue($this->gallery->insertGalleryImage('/images/image5.jpg'));
+        $this->assertCount(5, $this->gallery->listImages());
     }
     
     /**

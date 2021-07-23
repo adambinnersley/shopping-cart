@@ -156,7 +156,8 @@ class CustomersTest extends SetUp
      */
     public function testUpdateCustomer()
     {
-        $this->markTestIncomplete();
+        $this->assertTrue($this->customers->updateCustomer(99, ['firstname' => 'Dave'])['error']);
+        $this->assertFalse($this->customers->updateCustomer(1, ['firstname' => 'Dave', 'email' => 'mynewemail@test.com'], [])['error']);
     }
     
     /**

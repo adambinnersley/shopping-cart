@@ -34,10 +34,18 @@ TRUNCATE TABLE `store_product_images`;
 INSERT INTO `store_product_images` (`product_id`, `image_id`) VALUES ('1', '1'), ('1', '2'), ('1', '4');
 
 TRUNCATE TABLE `users`;
-INSERT INTO `users` (`id`, `title`, `firstname`, `lastname`, `add_1`, `add_2`, `town`, `county`, `postcode`, `phone`, `mobile`, `email`, `password`, `ipaddress`, `no_orders`, `regtime`, `last_login`, `require_pass`, `isactive`) VALUES (NULL, 'Mrs', 'Sample', 'Name', NULL, NULL, NULL, '56', NULL, NULL, NULL, 'sample.name@emaple.com', '$2y$10$AUrD3goyQLtOYkcn8UM/gOgyi6gNKjjwbEbBJPWvufW6riXXx2Xuy', NULL, '0', CURRENT_TIMESTAMP, NULL, '0', '1');
+INSERT INTO `users` (`id`, `title`, `firstname`, `lastname`, `add_1`, `add_2`, `town`, `county`, `postcode`, `phone`, `mobile`, `email`, `password`, `ipaddress`, `no_orders`, `regtime`, `last_login`, `require_pass`, `isactive`) VALUES (NULL, 'Mrs', 'Sample', 'Name', NULL, NULL, NULL, '56', NULL, NULL, NULL, 'sample.name@example.com', '$2y$10$AUrD3goyQLtOYkcn8UM/gOgyi6gNKjjwbEbBJPWvufW6riXXx2Xuy', NULL, '0', CURRENT_TIMESTAMP, NULL, '0', '1');
 
 TRUNCATE TABLE `store_orders`;
+INSERT INTO `store_orders` (`order_id`, `order_no`, `customer_id`, `status`, `payment_flagged`, `billing_id`, `delivery_id`, `delivery_method`, `digital`, `voucher`, `subtotal`, `discount`, `total_tax`, `delivery`, `cart_total`, `date`, `payment_date`, `sessionid`, `ipaddress`, `shipped`, `mailsent`, `followed_up`) VALUES
+(1, '210723-134630-5420', 1, 2, 0, NULL, NULL, NULL, 0, NULL, '8.33', '0.00', '1.66', '1.00', '10.99', '2021-07-23 12:46:30', NULL, '5ebo0k5pjlulsvq8dhliual1ns', '127.0.0.1', NULL, 0, 0),
+(2, '210723-134637-4381', NULL, 1, 0, NULL, NULL, NULL, 1, NULL, '3.33', '0.00', '0.66', '3.00', '6.99', '2021-07-23 12:46:37', NULL, '76mdy0iqp742baywq652ouhzs9', '127.0.0.1', NULL, 0, 0);
+
 TRUNCATE TABLE `store_order_products`;
+INSERT INTO `store_order_products` (`order_id`, `product_id`, `quantity`, `product_info`) VALUES
+(1, 1, 1, 'a:3:{s:4:\"name\";s:14:\"Sample Product\";s:5:\"price\";s:4:\"9.99\";s:6:\"tax_id\";s:1:\"1\";}'),
+(2, 2, 1, 'a:3:{s:4:\"name\";s:14:\"Second Product\";s:5:\"price\";s:4:\"3.99\";s:6:\"tax_id\";s:1:\"1\";}');
+
 TRUNCATE TABLE `store_reviews`;
 TRUNCATE TABLE `store_serials`;
 TRUNCATE TABLE `users_attempts`;
