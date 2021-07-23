@@ -170,7 +170,7 @@ class Order extends Basket
         if (is_numeric($userID) && $userID > 0) {
             $additional['customer_id'] = $userID;
         }
-        if ($status !== false) {
+        if (boolval($status) !== false) {
             $additional['status'] = intval($status);
         }
         return $this->getOrdersBy($additional, 0);
@@ -460,6 +460,7 @@ class Order extends Basket
 
     /**
      * Creates a PDF invoice
+     * @codeCoverageIgnore
      */
     public function createOrderPDF($orderID, $userID, $download = false, $print = false, $send = false)
     {

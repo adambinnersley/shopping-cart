@@ -384,7 +384,7 @@ class Customers extends \UserAuth\User
     {
         $return = [];
         $return['error'] = true;
-        if ($customerInfo['email']) {
+        if (isset($customerInfo['email'])) {
             $currentInfo = $this->getUserInfo($userID);
             if (filter_var(trim($customerInfo['email']), FILTER_VALIDATE_EMAIL) && (strtolower($currentInfo['email']) !== strtolower($customerInfo['email']) && !$this->checkEmailExists($customerInfo['email']))) {
                 $customerInfo['email'] = strtolower(trim($customerInfo['email']));
@@ -395,7 +395,7 @@ class Customers extends \UserAuth\User
                 unset($customerInfo['email']);
             }
         }
-        if ($customerInfo['postcode']) {
+        if (isset($customerInfo['postcode'])) {
             $customerInfo['postcode'] = Modifier::setNullOnEmpty(strtoupper(Modifier::removeNoneAlphaNumeric($customerInfo['postcode'])));
         }
         $return['error'] = $this->db->update($this->table_users, $customerInfo, array_filter(array_merge(['id' => $userID], $additionalInfo)), 1) ? false : true;

@@ -109,7 +109,7 @@ class Statistics
         }
         foreach ($productList as $i => $product) {
             $stats[$i][$order_by] = $product[$order_by];
-            $stats[$i]['percentage'] = number_format(($product[$order_by] / $total) * 100, 2, '.', '');
+            $stats[$i]['percentage'] = ($product[$order_by] > 0 ? number_format(($product[$order_by] / $total) * 100, 2, '.', '') : 0);
         }
         return $stats;
     }

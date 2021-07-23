@@ -355,7 +355,8 @@ CREATE TABLE IF NOT EXISTS `store_gallery_images` (
   `image` varchar(255) NOT NULL,
   `caption` varchar(255) DEFAULT NULL,
   `active` tinyint(1) UNSIGNED NOT NULL DEFAULT '1',
-  PRIMARY KEY (`img_id`)
+  PRIMARY KEY (`img_id`),
+  UNIQUE KEY `image` (`image`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE IF NOT EXISTS `store_orders` (
@@ -508,7 +509,7 @@ CREATE TABLE IF NOT EXISTS `store_vouchers` (
   `code` varchar(20) NOT NULL,
   `percent` varchar(10) DEFAULT NULL,
   `amount` varchar(10) DEFAULT NULL,
-  `description` text NOT NULL,
+  `description` text,
   `expire` datetime NOT NULL,
   `selected_products` text,
   `allowed` smallint(6) UNSIGNED NOT NULL DEFAULT '0',

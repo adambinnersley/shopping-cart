@@ -38,7 +38,7 @@ class Product extends Category
     
     /**
      * Returns an array of active products
-     * @param boolean $active If you only want to retrieve active products set this to true else for all products should be true
+     * @param boolean $active If you only want to retrieve active products set this to true else for all products should be false
      * @param int $start The start location for the records in the database used for pagination
      * @param int $limit The maximum number of results to return in the array
      * @param array $where Addition where fields
@@ -82,7 +82,6 @@ class Product extends Category
             $additionalInfo['requirements'] = Modifier::setNullOnEmpty($additionalInfo['requirements']);
             $additionalInfo['digital'] = Modifier::setZeroOnEmpty($additionalInfo['digital']);
             $additionalInfo['homepage'] = Modifier::setZeroOnEmpty($additionalInfo['homepage']);
-            $additionalInfo['active'] = Modifier::setZeroOnEmpty($additionalInfo['active']);
             $insert = $this->db->insert($this->config->table_products, array_merge(['active' => intval($active), 'code' => $code, 'name' => $name, 'description' => Modifier::setNullOnEmpty($description), 'price' => Cost::priceUnits($price, $this->decimals), 'tax_id' => intval($tax_id)], $additionalInfo, $this->addImage($image)));
             $this->addProductToCategory($category, $this->db->lastInsertId());
             return ($insert ? true : false);
@@ -99,7 +98,7 @@ class Product extends Category
      */
     public function editProduct($product_id, $image = false, $additionalInfo = [])
     {
-        if (is_numeric($product_id)) {
+        if (is_numeric($product_id) && Modifier::arrayMustContainFields(['weight', 'description', 'sale_price', 'features', 'requirements', 'digital', 'homepage', 'active'], $additionalInfo)) {
             $additionalInfo['weight'] = number_format($additionalInfo['weight'], 3);
             $additionalInfo['description'] = Modifier::setNullOnEmpty($additionalInfo['description']);
             $additionalInfo['sale_price'] = Modifier::setNullOnEmpty($additionalInfo['sale_price']);
@@ -140,10 +139,7 @@ class Product extends Category
      */
     public function deleteProduct($product_id, array $where = [])
     {
-        if (is_numeric($product_id)) {
-            return $this->db->delete($this->config->table_products, array_merge(['product_id' => $product_id], $where));
-        }
-        return false;
+        return $this->db->delete($this->config->table_products, array_merge(['product_id' => $product_id], $where));
     }
     
     /**
@@ -175,7 +171,7 @@ class Product extends Category
     {
         if (is_numeric($categories) && is_numeric($productID)) {
             return $this->db->insert($this->config->table_product_categories, ['product_id' => $productID, 'category_id' => $categories, 'main_category' => intval($main)]);
-        } elseif (is_array($categories)) {
+        } elseif (is_array($categories) && is_numeric($productID)) {
             foreach ($categories as $i => $category_id) {
                 $this->addProductToCategory($category_id, $productID, ($i == 0 && $main == 1 ? 1 : 0));
             }
@@ -445,7 +441,7 @@ class Product extends Category
      */
     protected function buildProductArray($products)
     {
-        if (is_array($products)) {
+        if (is_array($products) && !empty($products)) {
             foreach ($products as $i => $product) {
                 $products[$i] = $this->buildProduct($product['custom_url']);
             }

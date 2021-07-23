@@ -125,7 +125,6 @@ class Gallery
      * @param int $product_id This should be the product ID that you are uploading gallery images for
      * @param file $images This should be the submitted $_FILES information
      * @return boolean If the images are inserted will return true else return false
-     * @codeCoverageIgnore
      */
     public function uploadGalleryImages($product_id, $images)
     {

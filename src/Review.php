@@ -125,7 +125,7 @@ class Review
      */
     public function getReviewInfo($reviewID, $additionalInfo = [])
     {
-        if (is_numeric($reviewID)) {
+        if (is_numeric($reviewID) && is_array($additionalInfo)) {
             return $this->db->select($this->config->table_review, array_merge(['review_id' => $reviewID], $additionalInfo));
         }
         return false;
