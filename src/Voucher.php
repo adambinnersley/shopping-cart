@@ -50,14 +50,12 @@ class Voucher
             $where['active'] = 1;
             $where['expire'] = ['>=', date('Y-m-d H:i:s')];
         }
-        if (is_array($where)) {
-            $voucherInfo = $this->db->select($this->config->table_voucher, $where);
-            if (isset($voucherInfo['selected_products']) && $voucherInfo['selected_products'] !== null) {
-                $voucherInfo['selected_products'] = unserialize($voucherInfo['selected_products']);
-            }
-            if ((($voucherInfo['allowed'] === 0 || $voucherInfo['allowed'] > $voucherInfo['times_used']) && $active === true) || $active !== true) {
-                return $voucherInfo;
-            }
+        $voucherInfo = $this->db->select($this->config->table_voucher, $where);
+        if (isset($voucherInfo['selected_products']) && $voucherInfo['selected_products'] !== null) {
+            $voucherInfo['selected_products'] = unserialize($voucherInfo['selected_products']);
+        }
+        if ((($voucherInfo['allowed'] === 0 || $voucherInfo['allowed'] > $voucherInfo['times_used']) && $active === true) || $active !== true) {
+            return $voucherInfo;
         }
         return false;
     }
@@ -70,10 +68,7 @@ class Voucher
      */
     public function getVoucherByID($voucher_id, $active = true)
     {
-        if (is_numeric($voucher_id)) {
-            return $this->getVoucher(['voucher_id' => $voucher_id], $active);
-        }
-        return false;
+        return $this->getVoucher(['voucher_id' => $voucher_id], $active);
     }
     
     /**
@@ -115,10 +110,7 @@ class Voucher
             $additionalInfo['amount'] = Modifier::setNullOnEmpty($additionalInfo['amount']);
             $additionalInfo['percent'] = Modifier::setNullOnEmpty($additionalInfo['percent']);
         }
-        if (is_array($additionalInfo)) {
-            return $this->db->update($this->config->table_voucher, $additionalInfo, ['voucher_id' => intval($voucher_id)], 1);
-        }
-        return false;
+        return $this->db->update($this->config->table_voucher, $additionalInfo, ['voucher_id' => intval($voucher_id)], 1);
     }
     
     /**
@@ -198,20 +190,17 @@ class Voucher
      */
     public function addSelectedProductToVoucher($voucher_id, $product_id)
     {
-        if (is_numeric($voucher_id) && (is_numeric($product_id) || is_array($product_id))) {
-            $voucherInfo = $this->getVoucherByID($voucher_id);
-            if (is_array($product_id)) {
-                foreach ($product_id as $product) {
-                    if ($this->db->select($this->config->table_products, ['product_id' => $product])) {
-                        $voucherInfo['selected_products'][$product] = 1;
-                    }
+        $voucherInfo = $this->getVoucherByID($voucher_id);
+        if (is_array($product_id)) {
+            foreach ($product_id as $product) {
+                if ($this->db->select($this->config->table_products, ['product_id' => $product])) {
+                    $voucherInfo['selected_products'][$product] = 1;
                 }
-            } elseif ($this->db->select($this->config->table_products, ['product_id' => $product_id])) {
-                $voucherInfo['selected_products'][$product_id] = 1;
             }
-            return $this->db->update($this->config->table_voucher, ['selected_products' => (is_array($voucherInfo['selected_products']) ? serialize($voucherInfo['selected_products']) : null)], ['voucher_id' => $voucher_id]);
+        } elseif ($this->db->select($this->config->table_products, ['product_id' => $product_id])) {
+            $voucherInfo['selected_products'][$product_id] = 1;
         }
-        return false;
+        return $this->db->update($this->config->table_voucher, ['selected_products' => (is_array($voucherInfo['selected_products']) ? serialize($voucherInfo['selected_products']) : null)], ['voucher_id' => $voucher_id]);
     }
     
     /**
@@ -222,17 +211,14 @@ class Voucher
      */
     public function removeSelectedProductFromVoucher($voucher_id, $product_id)
     {
-        if (is_numeric($voucher_id) && is_numeric($product_id)) {
-            $voucherInfo = $this->getVoucherByID($voucher_id);
-            unset($voucherInfo['selected_products'][$product_id]);
-            if (!empty($voucherInfo['selected_products'])) {
-                $products = serialize($voucherInfo['selected_products']);
-            } else {
-                $products = null;
-            }
-            return $this->db->update($this->config->table_voucher, ['selected_products' => $products], ['voucher_id' => $voucher_id]);
+        $voucherInfo = $this->getVoucherByID($voucher_id);
+        unset($voucherInfo['selected_products'][$product_id]);
+        if (!empty($voucherInfo['selected_products'])) {
+            $products = serialize($voucherInfo['selected_products']);
+        } else {
+            $products = null;
         }
-        return false;
+        return $this->db->update($this->config->table_voucher, ['selected_products' => $products], ['voucher_id' => $voucher_id]);
     }
     
     /**

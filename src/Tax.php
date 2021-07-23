@@ -62,7 +62,7 @@ class Tax
      */
     public function editTax($tax_id, $updateInfo = [])
     {
-        if (is_numeric($tax_id) && !empty($updateInfo) && is_array($updateInfo)) {
+        if (!empty($updateInfo)) {
             return $this->db->update($this->config->table_tax, $updateInfo, ['tax_id' => intval($tax_id)], 1);
         }
         return false;
@@ -75,10 +75,7 @@ class Tax
      */
     public function deleteTax($tax_id)
     {
-        if (is_numeric($tax_id)) {
-            return $this->db->delete($this->config->table_tax, ['tax_id' => intval($tax_id)]);
-        }
-        return false;
+        return $this->db->delete($this->config->table_tax, ['tax_id' => intval($tax_id)]);
     }
     
     /**

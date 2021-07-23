@@ -83,9 +83,6 @@ class Fixed implements DeliveryInterface
      */
     public function deleteDeliveryItem($cost_id)
     {
-        if (is_numeric($cost_id)) {
-            return $this->db->delete($this->config->table_delivery_fixed_cost, ['id' => $cost_id]);
-        }
-        return false;
+        return $this->db->delete($this->config->table_delivery_fixed_cost, ['id' => $cost_id]);
     }
 }

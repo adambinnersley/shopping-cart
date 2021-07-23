@@ -267,10 +267,7 @@ class Order extends Basket
      */
     public function deleteOrderInformation($orderID)
     {
-        if (is_numeric($orderID)) {
-            return $this->db->delete($this->config->table_basket, ['order_id' => $orderID]);
-        }
-        return false;
+        return $this->db->delete($this->config->table_basket, ['order_id' => $orderID]);
     }
     
     /**

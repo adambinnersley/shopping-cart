@@ -213,7 +213,7 @@ class Product extends Category
      */
     protected function deleteProductFromCategory($category, $productID)
     {
-        if (is_numeric($category) && is_numeric($productID)) {
+        if (is_numeric($category)) {
             return $this->db->delete($this->config->table_product_categories, ['product_id' => $productID, 'category_id' => $category], 1);
         } elseif (is_array($category)) {
             foreach ($category as $i => $category_id) {
