@@ -98,7 +98,7 @@ class Product extends Category
      */
     public function editProduct($product_id, $image = false, $additionalInfo = [])
     {
-        if (is_numeric($product_id) && Modifier::arrayMustContainFields(['weight', 'description', 'price', 'active'], $additionalInfo)) {
+        if (is_numeric($product_id) && Modifier::arrayMustContainFields(['weight', 'description', 'price'], $additionalInfo) && Modifier::isRequiredNumeric($additionalInfo['active'])) {
             $additionalInfo['weight'] = number_format($additionalInfo['weight'], 3);
             $additionalInfo['description'] = Modifier::setNullOnEmpty($additionalInfo['description']);
             $additionalInfo['sale_price'] = Modifier::setNullOnEmpty($additionalInfo['sale_price']);
