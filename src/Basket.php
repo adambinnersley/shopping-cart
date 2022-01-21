@@ -137,7 +137,8 @@ class Basket
     protected function getProducts($orderID = '', $additional = [])
     {
         if (empty(trim($orderID)) || !is_numeric($orderID)) {
-            $orderID = $this->getBasket('', $additional)['order_id'];
+            $baskteInfo = $this->getBasket('', $additional);
+            $orderID = ($baskteInfo !== false ? $baskteInfo['order_id'] : false);
         }
         if (!empty($this->products) && is_array($this->products)) {
             return $this->products;
