@@ -180,6 +180,7 @@ class Basket
         if (is_numeric($product_id) && is_numeric($quantity) && is_array($productInfo)) {
             $orderInfo = $this->getBasket('', $additional);
             if ($orderInfo === false) {
+                $orderInfo = [];
                 $this->createOrder($additional);
                 $orderInfo['order_id'] = $this->db->lastInsertId();
             }
