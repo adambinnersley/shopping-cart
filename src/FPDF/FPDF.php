@@ -51,6 +51,11 @@ class PDF_JavaScript extends \FPDF
             $this->_out('/Names <</JavaScript ' . ($this->n_js) . ' 0 R>>');
         }
     }
+    
+    public function Error($msg)
+    {
+        // Need to overright original error function from FPDF as it's causing an exception itself
+    }
 }
 
 /**
