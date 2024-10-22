@@ -42,7 +42,6 @@ class Basket
         $this->tax = new Tax($this->db, $this->config);
         $this->voucher = new Voucher($this->db, $this->config, $this->product);
         $this->user = (is_object($user) ? $user : new Customers($this->db, $config));
-        $this->user_id = $this->user->getUserID();
         $this->decimals = Currency::getCurrencyDecimals($this->config->currency);
         $this->ip_address = new IPBlock($this->db);
         if (!session_id()) {
@@ -67,7 +66,7 @@ class Basket
     protected function createOrder($additional = [])
     {
         $this->updateTotals();
-        return $this->db->insert($this->config->table_basket, array_merge(['customer_id' => ($this->user_id === 0 ? null : $this->user_id), 'order_no' => $this->createOrderID(), 'digital' => $this->has_download, 'subtotal' => $this->totals['subtotal'], 'discount' => $this->totals['discount'], 'total_tax' => $this->totals['tax'], 'delivery' => $this->totals['delivery'], 'cart_total' => $this->totals['total'], 'sessionid' => session_id(), 'ipaddress' => $this->ip_address->getUserIP()], $additional));
+        return $this->db->insert($this->config->table_basket, array_merge(['customer_id' => ($this->user->getUserID() === 0 ? null : $this->user->getUserID()), 'order_no' => $this->createOrderID(), 'digital' => $this->has_download, 'subtotal' => $this->totals['subtotal'], 'discount' => $this->totals['discount'], 'total_tax' => $this->totals['tax'], 'delivery' => $this->totals['delivery'], 'cart_total' => $this->totals['total'], 'sessionid' => session_id(), 'ipaddress' => $this->ip_address->getUserIP()], $additional));
     }
     
     /**
@@ -79,7 +78,7 @@ class Basket
     public function getBasket($orderNo = '', $additional = [])
     {
         if (empty(trim($orderNo))) {
-            $where = ['status' => 1, 'customer_id' => ($this->user_id === 0 ? 'IS NULL' : $this->user_id), 'sessionid' => session_id()];
+            $where = ['status' => 1, 'customer_id' => ($this->user->getUserID() === 0 ? 'IS NULL' : $this->user->getUserID()), 'sessionid' => session_id()];
         } else {
             $where = ['order_no' => $orderNo];
         }
@@ -101,7 +100,7 @@ class Basket
     {
         $this->updateTotals();
         if (!empty($this->products)) {
-            return $this->db->update($this->config->table_basket, ['digital' => $this->has_download, 'subtotal' => $this->totals['subtotal'], 'discount' => $this->totals['discount'], 'total_tax' => $this->totals['tax'], 'delivery' => $this->totals['delivery'], 'cart_total' => $this->totals['total']], array_merge(['customer_id' => ($this->user_id === 0 ? 'IS NULL' : $this->user_id), 'sessionid' => session_id(), 'status' => 1], $additional));
+            return $this->db->update($this->config->table_basket, ['digital' => $this->has_download, 'subtotal' => $this->totals['subtotal'], 'discount' => $this->totals['discount'], 'total_tax' => $this->totals['tax'], 'delivery' => $this->totals['delivery'], 'cart_total' => $this->totals['total']], array_merge(['customer_id' => ($this->user->getUserID() === 0 ? 'IS NULL' : $this->user->getUserID()), 'sessionid' => session_id(), 'status' => 1], $additional));
         }
         return $this->emptyBasket();
     }
@@ -112,7 +111,7 @@ class Basket
      */
     public function emptyBasket()
     {
-        return $this->db->delete($this->config->table_basket, ['customer_id' => ($this->user_id === 0 ? 'IS NULL' : $this->user_id), 'sessionid' => session_id(), 'status' => 1], 1);
+        return $this->db->delete($this->config->table_basket, ['customer_id' => ($this->user->getUserID() === 0 ? 'IS NULL' : $this->user->getUserID()), 'sessionid' => session_id(), 'status' => 1], 1);
     }
     
     /**
@@ -122,9 +121,9 @@ class Basket
      */
     public function changeCurrentBasket($orderNo)
     {
-        if ($this->db->select($this->config->table_basket, ['customer_id' => $this->user_id, 'order_no' => $orderNo, 'status' => 1], '*', [], false)) {
-            $this->db->update($this->config->table_basket, ['sessionid' => 'NULL'], ['customer_id' => $this->user_id, 'sessionid' => session_id(), 'status' => 1]);
-            return $this->db->update($this->config->table_basket, ['sessionid' => session_id()], ['customer_id' => $this->user_id, 'order_no' => $orderNo, 'status' => 1]);
+        if ($this->db->select($this->config->table_basket, ['customer_id' => $this->user->getUserID(), 'order_no' => $orderNo, 'status' => 1], '*', [], false)) {
+            $this->db->update($this->config->table_basket, ['sessionid' => 'NULL'], ['customer_id' => $this->user->getUserID(), 'sessionid' => session_id(), 'status' => 1]);
+            return $this->db->update($this->config->table_basket, ['sessionid' => session_id()], ['customer_id' => $this->user->getUserID(), 'order_no' => $orderNo, 'status' => 1]);
         }
         return false;
     }
@@ -309,6 +308,6 @@ class Basket
     public function updateVoucherCode($code)
     {
         $voucherInfo = $this->voucher->getVoucherByCode($code, true);
-        return $this->db->update($this->config->table_basket, ['voucher' => Modifier::setNullOnEmpty($voucherInfo['code'])], ['customer_id' => ($this->user_id === 0 ? 'IS NULL' : $this->user_id), 'sessionid' => session_id(), 'status' => 1], 1);
+        return $this->db->update($this->config->table_basket, ['voucher' => Modifier::setNullOnEmpty($voucherInfo['code'])], ['customer_id' => ($this->user->getUserID() === 0 ? 'IS NULL' : $this->user->getUserID()), 'sessionid' => session_id(), 'status' => 1], 1);
     }
 }
