@@ -354,11 +354,12 @@ class Product extends Category
      * @param int $limit This should be the number of results to display
      * @param string $findBy This should be how you wish to generate the popular items can either be 'sales' or 'views'
      * @param array $where Addition where fields
+     * @param boolean $active If you only want active should be set to true (default)
      * @return array|false If items exist an array will be returned else will return false
      */
-    public function getPopularProducts($limit = 5, $findBy = 'sales', $where = [])
+    public function getPopularProducts($limit = 5, $findBy = 'sales', $where = [], $active = true)
     {
-        $products = $this->db->selectAll($this->config->table_products, $where, '*', [$findBy => 'DESC'], intval($limit), 86400);
+        $products = $this->db->selectAll($this->config->table_products, array_merge($where, ($active === true ? ['active' => 1] : [])), '*', [$findBy => 'DESC'], intval($limit), 86400);
         foreach ($products as $i => $product) {
             $products[$i] = $this->getProductByID($product['product_id']);
         }
