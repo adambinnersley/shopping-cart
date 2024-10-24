@@ -247,7 +247,7 @@ class Product extends Category
         if (is_array($where)) {
             $productInfo = $this->db->select($this->config->table_products, $this->addWhereIsActive($active, $where), '*', [], 86400);
             if (is_array($productInfo)) {
-                $productInfo['related'] = $this->getRelatedProducts($productInfo['related']);
+                $productInfo['related'] = $this->getRelatedProducts(is_null($productInfo['related']) ? false : unserialize($productInfo['related']));
                 $productInfo['category_url'] = $this->getPrimaryCategoryURL($productInfo['product_id']);
                 $productInfo['gallery_images'] = ($productInfo['noimages'] >= 1 ? $this->gallery->getProductImages($productInfo['product_id']) : false);
                 if ($productInfo['num_reviews'] > 0) {
@@ -375,9 +375,12 @@ class Product extends Category
         if (is_array($items)) {
             $related = [];
             foreach ($items as $i => $product) {
-                $related[$i] = $this->db->select($this->config->table_products, ['product_id' => $product], ['name', 'image', 'categories', 'custom_url']);
-                $related[$i]['url'] = '/store/' . $this->getPrimaryCategoryURL($product) . '/' . $related[$i]['custom_url'];
-                $related[$i]['image'] = removeImageExtension($related[$i]['image']);
+                $productInfo = $this->db->select($this->config->table_products, ['product_id' => $product, 'active' => 1]);
+                if($productInfo) {
+                    $related[$i] = $productInfo;
+                    $related[$i]['url'] = '/store/' . $this->getPrimaryCategoryURL($productInfo['product_id']) . '/' . $productInfo['custom_url'];
+                    $related[$i]['image'] = removeImageExtension($productInfo['image']);
+                }
             }
             return $related;
         }
