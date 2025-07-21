@@ -45,7 +45,12 @@ class Basket
         $this->decimals = Currency::getCurrencyDecimals($this->config->currency);
         $this->ip_address = new IPBlock($this->db);
         if (!session_id()) {
-            session_start();
+            session_start([ 
+                'cookie_path' => '/',
+                'cookie_secure' => true,
+                'cookie_httponly' => true,
+                'cookie_samesite' => 'lax',
+            ]);
         }
     }
     
