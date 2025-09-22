@@ -249,7 +249,7 @@ class Order extends Basket
     /**
      * Update order information
      * @param int $orderID This Should be the ID of the order you are updating the information for
-     * @param type $orderInfo This should be an array containing the information that you wish to update
+     * @param array $orderInfo This should be an array containing the information that you wish to update
      * @return boolean Returns true if successfully updated else returns false
      */
     public function updateOrderInformation($orderID, $orderInfo = [])
