@@ -383,7 +383,7 @@ class Order extends Basket
             ($toUser === true ? $orderInfo['user']['email'] : $this->config->email_office_address),
             $subject,
             vsprintf($this->config->{"email_" . strtolower($emailType) . "_altbody"}, array_map(function ($v) {
-                return Html2Text::convert($v, ['ignore_errors' => true]);
+                return Html2Text::convert((string)($v ?? ''), ['ignore_errors' => true]);
             }, $variables)),
             Mailer::htmlWrapper($this->config, vsprintf($this->config->{"email_" . strtolower($emailType) . "_body"}, $variables), $subject),
             $this->config->email_from_address,
