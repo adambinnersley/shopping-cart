@@ -51,10 +51,19 @@ class Basket
         $this->decimals = Currency::getCurrencyDecimals($this->config->currency);
         $this->ip_address = new IPBlock($this->db);
         if (!session_id()) {
+            // Only mark the cookie secure when the request actually arrived over
+            // HTTPS. A `__Secure-` prefixed cookie is rejected outright by every
+            // client on a plain HTTP connection, so hardcoding it meant a local
+            // or HTTP-served store handed out a brand new session on every
+            // request - the basket is keyed on session_id(), so items appeared
+            // to add and then vanish.
+            $secure = (!empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) !== 'off')
+                || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) === 'https')
+                || (isset($_SERVER['SERVER_PORT']) && intval($_SERVER['SERVER_PORT']) === 443);
             session_start([
-                'name' => '__Secure-PHPSESSID',
+                'name' => ($secure ? '__Secure-PHPSESSID' : 'PHPSESSID'),
                 'cookie_path' => '/',
-                'cookie_secure' => true,
+                'cookie_secure' => $secure,
                 'cookie_httponly' => true,
                 'cookie_samesite' => 'lax',
             ]);
