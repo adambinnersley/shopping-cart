@@ -24,6 +24,12 @@ class Basket
     protected $totals;
     protected $products = [];
     protected $has_download = 0;
+
+    /**
+     * @var boolean Set when updateTotals() could not price an item, so the
+     *              totals it produced are lower than what is actually owed
+     */
+    protected $pricing_failed = false;
     
     protected $decimals;
     
@@ -249,13 +255,19 @@ class Basket
         $totaltax = 0;
         $totalweight = 0;
         $subtotal = 0;
+        $this->pricing_failed = false;
         
         if (!empty($this->products) && is_array($this->products)) {
             foreach ($this->products as $product) {
                 $productInfo = $this->product->getProductByID($product['product_id']);
-                $totaltax = $totaltax + ($this->tax->calculateItemTax($productInfo['tax_id'], $this->product->getProductPrice($product['product_id'])) * $product['quantity']);
+                $price = $this->itemUnitPrice($product);
+                if ($price === false) {
+                    $this->pricing_failed = true;
+                    $price = 0;
+                }
+                $totaltax = $totaltax + ($this->tax->calculateItemTax($productInfo['tax_id'], $price) * $product['quantity']);
                 $totalweight = $totalweight + ($this->product->getProductWeight($product['product_id']) * $product['quantity']);
-                $subtotal = $subtotal + ($this->product->getProductPrice($product['product_id']) * $product['quantity']);
+                $subtotal = $subtotal + ($price * $product['quantity']);
                 if ($this->has_download == 0 && $this->product->isProductDownload($product['product_id'])) {
                     $this->has_download = 1;
                 }
@@ -268,6 +280,49 @@ class Basket
         $this->totals['total'] = Cost::priceUnits((($subtotal - $this->totals['discount']) + $this->totals['delivery']), $this->decimals);
     }
     
+    /**
+     * The price to bill a single unit of a basket line at
+     *
+     * getProductPrice() returns false when it cannot work a price out - a lesson
+     * whose price band could not be resolved, most often. Multiplied by a
+     * quantity that false becomes 0, so a pricing failure and a genuinely free
+     * item look identical by the time they reach the total, and the basket
+     * stores cart_total 0.00 against items the customer was quoted full price
+     * for.
+     *
+     * The snapshot written when the item was added is what the customer was
+     * actually shown, so it answers when live pricing cannot. Only when neither
+     * can price the line is failure reported, which updateTotals() records so a
+     * caller can refuse to charge rather than charge nothing.
+     *
+     * @param array $product The basket line, including its product_info snapshot
+     * @return float|int|string|false The unit price, or false if it cannot be priced
+     */
+    protected function itemUnitPrice($product)
+    {
+        $price = $this->product->getProductPrice($product['product_id']);
+        if (is_numeric($price)) {
+            return $price;
+        }
+        if (isset($product['product_info']['price']) && is_numeric($product['product_info']['price'])) {
+            return $product['product_info']['price'];
+        }
+        return false;
+    }
+
+    /**
+     * Whether the last total calculation failed to price one or more items
+     *
+     * True means the totals understate the basket and must not be treated as an
+     * amount to charge.
+     *
+     * @return boolean
+     */
+    public function hasPricingFailure()
+    {
+        return $this->pricing_failed;
+    }
+
     /**
      * Return the delivery cost fro the current order
      * @param int|string Set the weight of the basket just incase delivery is returned based on the weight of items
