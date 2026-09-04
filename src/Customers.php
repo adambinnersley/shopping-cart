@@ -138,7 +138,7 @@ class Customers extends \UserAuth\User
     public function searchCustomers($search, $start = 0, $limit = 50, $additionalInfo = [])
     {
         $sql = $this->formatAdditionalSQL($additionalInfo);
-        return $this->db->query("SELECT * FROM `{$this->table_users}` WHERE `firstname` LIKE :SEARCH OR `lastname` LIKE :SEARCH OR `add_1` LIKE :SEARCH OR `add_2` LIKE :SEARCH OR `town` LIKE :SEARCH OR `postcode` LIKE :SEARCH OR `phone` LIKE :SEARCH OR `mobile` LIKE :SEARCH OR `email` LIKE :SEARCH{$sql['string']} ORDER BY `regtime` DESC LIMIT " . intval($start) . ", " . intval($limit) . ";", array_merge([':SEARCH' => '%' . $search . '%'], $sql['values']), 300);
+        return $this->db->query("SELECT * FROM `{$this->table_users}` WHERE `firstname` LIKE :SEARCH OR `lastname` LIKE :SEARCH OR `add_1` LIKE :SEARCH OR `add_2` LIKE :SEARCH OR `town` LIKE :SEARCH OR `postcode` LIKE :SEARCH OR `mobile` LIKE :SEARCH OR `email` LIKE :SEARCH{$sql['string']} ORDER BY `regtime` DESC LIMIT " . intval($start) . ", " . intval($limit) . ";", array_merge([':SEARCH' => '%' . $search . '%'], $sql['values']), 300);
     }
     
     /**
@@ -150,7 +150,7 @@ class Customers extends \UserAuth\User
     public function countSearchResults($search, $additionalInfo = [])
     {
         $sql = $this->formatAdditionalSQL($additionalInfo);
-        $results = $this->db->query("SELECT COUNT(*) as `count` FROM `{$this->table_users}` WHERE `firstname` LIKE :SEARCH OR `lastname` LIKE :SEARCH OR `add_1` LIKE :SEARCH OR `add_2` LIKE :SEARCH OR `town` LIKE :SEARCH OR `postcode` LIKE :SEARCH OR `phone` LIKE :SEARCH OR `mobile` LIKE :SEARCH OR `email` LIKE :SEARCH{$sql['string']} ORDER BY `regtime` DESC;", array_merge([':SEARCH' => '%' . $search . '%'], $sql['values']), 300);
+        $results = $this->db->query("SELECT COUNT(*) as `count` FROM `{$this->table_users}` WHERE `firstname` LIKE :SEARCH OR `lastname` LIKE :SEARCH OR `add_1` LIKE :SEARCH OR `add_2` LIKE :SEARCH OR `town` LIKE :SEARCH OR `postcode` LIKE :SEARCH OR `mobile` LIKE :SEARCH OR `email` LIKE :SEARCH{$sql['string']} ORDER BY `regtime` DESC;", array_merge([':SEARCH' => '%' . $search . '%'], $sql['values']), 300);
         return $results[0]['count'];
     }
     
