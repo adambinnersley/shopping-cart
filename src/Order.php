@@ -33,14 +33,19 @@ class Order extends Basket
     }
     
     /**
-     * Clears orders from the database which haven't been completed after allotted time
+     * Removes baskets which haven't been completed within the allotted time
+     *
+     * A basket that never reached checkout is deleted. One that holds a
+     * payment_intent is soft deleted instead: its payment may have succeeded
+     * without the order being confirmed yet, and a late confirmation brings
+     * the row back.
      */
     public function clearIncompleteOrders($timeframe = '-1 month')
     {
         $date = new DateTime();
         $date->modify($timeframe);
-        $this->db->delete($this->config->table_basket, ['customer_id' => 0, 'status' => 1, 'date' => ['<=', $date->format('Y-m-d H:i:s')]]);
-        $this->db->update($this->config->table_basket, ['status' => 4, 'sessionid' => null], ['status' => 1, 'date' => ['<=', $date->format('Y-m-d H:i:s')]]);
+        $this->db->delete($this->config->table_basket, ['status' => 1, 'payment_intent' => 'IS NULL', 'deleted_at' => 'IS NULL', 'date' => ['<=', $date->format('Y-m-d H:i:s')]]);
+        $this->db->update($this->config->table_basket, ['deleted_at' => date('Y-m-d H:i:s'), 'deleted_by' => 'sweep', 'sessionid' => null], ['status' => 1, 'payment_intent' => 'IS NOT NULL', 'deleted_at' => 'IS NULL', 'date' => ['<=', $date->format('Y-m-d H:i:s')]]);
     }
     
     /**
@@ -70,7 +75,7 @@ class Order extends Basket
         if (intval($status) !== 0) {
             $additional['status'] = $status;
         }
-        $extraSQL = SQLBuilder::createAdditionalString($additional);
+        $extraSQL = SQLBuilder::createAdditionalString($this->liveOnly($additional));
         return $this->db->query("SELECT * FROM `{$this->config->table_basket}` as `bskt`, `{$this->config->table_users}` AS `usr` WHERE `bskt`.`customer_id` = `usr`.`id`" . (strlen($extraSQL) >= 1 ? ' AND ' . $extraSQL : '') . " ORDER BY `date` DESC" . ($limit >= 1 ? " LIMIT " . intval($start) . ", " . intval($limit) : '') . ";", SQLBuilder::$values, false);
     }
     
@@ -85,7 +90,7 @@ class Order extends Basket
      */
     public function listOrders($status = 2, $start = 0, $limit = 50, array $additional = [], $count = false)
     {
-        $extraSQL = SQLBuilder::createAdditionalString($additional);
+        $extraSQL = SQLBuilder::createAdditionalString($this->liveOnly($additional));
         return $this->db->query("SELECT " . ($count === false ? "*" : "count(`{$this->config->table_basket}`.`order_id`) as `count`") . " FROM `{$this->config->table_basket}`, `{$this->config->table_users}` WHERE `{$this->config->table_basket}`.`customer_id` = `{$this->config->table_users}`.`id` AND `{$this->config->table_basket}`.`customer_id` != '0'" . (is_numeric($status) ? " AND `{$this->config->table_basket}`.`status` = " . intval($status) : "") . (strlen($extraSQL) >= 1 ? ' AND ' . $extraSQL : '') . " ORDER BY `date` DESC" . ($limit >= 1 ? " LIMIT " . intval($start) . ", " . intval($limit) : '') . ";", SQLBuilder::$values, false);
     }
     
@@ -111,7 +116,7 @@ class Order extends Basket
      */
     public function searchOrders($search, $start = 0, $limit = 50, $status = false, array $additional = [])
     {
-        $extraSQL = SQLBuilder::createAdditionalString($additional);
+        $extraSQL = SQLBuilder::createAdditionalString($this->liveOnly($additional));
         return $this->db->query("SELECT * FROM `{$this->config->table_basket}`, `{$this->config->table_users}` WHERE (`{$this->config->table_basket}`.`customer_id` = `{$this->config->table_users}`.`id` AND `{$this->config->table_basket}`.`customer_id` != '0') AND (`{$this->config->table_basket}`.`order_no` LIKE :SEARCH OR `{$this->config->table_users}`.`firstname` LIKE :SEARCH OR `{$this->config->table_users}`.`lastname` LIKE :SEARCH OR `{$this->config->table_users}`.`add_1` LIKE :SEARCH OR `{$this->config->table_users}`.`add_2` LIKE :SEARCH OR `{$this->config->table_users}`.`town` LIKE :SEARCH OR `{$this->config->table_users}`.`postcode` LIKE :SEARCH OR `{$this->config->table_users}`.`mobile` LIKE :SEARCH OR `email` LIKE :SEARCH)" . (is_numeric($status) ? " AND `{$this->config->table_basket}`.`status` = " . intval($status) : "") . (strlen($extraSQL) >= 1 ? ' AND ' . $extraSQL : '') . " ORDER BY `date` DESC" . ($limit >= 1 ? " LIMIT " . intval($start) . ", " . intval($limit) : '') . ";", array_merge(SQLBuilder::$values, [':SEARCH' => "%{$search}%"]), false);
     }
     
@@ -200,7 +205,7 @@ class Order extends Basket
      */
     protected function getOrdersBy($where, $limit = 1)
     {
-        $orderInfo = $this->db->selectAll($this->config->table_basket, $where, '*', ['date' => 'DESC'], $limit, false);
+        $orderInfo = $this->db->selectAll($this->config->table_basket, $this->liveOnly($where), '*', ['date' => 'DESC'], $limit, false);
         if (is_array($orderInfo)) {
             if ($limit === 1) {
                 return $this->buildOrder($orderInfo);
@@ -261,13 +266,18 @@ class Order extends Basket
     }
     
     /**
-     * Deletes an order
+     * Soft deletes an order
+     *
+     * The row and its lines stay in the database, hidden from every listing,
+     * so any order can still be traced. Nothing restores one; that is a
+     * deliberate `UPDATE ... SET deleted_at = NULL` in the database.
      * @param int $orderID This should be the unique order id
+     * @param string|null $deletedBy Who is deleting it, e.g. "admin:12 jsmith"
      * @return boolean If the order has successfully been deleted will return true else returns false
      */
-    public function deleteOrderInformation($orderID)
+    public function deleteOrderInformation($orderID, $deletedBy = null)
     {
-        return $this->db->delete($this->config->table_basket, ['order_id' => $orderID]);
+        return $this->db->update($this->config->table_basket, ['deleted_at' => date('Y-m-d H:i:s'), 'deleted_by' => $deletedBy, 'sessionid' => null], ['order_id' => $orderID, 'deleted_at' => 'IS NULL'], 1);
     }
     
     /**
@@ -356,7 +366,9 @@ class Order extends Basket
                 $datetime->setTimezone(new DateTimeZone($this->config->timezone));
                 $date = ['payment_date' => $datetime->format('Y-m-d H:i:s')];
             }
-            $this->db->update($this->config->table_basket, array_merge(['status' => intval($new_status)], $date), ['order_id' => $order_id], 1);
+            // A paid order is never a deleted one, whoever deleted it meanwhile.
+            $undelete = (in_array(intval($new_status), [2, 3], true) ? ['deleted_at' => null, 'deleted_by' => null] : []);
+            $this->db->update($this->config->table_basket, array_merge(['status' => intval($new_status)], $date, $undelete), ['order_id' => $order_id], 1);
             $orderInfo = $this->getOrderByID($order_id);
             if ($sendEmail === true && is_array($orderInfo)) {
                 ($orderInfo['digital'] == 1 && ($new_status == 2 || $new_status == 3) ? $this->download->sendDownloadLink($orderInfo['order_no']) : '');

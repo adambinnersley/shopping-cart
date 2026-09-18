@@ -71,6 +71,22 @@ class Basket
     }
     
     /**
+     * Restricts a where clause to rows that have not been soft deleted, unless
+     * the caller already said what it wants (`deleted_at` => false means any)
+     * @param array $where
+     * @return array
+     */
+    protected function liveOnly(array $where)
+    {
+        if (!array_key_exists('deleted_at', $where)) {
+            $where['deleted_at'] = 'IS NULL';
+        } elseif ($where['deleted_at'] === false) {
+            unset($where['deleted_at']);
+        }
+        return $where;
+    }
+
+    /**
      * Creates a unique order number
      * @return string A unique order number containing the date and time will be returned
      */
@@ -104,7 +120,7 @@ class Basket
             $where = ['order_no' => $orderNo];
         }
         
-        $basketInfo = $this->db->select($this->config->table_basket, array_merge($where, $additional), '*', ['order_id' => 'DESC'], false);
+        $basketInfo = $this->db->select($this->config->table_basket, $this->liveOnly(array_merge($where, $additional)), '*', ['order_id' => 'DESC'], false);
         if (is_array($basketInfo)) {
             $this->getProducts($basketInfo['order_id'], $additional);
             $basketInfo['products'] = $this->products;
@@ -114,6 +130,10 @@ class Basket
     
     /**
      * Updates the basket in the database
+     *
+     * payment_intent survives basket edits: the checkout re-prices the existing
+     * intent, and an intent that has already succeeded is a paid order waiting
+     * to be confirmed, not something to detach.
      * @param array $additional Additional where fields
      * @return boolean If the information is updated will return true else will return false
      */
@@ -121,18 +141,30 @@ class Basket
     {
         $this->updateTotals();
         if (!empty($this->products)) {
-            return $this->db->update($this->config->table_basket, ['digital' => $this->has_download, 'subtotal' => $this->totals['subtotal'], 'discount' => $this->totals['discount'], 'total_tax' => $this->totals['tax'], 'delivery' => $this->totals['delivery'], 'cart_total' => $this->totals['total'], 'payment_intent' => null], array_merge(['customer_id' => ($this->user->getUserID() === 0 ? 'IS NULL' : $this->user->getUserID()), 'sessionid' => session_id(), 'status' => 1], $additional));
+            return $this->db->update($this->config->table_basket, ['digital' => $this->has_download, 'subtotal' => $this->totals['subtotal'], 'discount' => $this->totals['discount'], 'total_tax' => $this->totals['tax'], 'delivery' => $this->totals['delivery'], 'cart_total' => $this->totals['total']], $this->liveOnly(array_merge(['customer_id' => ($this->user->getUserID() === 0 ? 'IS NULL' : $this->user->getUserID()), 'sessionid' => session_id(), 'status' => 1], $additional)));
         }
         return $this->emptyBasket();
     }
 
     /**
-     * Deletes the order from the database
-     * @return boolean If the basket has successfully been deleted will return true else returns false
+     * Removes the current basket
+     *
+     * A basket that reached checkout (payment_intent set) is soft deleted so a
+     * payment that later turns out to have succeeded can be traced and the
+     * order brought back; one that never did is deleted outright.
+     * @return boolean If the basket has successfully been removed will return true else returns false
      */
     public function emptyBasket()
     {
-        return $this->db->delete($this->config->table_basket, ['customer_id' => ($this->user->getUserID() === 0 ? 'IS NULL' : $this->user->getUserID()), 'sessionid' => session_id(), 'status' => 1], 1);
+        $where = $this->liveOnly(['customer_id' => ($this->user->getUserID() === 0 ? 'IS NULL' : $this->user->getUserID()), 'sessionid' => session_id(), 'status' => 1]);
+        $basket = $this->db->select($this->config->table_basket, $where, ['order_id', 'payment_intent'], ['order_id' => 'DESC'], false);
+        if (!is_array($basket)) {
+            return false;
+        }
+        if (!empty($basket['payment_intent'])) {
+            return $this->db->update($this->config->table_basket, ['deleted_at' => date('Y-m-d H:i:s'), 'deleted_by' => 'customer', 'sessionid' => null], ['order_id' => $basket['order_id']], 1);
+        }
+        return $this->db->delete($this->config->table_basket, ['order_id' => $basket['order_id']], 1);
     }
     
     /**
@@ -142,9 +174,9 @@ class Basket
      */
     public function changeCurrentBasket($orderNo)
     {
-        if ($this->db->select($this->config->table_basket, ['customer_id' => $this->user->getUserID(), 'order_no' => $orderNo, 'status' => 1], '*', [], false)) {
-            $this->db->update($this->config->table_basket, ['sessionid' => 'NULL'], ['customer_id' => $this->user->getUserID(), 'sessionid' => session_id(), 'status' => 1]);
-            return $this->db->update($this->config->table_basket, ['sessionid' => session_id()], ['customer_id' => $this->user->getUserID(), 'order_no' => $orderNo, 'status' => 1]);
+        if ($this->db->select($this->config->table_basket, ['customer_id' => $this->user->getUserID(), 'order_no' => $orderNo, 'status' => 1, 'deleted_at' => 'IS NULL'], '*', [], false)) {
+            $this->db->update($this->config->table_basket, ['sessionid' => 'NULL'], ['customer_id' => $this->user->getUserID(), 'sessionid' => session_id(), 'status' => 1, 'deleted_at' => 'IS NULL']);
+            return $this->db->update($this->config->table_basket, ['sessionid' => session_id()], ['customer_id' => $this->user->getUserID(), 'order_no' => $orderNo, 'status' => 1, 'deleted_at' => 'IS NULL']);
         }
         return false;
     }
@@ -378,6 +410,6 @@ class Basket
     public function updateVoucherCode($code)
     {
         $voucherInfo = $this->voucher->getVoucherByCode($code, true);
-        return $this->db->update($this->config->table_basket, ['voucher' => Modifier::setNullOnEmpty($voucherInfo['code'])], ['customer_id' => ($this->user->getUserID() === 0 ? 'IS NULL' : $this->user->getUserID()), 'sessionid' => session_id(), 'status' => 1], 1);
+        return $this->db->update($this->config->table_basket, ['voucher' => Modifier::setNullOnEmpty($voucherInfo['code'])], ['customer_id' => ($this->user->getUserID() === 0 ? 'IS NULL' : $this->user->getUserID()), 'sessionid' => session_id(), 'status' => 1, 'deleted_at' => 'IS NULL'], 1);
     }
 }

@@ -182,9 +182,9 @@ class Customers extends \UserAuth\User
     private function updateOrders($userID)
     {
         if (intval($userID) > 0) {
-            $this->updateNoCustomerOrders($userID, $this->db->count($this->config->table_basket, ['customer_id' => intval($userID)]));
+            $this->updateNoCustomerOrders($userID, $this->db->count($this->config->table_basket, ['customer_id' => intval($userID), 'deleted_at' => 'IS NULL']));
         }
-        return $this->db->update($this->config->table_basket, ['customer_id' => $userID], ['sessionid' => session_id(), 'status' => 1]);
+        return $this->db->update($this->config->table_basket, ['customer_id' => $userID], ['sessionid' => session_id(), 'status' => 1, 'deleted_at' => 'IS NULL']);
     }
     
     /**
@@ -242,7 +242,7 @@ class Customers extends \UserAuth\User
         if ($this->checkIfAddressExists($customerID, $deliveryInfo['add_1'], $deliveryInfo['postcode']) === false && $this->compareDeliveryToBillingAddress($customerID, $deliveryInfo) === false && Modifier::arrayMustContainFields(['add_1', 'town', 'postcode'], $deliveryInfo)) {
             $userInfo = $this->getUserInfo(intval($customerID));
             $this->db->insert($this->config->table_delivery_address, ['customer_id' => intval($customerID), 'title' => (!empty(trim($deliveryInfo['title'])) ? $deliveryInfo['title'] : $userInfo['title']), 'firstname' => (!empty(trim($deliveryInfo['firstname'])) ? $deliveryInfo['firstname'] : $userInfo['firstname']), 'lastname' => (!empty(trim($deliveryInfo['lastname'])) ? $deliveryInfo['lastname'] : $userInfo['lastname']), 'add_1' => $deliveryInfo['add_1'], 'add_2' => $deliveryInfo['add_2'], 'town' => $deliveryInfo['town'], 'county' => intval($deliveryInfo['county']), 'postcode' => strtoupper(Modifier::removeNoneAlphaNumeric($deliveryInfo['postcode']))]);
-            return $this->db->update($this->config->table_basket, [$type . '_id' => $this->db->lastInsertID()], ['customer_id' => $customerID, 'sessionid' => session_id(), 'status' => 1], 1);
+            return $this->db->update($this->config->table_basket, [$type . '_id' => $this->db->lastInsertID()], ['customer_id' => $customerID, 'sessionid' => session_id(), 'status' => 1, 'deleted_at' => 'IS NULL'], 1);
         }
         return false;
     }
@@ -272,7 +272,7 @@ class Customers extends \UserAuth\User
     public function deleteDeliveryAddress($customerID, $deliveryID)
     {
         $this->db->delete($this->config->table_delivery_address, ['id' => intval($deliveryID), 'customer_id' => intval($customerID)], 1);
-        return $this->db->update($this->config->table_basket, ['delivery_id' => 'NULL'], ['customer_id' => $customerID, 'sessionid' => session_id(), 'status' => 1], 1);
+        return $this->db->update($this->config->table_basket, ['delivery_id' => 'NULL'], ['customer_id' => $customerID, 'sessionid' => session_id(), 'status' => 1, 'deleted_at' => 'IS NULL'], 1);
     }
     
     /**
