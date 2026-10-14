@@ -57,23 +57,23 @@ class Invoice
         
         $this->pdf->Cell(129, 7, '');
         $this->pdf->Cell(30, 7, 'Sub Total', 1, 0, 'R');
-        $this->pdf->Cell(30, 7, utf8_decode($this->symbol) . $orderInfo['subtotal'], 1, 1, 'R');
+        $this->pdf->Cell(30, 7, $this->pdfText($this->symbol . $orderInfo['subtotal']), 1, 1, 'R');
         $this->pdf->Cell(129, 7, '');
         $this->pdf->Cell(30, 7, 'VAT', 1, 0, 'R');
-        $this->pdf->Cell(30, 7, utf8_decode($this->symbol) . $orderInfo['total_tax'], 1, 1, 'R');
+        $this->pdf->Cell(30, 7, $this->pdfText($this->symbol . $orderInfo['total_tax']), 1, 1, 'R');
         
         if (Cost::priceUnits($orderInfo['discount'], $this->decimals) !== Cost::priceUnits(0, $this->decimals)) {
             $this->pdf->Cell(129, 7, '');
             $this->pdf->Cell(30, 7, 'Discount', 1, 0, 'R');
-            $this->pdf->Cell(30, 7, utf8_decode($this->symbol) . $orderInfo['discount'], 1, 1, 'R');
+            $this->pdf->Cell(30, 7, $this->pdfText($this->symbol . $orderInfo['discount']), 1, 1, 'R');
         }
         $this->pdf->Cell(129, 7, '');
         $this->pdf->Cell(30, 7, 'Delivery', 1, 0, 'R');
-        $this->pdf->Cell(30, 7, utf8_decode($this->symbol) . $orderInfo['delivery'], 1, 1, 'R');
+        $this->pdf->Cell(30, 7, $this->pdfText($this->symbol . $orderInfo['delivery']), 1, 1, 'R');
         $this->pdf->Cell(129, 7, '');
         $this->pdf->SetFont('Arial', 'B', 10);
         $this->pdf->Cell(30, 7, 'Total', 1, 0, 'R', true);
-        $this->pdf->Cell(30, 7, utf8_decode($this->symbol) . $orderInfo['cart_total'], 1, 1, 'R', true);
+        $this->pdf->Cell(30, 7, $this->pdfText($this->symbol . $orderInfo['cart_total']), 1, 1, 'R', true);
         $this->pdf->SetFont('Arial', '', 10);
     }
     
@@ -121,26 +121,26 @@ class Invoice
             $this->pdf->Cell(55, 5, date('jS F Y', strtotime(($orderInfo['payment_date'] != null ? $orderInfo['payment_date'] : 'now'))), 1, 1, 'R');
 
             $this->pdf->SetTextColor(51, 153, 204);
-            $this->pdf->Cell(94, 4, $this->config->site_name, 0, 0, '', false, $this->config->site_url);
+            $this->pdf->Cell(94, 4, $this->pdfText($this->config->site_name), 0, 0, '', false, $this->config->site_url);
             $this->pdf->SetTextColor(54, 54, 54);
             $this->pdf->SetFont('Arial', 'B', 10);
             $this->pdf->Cell(40, 5, 'Order Total', 1, 0, 'R', true);
-            $this->pdf->Cell(55, 5, utf8_decode($this->symbol) . $orderInfo['cart_total'], 1, 1, 'R', true);
+            $this->pdf->Cell(55, 5, $this->pdfText($this->symbol . $orderInfo['cart_total']), 1, 1, 'R', true);
             $this->pdf->SetFont('Arial', '', 10);
 
-            $this->pdf->MultiCell(90, 4, str_replace([', ', ' ,'], "\n\r", $this->config->registered_address));
+            $this->pdf->MultiCell(90, 4, $this->pdfText(str_replace([', ', ' ,'], "\n\r", $this->config->registered_address)));
             $this->pdf->Cell(189, 10, '', 0, 1);
 
             $this->pdf->SetFont('Arial', 'B', 12);
             $this->pdf->Cell(94, 6, 'To:', 0, 1);
             $this->pdf->SetFont('Arial', '', 10);
-            $this->pdf->Cell(95, 4, $orderInfo['delivery_info']['title'] . ' ' . $orderInfo['delivery_info']['firstname'] . ' ' . $orderInfo['delivery_info']['lastname'], 0, 1);
-            $this->pdf->Cell(120, 4, $orderInfo['delivery_info']['add_1'], 0, 1);
-            if (!empty(trim($orderInfo['delivery_info']['add_2']))) {
-                $this->pdf->Cell(120, 4, $orderInfo['delivery_info']['add_2'], 0, 1);
+            $this->pdf->Cell(95, 4, $this->pdfText(trim($orderInfo['delivery_info']['title'] . ' ' . $orderInfo['delivery_info']['firstname'] . ' ' . $orderInfo['delivery_info']['lastname'])), 0, 1);
+            $this->pdf->Cell(120, 4, $this->pdfText($orderInfo['delivery_info']['add_1']), 0, 1);
+            if (!empty(trim(strval($orderInfo['delivery_info']['add_2'])))) {
+                $this->pdf->Cell(120, 4, $this->pdfText($orderInfo['delivery_info']['add_2']), 0, 1);
             }
-            $this->pdf->Cell(120, 4, $orderInfo['delivery_info']['town'], 0, 1);
-            $this->pdf->Cell(120, 4, $orderInfo['delivery_info']['county'], 0, 1);
+            $this->pdf->Cell(120, 4, $this->pdfText($orderInfo['delivery_info']['town']), 0, 1);
+            $this->pdf->Cell(120, 4, $this->pdfText($orderInfo['delivery_info']['county']), 0, 1);
             $this->pdf->Cell(120, 4, $orderInfo['delivery_info']['postcode'], 0, 1);
 
             $this->pdf->Cell(189, 10, '', 0, 1);
@@ -150,7 +150,7 @@ class Invoice
 
             $this->pdf->Cell(55, 15, '', 0, 1);
             $this->pdf->SetFont('Arial', 'B', 16);
-            $this->pdf->Cell(189, 7, 'Thanks for choosing ' . $this->config->site_name, 0, 1, 'C');
+            $this->pdf->Cell(189, 7, $this->pdfText('Thanks for choosing ' . $this->config->site_name), 0, 1, 'C');
             $this->pdf->SetFont('Arial', 'B', 12);
             $this->pdf->Cell(189, 7, $this->config->site_url, 0, 1, 'C', false, $this->config->site_url);
             $this->pdf->SetFont('Arial', '', 10);
@@ -177,7 +177,7 @@ class Invoice
     {
         $this->pdf->SetFont('Arial', 'B');
         foreach ($header as $i => $col) {
-            $this->pdf->Cell($widths[$i], 7, $col, 1, 0, 'C', true);
+            $this->pdf->Cell($widths[$i], 7, $this->pdfText($col), 1, 0, 'C', true);
         }
         $this->pdf->Ln();
         $this->pdf->SetFont('Arial', '');
@@ -189,7 +189,7 @@ class Invoice
                     $this->pdf->SetFont('Arial', 'B', 9);
                     $this->pdf->SetTextColor(51, 153, 204);
                 }
-                $this->pdf->Cell($widths[$i], $height, (is_array($col) ? $col[0] : $col), 'LR' . $bottom, 0, ($left[$i] !== false ? 'L' : 'C'), false, (is_array($col) ? $col[1] : false));
+                $this->pdf->Cell($widths[$i], $height, $this->pdfText(is_array($col) ? $col[0] : $col), 'LR' . $bottom, 0, ($left[$i] !== false ? 'L' : 'C'), false, (is_array($col) ? $col[1] : false));
                 if (is_array($col)) {
                     $this->pdf->SetFont('Arial', '', 10);
                     $this->pdf->SetTextColor(54, 54, 54);
@@ -212,9 +212,9 @@ class Invoice
         foreach ($products as $productDetails) {
             $productArray[$i][0] = $productDetails['quantity'];
             $productArray[$i][1] = $productDetails['name'];
-            $productArray[$i][2] = utf8_decode($this->symbol) . Cost::priceUnits(($productDetails['price'] - $productDetails['tax']), $this->decimals);
-            $productArray[$i][3] = utf8_decode($this->symbol) . Cost::priceUnits($productDetails['tax'], $this->decimals);
-            $productArray[$i][4] = utf8_decode($this->symbol) . Cost::priceUnits(($productDetails['quantity'] * $productDetails['price']), $this->decimals);
+            $productArray[$i][2] = $this->symbol . Cost::priceUnits(($productDetails['price'] - $productDetails['tax']), $this->decimals);
+            $productArray[$i][3] = $this->symbol . Cost::priceUnits($productDetails['tax'], $this->decimals);
+            $productArray[$i][4] = $this->symbol . Cost::priceUnits(($productDetails['quantity'] * $productDetails['price']), $this->decimals);
             if (isset($productDetails['dlid'])) {
                 $productArray[$i]['download'] = true;
             }
@@ -240,6 +240,22 @@ class Invoice
     }
     
     /**
+     * Converts text to Windows-1252, the only encoding FPDF's core fonts can print,
+     * so accented letters, curly quotes and the pound sign do not come out garbled
+     * @param string $text UTF-8 text
+     * @return string
+     */
+    protected function pdfText($text)
+    {
+        $text = strval($text);
+        if (function_exists('mb_convert_encoding')) {
+            return mb_convert_encoding($text, 'Windows-1252', 'UTF-8');
+        }
+        $converted = @iconv('UTF-8', 'Windows-1252//TRANSLIT', $text);
+        return ($converted !== false ? $converted : $text);
+    }
+    
+    /**
      * Creates a unique Invoice ID to output to the PDF
      * @param string $id This can be the unique order number or any unique number to give to the invoice
      * @return string The invoice ID will be returned
@@ -262,7 +278,7 @@ class Invoice
     {
         $this->pdf->SetY(-20, true);
         $this->pdf->SetFont('Arial', 'I', 7);
-        $this->pdf->MultiCell(189, 5, 'Registered as ' . ($this->config->trading_as ? $this->config->trading_as . ', ' : '') . $this->config->registered_address . '. ' . ($this->config->vat_number ? 'VAT No. ' . $this->config->vat_number : ''), 0, 'C');
+        $this->pdf->MultiCell(189, 5, $this->pdfText('Registered as ' . ($this->config->trading_as ? $this->config->trading_as . ', ' : '') . $this->config->registered_address . '. ' . ($this->config->vat_number ? 'VAT No. ' . $this->config->vat_number : '')), 0, 'C');
         $this->pdf->Cell(189, 5, 'Page ' . $this->pdf->PageNo() . ' of {nb}', 0, 1, 'C');
     }
 }
