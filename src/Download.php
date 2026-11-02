@@ -33,15 +33,13 @@ class Download
     }
     
     /**
-     * Creates a unique link to hide the original download location and track link usage
-     * @param string $order_id This should be the unique order number
-     * @param int $product_id This should be the product ID that you are creating a unique link for
-     * @return string This is the unique string that will be generated
+     * Creates a unique link to hide the original download location and track link usage.
+     * The link alone authorises the download, so it must be unguessable.
+     * @return string 64 random hex characters
      */
-    protected function createUniqueLink($order_id, $product_id)
+    protected function createUniqueLink()
     {
-        $date = new DateTime();
-        return hash('sha256', $order_id . $product_id . $date->format('Y-m-d H:i:s'));
+        return bin2hex(random_bytes(32));
     }
     
     /**
@@ -61,7 +59,7 @@ class Download
             $insert = false;
             foreach ($products as $product_id => $quantity) {
                 if ($productClass->isProductDownload($product_id)) {
-                    $insert = ($this->db->insert($this->config->table_downloads, ['customer_id' => $customer_id, 'order_id' => $order_id, 'product' => $product_id, 'expire' => $date->format('Y-m-d H:i:s'), 'link' => $this->createUniqueLink($order_id, $product_id)]) || $insert === true ? true : false);
+                    $insert = ($this->db->insert($this->config->table_downloads, ['customer_id' => $customer_id, 'order_id' => $order_id, 'product' => $product_id, 'expire' => $date->format('Y-m-d H:i:s'), 'link' => $this->createUniqueLink()]) || $insert === true ? true : false);
                     $this->addDownloadSerials($product_id, $quantity, $order_id, $email);
                 }
             }

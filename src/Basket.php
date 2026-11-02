@@ -274,7 +274,9 @@ class Basket
     }
     
     /**
-     * Update the quantity of a given product in the basket
+     * Update the quantity of a product already in the basket. It never adds a
+     * product, so whatever rules the caller applies before addItemToBasket()
+     * cannot be skipped by posting a quantity for something not in the basket.
      * @param int $product_id This should be the product ID
      * @param int $quantity This should be the total quantity that you want in the cart of this item
      * @param array $additional Additional where fields
@@ -282,6 +284,17 @@ class Basket
      */
     public function updateQuantityInBasket($product_id, $quantity, $additional = [])
     {
+        $products = $this->getProducts('', $additional);
+        $inBasket = false;
+        foreach ((is_array($products) ? $products : []) as $product) {
+            if (intval($product['product_id']) === intval($product_id)) {
+                $inBasket = true;
+                break;
+            }
+        }
+        if (!$inBasket) {
+            return false;
+        }
         if ($quantity >= 1) {
             return $this->addItemToBasket($product_id, $quantity, true, $additional);
         }

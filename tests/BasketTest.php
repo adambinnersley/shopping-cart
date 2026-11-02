@@ -133,6 +133,8 @@ class BasketTest extends SetUp
         $this->assertEquals(3, $this->basket->getBasket()['products'][0]['quantity']);
         $this->assertTrue($this->basket->updateQuantityInBasket(1, 2));
         $this->assertEquals(2, $this->basket->getBasket()['products'][0]['quantity']);
+        $this->assertFalse($this->basket->updateQuantityInBasket(2, 1));
+        $this->assertCount(1, $this->basket->getBasket()['products']);
         $this->assertTrue($this->basket->updateQuantityInBasket(1, 0));
         $this->assertFalse($this->basket->getBasket());
     }
